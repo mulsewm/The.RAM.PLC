@@ -81,7 +81,7 @@ export default function AboutSection() {
             variants={fadeIn}
             className="text-gray-700 dark:text-gray-300 max-w-2xl mx-auto"
           >
-            A premier consultancy firm based in Addis Ababa, Ethiopia, specializing in verification, analytics, and risk assessment services across Africa.
+            A premier consultancy firm based in Addis Ababa, Ethiopia, specializing in verification, analytics, and risk assessment services across the World.
           </motion.p>
         </div>
 
