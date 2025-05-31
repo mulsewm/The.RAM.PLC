@@ -1,5 +1,6 @@
 import Link from "next/link"
-import { Linkedin, Twitter, Facebook, MessageCircle } from "lucide-react"
+import { Linkedin, Twitter, Facebook, MessageCircle, Handshake } from "lucide-react"
+import { PartnerCTA } from "./partner-cta"
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
@@ -84,6 +85,10 @@ export default function Footer() {
                 <Link href="#contact" className="text-gray-400 hover:text-teal-400 transition-colors">
                   Contact
                 </Link>
+              </li>
+              <li className="flex items-center">
+                <Handshake className="h-4 w-4 mr-1 text-teal-400" />
+                <PartnerCTA variant="link" size="sm" showIcon={false} className="p-0 h-auto text-gray-400 hover:text-teal-400 transition-colors" />
               </li>
             </ul>
           </div>

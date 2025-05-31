@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
+import { PartnerCTA } from "./partner-cta"
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -55,7 +56,7 @@ export default function Navbar() {
               {link.name}
             </Link>
           ))}
-          <Button className="bg-teal-600 hover:bg-teal-700 text-white">Become a partner</Button>
+          <PartnerCTA variant="primary" />
         </nav>
 
         {/* Mobile Menu Button */}
@@ -81,6 +82,9 @@ export default function Navbar() {
                 {link.name}
               </Link>
             ))}
+            <div className="pt-2">
+              <PartnerCTA variant="primary" />
+            </div>
             <Button className="bg-teal-600 hover:bg-teal-700 text-white w-full">Get in Touch</Button>
           </div>
         </div>
