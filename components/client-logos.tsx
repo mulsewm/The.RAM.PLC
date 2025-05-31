@@ -13,32 +13,32 @@ export default function ClientLogos({ className }: ClientLogosProps) {
   const clients = [
     {
       name: "Client 1",
-      logo: "/logos/client1.svg", // You'll need to add these logo files to your public folder
+      logo: "/logos/dubai-health-authority-logo-vector.png", 
       alt: "Client 1 logo"
     },
     {
       name: "Client 2",
-      logo: "/logos/client2.svg",
+      logo: "/logos/DataFlowGroup.png",
       alt: "Client 2 logo"
     },
     {
       name: "Client 3",
-      logo: "/logos/client3.svg",
+      logo: "/logos/UAE Minister Of health and prevention.png",
       alt: "Client 3 logo"
     },
     {
       name: "Client 4",
-      logo: "/logos/client4.svg",
+      logo: "/logos/nhra-logo-orginal-250.png",
       alt: "Client 4 logo"
     },
     {
       name: "Client 5",
-      logo: "/logos/client5.svg",
+      logo: "/logos/state-of-qatar-ministry-of-public-health-logo-vector-xs.png",
       alt: "Client 5 logo"
     },
     {
       name: "Client 6",
-      logo: "/logos/client6.svg",
+      logo: "/logos/UAE Minister Of health and prevention.png",
       alt: "Client 6 logo"
     },
   ]

@@ -37,7 +37,7 @@ export default function HeroSection() {
               <span className="text-teal-600 dark:text-teal-400">Trusted Verification.</span> Actionable Insights. <span className="text-teal-600 dark:text-teal-400">African Expertise.</span>
             </h1>
             <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-8 max-w-2xl mx-auto lg:mx-0">
-              The.RAM.PLC delivers premier consultancy services in verification, analytics, and risk assessment, empowering African businesses to make confident decisions in today's complex market.
+            The.RAM.PLC delivers premier global consultancy services in verification, data analytics, and risk assessment, empowering businesses worldwide to make confident decisions in today's complex market.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Button className="bg-teal-600 hover:bg-teal-700 text-white text-lg px-8 py-6 shadow-lg hover:shadow-xl transition-all">
@@ -55,7 +55,7 @@ export default function HeroSection() {
                   </div>
                 ))}
               </div>
-              <p className="ml-4 text-sm text-gray-600 dark:text-gray-400">Trusted by leading organizations across Africa</p>
+              <p className="ml-4 text-sm text-gray-600 dark:text-gray-400">Trusted by leading organizations across the world</p>
             </div>
           </motion.div>
 
