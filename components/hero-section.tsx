@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Handshake } from "lucide-react"
 import { motion } from "framer-motion"
+import { PartnerCTA } from "./partner-cta"
 
 export default function HeroSection() {
   const [mounted, setMounted] = useState(false)
@@ -43,9 +44,14 @@ export default function HeroSection() {
               <Button className="bg-teal-600 hover:bg-teal-700 text-white text-lg px-8 py-6 shadow-lg hover:shadow-xl transition-all">
                 Discover Our Solutions
               </Button>
-              <Button variant="outline" className="text-lg px-8 py-6 border-teal-600 text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-all">
+              {/* <Button variant="outline" className="text-lg px-8 py-6 border-teal-600 text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-all">
                 Connect With Us <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+              </Button> */}
+              <PartnerCTA 
+                variant="secondary" 
+                className="text-lg px-8 py-6 shadow-lg hover:shadow-xl transition-all" 
+                showIcon={true}
+              />
             </div>
             <div className="mt-8 flex items-center justify-center lg:justify-start">
               <div className="flex -space-x-4">

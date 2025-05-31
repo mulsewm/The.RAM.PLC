@@ -63,7 +63,7 @@ export default function WhyChooseUsSection() {
             transition={{ duration: 0.6 }}
             className="font-heading text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-white"
           >
-            Why Choose <span className="text-teal-600 dark:text-teal-400">Theramplc</span>
+            Why Choose <span className="text-teal-600 dark:text-teal-400">the.RAM.plc</span>
           </motion.h2>
           <motion.div
             initial={{ opacity: 0, scale: 0 }}

@@ -63,7 +63,7 @@ export default function AboutSection() {
             variants={fadeIn}
             className="font-heading text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-white"
           >
-            About <span className="text-teal-600 dark:text-teal-400">The.RAM.PLC</span>
+            About <span className="text-teal-600 dark:text-teal-400">the.RAM.PLC</span>
           </motion.h2>
           <motion.div
             initial="hidden"
