@@ -65,7 +65,8 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground overflow-x-hidden;
     font-family: var(--font-sans);
+    width: 100%;
   }
 }
