@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Partnership {
+  id          String   @id @default(cuid())
+  companyName String
+  email       String
+  phone       String?
+  message     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  attachments Attachment[]
+  
+  @@map("partnerships")
+}
+
+model Attachment {
+  id           String      @id @default(cuid())
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  url          String
+  partnershipId String
+  partnership  Partnership @relation(fields: [partnershipId], references: [id], onDelete: Cascade)
+  createdAt    DateTime    @default(now())
+  
+  @@map("attachments")
+}
