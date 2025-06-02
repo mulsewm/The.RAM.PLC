@@ -12,28 +12,28 @@ export default function TestimonialsSection() {
         "Theramplc's verification services have been instrumental in our hiring process. Their thorough approach has helped us avoid potential hiring risks and ensure we bring on board the right talent.",
       author: "Sarah Johnson",
       position: "HR Director, Global Bank Ltd",
-      image: "/placeholder.svg?height=100&width=100",
+      image: "https://randomuser.me/api/portraits/women/45.jpg",
     },
     {
       quote:
         "The mystery shopping program designed by Theramplc provided invaluable insights into our customer experience. We've implemented their recommendations and seen a significant improvement in customer satisfaction.",
-      author: "Michael Abebe",
+      author: "Michael J",
       position: "Operations Manager, Retail Chain",
-      image: "/placeholder.svg?height=100&width=100",
+      image: "https://randomuser.me/api/portraits/men/32.jpg",
     },
     {
       quote:
         "Their data analytics team transformed our raw data into actionable business intelligence. The insights gained have directly contributed to a 30% increase in our operational efficiency.",
       author: "Fatima Nkosi",
       position: "CEO, Tech Innovations",
-      image: "/placeholder.svg?height=100&width=100",
+      image: "https://randomuser.me/api/portraits/women/67.jpg",
     },
     {
       quote:
         "Theramplc's risk assessment services helped us identify vulnerabilities we weren't aware of. Their strategic recommendations have strengthened our business continuity planning.",
       author: "David Okafor",
       position: "Risk Manager, Insurance Corp",
-      image: "/placeholder.svg?height=100&width=100",
+      image: "https://randomuser.me/api/portraits/men/78.jpg",
     },
   ]
 

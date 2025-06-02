@@ -59,7 +59,7 @@ export default function ClientLogos({ className }: ClientLogosProps) {
   }
 
   return (
-    <section className={`py-16 bg-white dark:bg-gray-900 ${className}`}>
+    <section id="our-clients" className={`py-16 bg-white dark:bg-gray-900 ${className}`}>
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

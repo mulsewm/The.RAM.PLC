@@ -10,7 +10,7 @@ import { StickyHeader } from "@/components/sticky-header"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Theramplc | Premier Consultancy Firm in Africa",
+  title: "the.RAM.plc | African Expertise in Global Verification & Analytics",
   description:
     "Experts in Primary Source Verification, Background Screening, Mystery Shopping, Data Analytics, and Risk Assessment across Africa.",
   generator: "v0.dev",
@@ -25,10 +25,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          <Navbar />
-          <StickyHeader />
           <main>{children}</main>
-          <Footer />
         </ThemeProvider>
       </body>
     </html>
