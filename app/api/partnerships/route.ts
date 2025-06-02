@@ -1,42 +1,43 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createPartnership, getPartnerships } from "@/lib/database"
+import { neon } from "@neondatabase/serverless"
+
+const sql = neon(process.env.DATABASE_URL!)
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { fullName, email, company, phone, message } = body
+    const { companyName, email, phone, message } = body
 
-    if (!fullName || !email || !company) {
-      return NextResponse.json({ error: "Full name, email, and company are required" }, { status: 400 })
+    // Validate required fields
+    if (!companyName || !email) {
+      return NextResponse.json({ error: "Company name and email are required" }, { status: 400 })
     }
 
-    const partnership = await createPartnership({
-      companyName: `${company} (${fullName})`,
-      email,
-      phone,
-      message,
-    })
+    // Insert into database
+    const result = await sql`
+      INSERT INTO partnerships (company_name, email, phone, message)
+      VALUES (${companyName}, ${email}, ${phone || null}, ${message || null})
+      RETURNING id, company_name, email, phone, message, created_at
+    `
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: "Partnership request submitted successfully!",
-        id: partnership.id,
-      },
-      { status: 201 },
-    )
+    return NextResponse.json(result[0], { status: 201 })
   } catch (error) {
     console.error("Error creating partnership:", error)
-    return NextResponse.json({ error: "Failed to submit partnership request" }, { status: 500 })
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
 
 export async function GET() {
   try {
-    const partnerships = await getPartnerships()
+    const partnerships = await sql`
+      SELECT id, company_name, email, phone, message, created_at, updated_at
+      FROM partnerships
+      ORDER BY created_at DESC
+    `
+
     return NextResponse.json(partnerships)
   } catch (error) {
     console.error("Error fetching partnerships:", error)
-    return NextResponse.json({ error: "Failed to fetch partnerships" }, { status: 500 })
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

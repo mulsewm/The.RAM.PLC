@@ -1,6 +1,31 @@
-import { getPartnerships } from "@/lib/database"
+import { neon } from "@neondatabase/serverless"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+
+const sql = neon(process.env.DATABASE_URL!)
+
+interface Partnership {
+  id: string
+  company_name: string
+  email: string
+  phone: string | null
+  message: string | null
+  created_at: string
+}
+
+async function getPartnerships(): Promise<Partnership[]> {
+  try {
+    const partnerships = await sql`
+      SELECT id, company_name, email, phone, message, created_at
+      FROM partnerships
+      ORDER BY created_at DESC
+    `
+    return partnerships as Partnership[]
+  } catch (error) {
+    console.error("Error fetching partnerships:", error)
+    return []
+  }
+}
 
 export default async function PartnershipsAdminPage() {
   const partnerships = await getPartnerships()

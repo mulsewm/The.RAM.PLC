@@ -7,6 +7,42 @@ const PartnerForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
 
+  async function onSubmit(data: any) {
+    setIsSubmitting(true)
+
+    try {
+      const response = await fetch("/api/partnerships", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          companyName: data.company,
+          email: data.email,
+          phone: data.phone,
+          message: data.message,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        console.log("Partnership request submitted:", result)
+        setIsSubmitted(true)
+      } else {
+        throw new Error(result.error || "Failed to submit partnership request")
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error)
+      // form.setError("root", {
+      //   type: "manual",
+      //   message: "There was an error submitting your request. Please try again."
+      // })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsSubmitting(true)
@@ -155,4 +191,5 @@ const PartnerForm: React.FC = () => {
   )
 }
 
+export { PartnerForm }
 export default PartnerForm
