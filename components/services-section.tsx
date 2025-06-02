@@ -35,7 +35,7 @@ export default function ServicesSection() {
       icon: <UserCheck className="h-10 w-10 text-teal-600" />,
       title: "Background Screening",
       description: "Comprehensive background checks powered by AI and ML to help you make informed hiring decisions and mitigate employment risks.",
-      detailedDescription: "Our background screening services cover criminal history, employment verification, education confirmation, and more. We leverage a global network and cutting-edge technology to deliver accurate, timely, and cost-effective results. Hello Verify uses AI and ML capabilities to automate the traditional background check process, which was manual and time-consuming. Our proprietary technology digitizes the process, making it faster, more accurate, and compliant.",
+      detailedDescription: "Our background screening services cover criminal history, employment verification, education confirmation, and more. We leverage a global network and cutting-edge technology to deliver accurate, timely, and cost-effective results. the.RAM.plc uses AI and ML capabilities to automate the traditional background check process, which was manual and time-consuming. Our proprietary technology digitizes the process, making it faster, more accurate, and compliant.",
       sections: [
         {
           title: "Key Components of Background Screening",
@@ -413,7 +413,7 @@ export default function ServicesSection() {
 
         {selectedService !== null && (
           <Dialog open={selectedService !== null} onOpenChange={closeServiceDetails}>
-            <DialogContent className="max-w-3xl">
+            <DialogContent className="w-[95%] max-w-3xl overflow-y-auto overflow-x-hidden max-h-[90vh]">
               <DialogHeader>
                 <DialogTitle className="text-2xl font-bold flex items-center gap-3">
                   <span className="text-teal-600">{services[selectedService].icon}</span>
