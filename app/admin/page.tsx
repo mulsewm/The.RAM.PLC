@@ -48,7 +48,7 @@ export default function AdminDashboard() {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
         <Link href="/admin/partnerships">
-          <Button>
+          <Button className="bg-teal-600 hover:bg-teal-700 text-white">
             View All Applications
           </Button>
         </Link>

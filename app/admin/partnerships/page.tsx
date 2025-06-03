@@ -235,7 +235,7 @@ export default function PartnershipApplications() {
                     <SelectValue placeholder="All statuses" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All statuses</SelectItem>
+                    <SelectItem value="all_statuses">All statuses</SelectItem>
                     <SelectItem value="New">New</SelectItem>
                     <SelectItem value="Under Review">Under Review</SelectItem>
                     <SelectItem value="Approved">Approved</SelectItem>
@@ -252,7 +252,7 @@ export default function PartnershipApplications() {
                     <SelectValue placeholder="All countries" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All countries</SelectItem>
+                    <SelectItem value="all_countries">All countries</SelectItem>
                     {Array.from(new Set(applications.map((application: PartnershipApplication) => application.country))).sort().map(country => (
                       <SelectItem key={country} value={country}>
                         {country}
@@ -269,7 +269,7 @@ export default function PartnershipApplications() {
                     <SelectValue placeholder="All business types" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All business types</SelectItem>
+                    <SelectItem value="all_business_types">All business types</SelectItem>
                     {Array.from(new Set(applications.map((application: PartnershipApplication) => application.businessType))).map(type => (
                       <SelectItem key={type} value={type}>
                         {type}

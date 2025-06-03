@@ -12,17 +12,18 @@ export default function ConditionalLayout({
 }) {
   const pathname = usePathname()
   const isAdminPage = pathname?.startsWith('/admin')
+  const isAuthPage = pathname?.startsWith('/login') || pathname?.startsWith('/register') || pathname?.startsWith('/test-login')
   
   return (
     <>
-      {!isAdminPage && (
+      {!isAdminPage && !isAuthPage && (
         <>
           <Navbar />
           <StickyHeader />
         </>
       )}
       <main>{children}</main>
-      {!isAdminPage && <Footer />}
+      {!isAdminPage && !isAuthPage && <Footer />}
     </>
   )
 }

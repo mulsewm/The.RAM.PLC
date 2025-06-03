@@ -23,19 +23,69 @@ model User {
   role          Role      @default(USER)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  active        Boolean   @default(true)
+  lastLogin     DateTime?
 
   // Relations
   notes         Note[]
   statusChanges StatusHistory[]
   attachments   Attachment[]
+  auditLogs     AuditLog[]
+  settingsChanges SettingsChange[]
 
   @@map("users")
 }
 
 enum Role {
-  USER
-  ADMIN
-  SUPER_ADMIN
+  USER         // Basic user with limited permissions
+  REVIEWER     // Can review applications but not manage users
+  ADMIN        // Can manage users and applications
+  SUPER_ADMIN  // Has full system access
+}
+
+// Settings model for system-wide configuration
+model Settings {
+  id            String    @id @default(cuid())
+  key           String    @unique
+  value         String    @db.Text
+  description   String?
+  category      String    // e.g., "email", "system", "notification"
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  changes       SettingsChange[]
+
+  @@map("settings")
+}
+
+// Settings change history for audit purposes
+model SettingsChange {
+  id            String    @id @default(cuid())
+  setting       Settings  @relation(fields: [settingId], references: [id])
+  settingId     String
+  previousValue String?   @db.Text
+  newValue      String    @db.Text
+  changedBy     User      @relation(fields: [userId], references: [id])
+  userId        String
+  changedAt     DateTime  @default(now())
+
+  @@map("settings_changes")
+}
+
+// Audit log for tracking important system actions
+model AuditLog {
+  id            String    @id @default(cuid())
+  action        String    // e.g., "user.create", "user.update", "settings.update"
+  entityType    String    // e.g., "User", "Settings", "PartnershipApplication"
+  entityId      String
+  details       String?   @db.Text
+  performedBy   User      @relation(fields: [userId], references: [id])
+  userId        String
+  performedAt   DateTime  @default(now())
+  createdAt     DateTime  @default(now())
+  ipAddress     String?
+  userAgent     String?
+
+  @@map("audit_logs")
 }
 
 // Partnership application model
