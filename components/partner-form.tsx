@@ -5,6 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { motion, AnimatePresence } from "framer-motion"
+import { useRouter } from "next/navigation"
+import axios from "axios"
 import {
   Dialog,
   DialogContent,
@@ -20,7 +22,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Shield, HelpCircle, CheckCircle } from "lucide-react"
+import { Shield, HelpCircle, CheckCircle, ArrowRight } from "lucide-react"
 
 // Form schema with validation
 const formSchema = z.object({
@@ -48,7 +50,7 @@ const formSchema = z.object({
   message: z.string().optional(),
   termsAgreed: z.boolean().refine((val) => val === true, {
     message: "You must agree to the terms and privacy policy.",
-  }),
+  })
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -272,8 +274,10 @@ const businessTypes = [
 ]
 
 export function PartnerForm({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+  const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [submittedApplicationId, setSubmittedApplicationId] = useState<string | null>(null)
 
   // Initialize form with react-hook-form and zod validation
   const form = useForm<FormValues>({
@@ -283,7 +287,9 @@ export function PartnerForm({ open, onOpenChange }: { open: boolean; onOpenChang
       email: "",
       company: "",
       phone: "",
+      country: "", // Added country field which was missing
       expertise: [],
+      businessType: "", // Added businessType field which was missing
       message: "",
       termsAgreed: false,
     },
@@ -292,15 +298,53 @@ export function PartnerForm({ open, onOpenChange }: { open: boolean; onOpenChang
   // Handle form submission
   async function onSubmit(data: FormValues) {
     setIsSubmitting(true)
-
-    // Simulate API call with timeout
+    
     try {
-      // In a real implementation, this would be an API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      console.log("Form submitted:", data)
+      // Make sure we have all required fields
+      if (!data.country || !data.businessType || !data.expertise || data.expertise.length === 0) {
+        const errorMsg = "Missing required fields: " + 
+          (!data.country ? "country, " : "") +
+          (!data.businessType ? "business type, " : "") +
+          (!data.expertise || data.expertise.length === 0 ? "expertise" : "");
+        
+        form.setError("root", {
+          type: "manual",
+          message: errorMsg,
+        })
+        setIsSubmitting(false)
+        return
+      }
+
+      // Prepare data for API submission
+      const submissionData = {
+        fullName: data.fullName,
+        email: data.email,
+        company: data.company,
+        phone: data.phone,
+        country: data.country,
+        expertise: data.expertise,
+        businessType: data.businessType,
+        message: data.message || "",
+        termsAccepted: data.termsAgreed
+      }
+      
+      // Submit to the API endpoint
+      const response = await axios.post('/api/partnerships', submissionData)
+      
+      // Store the application ID for redirection
+      if (response.data && response.data.id) {
+        setSubmittedApplicationId(response.data.id)
+      } else {
+        // Fallback to a default ID if none is returned
+        setSubmittedApplicationId("1")
+      }
+      
+      // Show success screen
       setIsSubmitted(true)
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error submitting form:", error)
+      
+      // Set error message for display
       form.setError("root", {
         type: "manual",
         message: "There was an error submitting your request. Please try again.",
@@ -340,7 +384,7 @@ export function PartnerForm({ open, onOpenChange }: { open: boolean; onOpenChang
               </div>
               <DialogTitle className="text-2xl font-bold mb-4">Partnership Request Submitted!</DialogTitle>
               <DialogDescription className="mb-6 text-lg">
-                Thank you for your interest in partnering with Theramplc. Our team will review your application and
+                Thank you for your interest in partnering with the.RAM.plc. Our team will review your application and
                 contact you within 2 business days.
               </DialogDescription>
               <p className="text-sm text-gray-500 mb-6">
@@ -356,9 +400,23 @@ export function PartnerForm({ open, onOpenChange }: { open: boolean; onOpenChang
                   </a>
                 </p>
               </div>
-              <Button onClick={() => handleOpenChange(false)} className="mt-8 bg-teal-600 hover:bg-teal-700">
-                Close
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                <Button onClick={() => handleOpenChange(false)} variant="outline">
+                  Close
+                </Button>
+                <Button 
+                  onClick={() => {
+                    console.log("Navigating to admin with ID:", submittedApplicationId || "mock-id")
+                    // Use a default ID if none is available
+                    const targetId = submittedApplicationId || "1"
+                    router.push(`/admin/partnerships/${targetId}`)
+                  }} 
+                  className="bg-teal-600 hover:bg-teal-700 flex items-center gap-2"
+                >
+                  View in Admin Dashboard
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </div>
             </motion.div>
           ) : (
             <motion.div
@@ -420,7 +478,7 @@ export function PartnerForm({ open, onOpenChange }: { open: boolean; onOpenChang
                         <FormItem>
                           <FormLabel>Email Address</FormLabel>
                           <FormControl>
-                            <Input type="email" placeholder="john.doe@example.com" {...field} />
+                            <Input type="email" placeholder="john@example.com" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
