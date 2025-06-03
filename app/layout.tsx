@@ -3,9 +3,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
-import { StickyHeader } from "@/components/sticky-header"
+import ConditionalLayout from "@/components/conditional-layout"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -25,7 +23,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          <main>{children}</main>
+          <ConditionalLayout>
+            {children}
+          </ConditionalLayout>
         </ThemeProvider>
       </body>
     </html>

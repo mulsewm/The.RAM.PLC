@@ -102,7 +102,7 @@ export default function AboutSection() {
               />
             </div>
             <div className="absolute -bottom-6 -right-6 bg-teal-600 text-white p-6 rounded-lg shadow-lg hidden md:block">
-              <p className="text-2xl font-bold">5+ Years</p>
+              <p className="text-2xl font-bold">6+ Years</p>
               <p>of Excellence</p>
             </div>
           </motion.div>
