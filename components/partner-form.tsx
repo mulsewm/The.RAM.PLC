@@ -5,36 +5,21 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { motion, AnimatePresence } from "framer-motion"
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogFooter 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { 
-  Form, 
-  FormControl, 
-  FormDescription, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
-} from "@/components/ui/form"
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Shield, HelpCircle, CheckCircle } from "lucide-react"
 
 // Form schema with validation
@@ -61,7 +46,7 @@ const formSchema = z.object({
     required_error: "Please select a business type.",
   }),
   message: z.string().optional(),
-  termsAgreed: z.boolean().refine(val => val === true, {
+  termsAgreed: z.boolean().refine((val) => val === true, {
     message: "You must agree to the terms and privacy policy.",
   }),
 })
@@ -70,30 +55,201 @@ type FormValues = z.infer<typeof formSchema>
 
 // List of countries for dropdown
 const countries = [
-  "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
-  "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi",
-  "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic",
-  "Denmark", "Djibouti", "Dominica", "Dominican Republic",
-  "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia",
-  "Fiji", "Finland", "France",
-  "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
-  "Haiti", "Honduras", "Hungary",
-  "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast",
-  "Jamaica", "Japan", "Jordan",
-  "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan",
-  "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg",
-  "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar",
-  "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway",
+  "Afghanistan",
+  "Albania",
+  "Algeria",
+  "Andorra",
+  "Angola",
+  "Antigua and Barbuda",
+  "Argentina",
+  "Armenia",
+  "Australia",
+  "Austria",
+  "Azerbaijan",
+  "Bahamas",
+  "Bahrain",
+  "Bangladesh",
+  "Barbados",
+  "Belarus",
+  "Belgium",
+  "Belize",
+  "Benin",
+  "Bhutan",
+  "Bolivia",
+  "Bosnia and Herzegovina",
+  "Botswana",
+  "Brazil",
+  "Brunei",
+  "Bulgaria",
+  "Burkina Faso",
+  "Burundi",
+  "Cabo Verde",
+  "Cambodia",
+  "Cameroon",
+  "Canada",
+  "Central African Republic",
+  "Chad",
+  "Chile",
+  "China",
+  "Colombia",
+  "Comoros",
+  "Congo",
+  "Costa Rica",
+  "Croatia",
+  "Cuba",
+  "Cyprus",
+  "Czech Republic",
+  "Denmark",
+  "Djibouti",
+  "Dominica",
+  "Dominican Republic",
+  "Ecuador",
+  "Egypt",
+  "El Salvador",
+  "Equatorial Guinea",
+  "Eritrea",
+  "Estonia",
+  "Eswatini",
+  "Ethiopia",
+  "Fiji",
+  "Finland",
+  "France",
+  "Gabon",
+  "Gambia",
+  "Georgia",
+  "Germany",
+  "Ghana",
+  "Greece",
+  "Grenada",
+  "Guatemala",
+  "Guinea",
+  "Guinea-Bissau",
+  "Guyana",
+  "Haiti",
+  "Honduras",
+  "Hungary",
+  "Iceland",
+  "India",
+  "Indonesia",
+  "Iran",
+  "Iraq",
+  "Ireland",
+  "Israel",
+  "Italy",
+  "Ivory Coast",
+  "Jamaica",
+  "Japan",
+  "Jordan",
+  "Kazakhstan",
+  "Kenya",
+  "Kiribati",
+  "Kuwait",
+  "Kyrgyzstan",
+  "Laos",
+  "Latvia",
+  "Lebanon",
+  "Lesotho",
+  "Liberia",
+  "Libya",
+  "Liechtenstein",
+  "Lithuania",
+  "Luxembourg",
+  "Madagascar",
+  "Malawi",
+  "Malaysia",
+  "Maldives",
+  "Mali",
+  "Malta",
+  "Marshall Islands",
+  "Mauritania",
+  "Mauritius",
+  "Mexico",
+  "Micronesia",
+  "Moldova",
+  "Monaco",
+  "Mongolia",
+  "Montenegro",
+  "Morocco",
+  "Mozambique",
+  "Myanmar",
+  "Namibia",
+  "Nauru",
+  "Nepal",
+  "Netherlands",
+  "New Zealand",
+  "Nicaragua",
+  "Niger",
+  "Nigeria",
+  "North Korea",
+  "North Macedonia",
+  "Norway",
   "Oman",
-  "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal",
+  "Pakistan",
+  "Palau",
+  "Palestine",
+  "Panama",
+  "Papua New Guinea",
+  "Paraguay",
+  "Peru",
+  "Philippines",
+  "Poland",
+  "Portugal",
   "Qatar",
-  "Romania", "Russia", "Rwanda",
-  "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria",
-  "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
-  "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan",
-  "Vanuatu", "Vatican City", "Venezuela", "Vietnam",
+  "Romania",
+  "Russia",
+  "Rwanda",
+  "Saint Kitts and Nevis",
+  "Saint Lucia",
+  "Saint Vincent and the Grenadines",
+  "Samoa",
+  "San Marino",
+  "Sao Tome and Principe",
+  "Saudi Arabia",
+  "Senegal",
+  "Serbia",
+  "Seychelles",
+  "Sierra Leone",
+  "Singapore",
+  "Slovakia",
+  "Slovenia",
+  "Solomon Islands",
+  "Somalia",
+  "South Africa",
+  "South Korea",
+  "South Sudan",
+  "Spain",
+  "Sri Lanka",
+  "Sudan",
+  "Suriname",
+  "Sweden",
+  "Switzerland",
+  "Syria",
+  "Taiwan",
+  "Tajikistan",
+  "Tanzania",
+  "Thailand",
+  "Timor-Leste",
+  "Togo",
+  "Tonga",
+  "Trinidad and Tobago",
+  "Tunisia",
+  "Turkey",
+  "Turkmenistan",
+  "Tuvalu",
+  "Uganda",
+  "Ukraine",
+  "United Arab Emirates",
+  "United Kingdom",
+  "United States",
+  "Uruguay",
+  "Uzbekistan",
+  "Vanuatu",
+  "Vatican City",
+  "Venezuela",
+  "Vietnam",
   "Yemen",
-  "Zambia", "Zimbabwe"
+  "Zambia",
+  "Zimbabwe",
 ]
 
 // Areas of expertise options
@@ -103,7 +259,7 @@ const expertiseAreas = [
   { id: "mystery", label: "Mystery Shopping" },
   { id: "analytics", label: "Data Analytics" },
   { id: "risk", label: "Risk Assessment" },
-  { id: "other", label: "Other" }
+  { id: "other", label: "Other" },
 ]
 
 // Business type options
@@ -112,7 +268,7 @@ const businessTypes = [
   { id: "education", label: "Education" },
   { id: "corporate", label: "Corporate" },
   { id: "government", label: "Government" },
-  { id: "other", label: "Other" }
+  { id: "other", label: "Other" },
 ]
 
 export function PartnerForm({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
@@ -136,18 +292,18 @@ export function PartnerForm({ open, onOpenChange }: { open: boolean; onOpenChang
   // Handle form submission
   async function onSubmit(data: FormValues) {
     setIsSubmitting(true)
-    
+
     // Simulate API call with timeout
     try {
       // In a real implementation, this would be an API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      await new Promise((resolve) => setTimeout(resolve, 1500))
       console.log("Form submitted:", data)
       setIsSubmitted(true)
     } catch (error) {
       console.error("Error submitting form:", error)
-      form.setError("root", { 
+      form.setError("root", {
         type: "manual",
-        message: "There was an error submitting your request. Please try again."
+        message: "There was an error submitting your request. Please try again.",
       })
     } finally {
       setIsSubmitting(false)
@@ -184,19 +340,23 @@ export function PartnerForm({ open, onOpenChange }: { open: boolean; onOpenChang
               </div>
               <DialogTitle className="text-2xl font-bold mb-4">Partnership Request Submitted!</DialogTitle>
               <DialogDescription className="mb-6 text-lg">
-                Thank you for your interest in partnering with Theramplc. Our team will review your application and contact you within 2 business days.
+                Thank you for your interest in partnering with Theramplc. Our team will review your application and
+                contact you within 2 business days.
               </DialogDescription>
               <p className="text-sm text-gray-500 mb-6">
-                A confirmation email has been sent to your provided email address with additional information about our partnership program.
+                A confirmation email has been sent to your provided email address with additional information about our
+                partnership program.
               </p>
               <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
                 <HelpCircle className="h-4 w-4" />
-                <p>Questions? Contact our partnership team at <a href="mailto:partners@theramplc.com" className="text-teal-600 hover:underline">partners@theramplc.com</a></p>
+                <p>
+                  Questions? Contact our partnership team at{" "}
+                  <a href="mailto:partners@theramplc.com" className="text-teal-600 hover:underline">
+                    partners@theramplc.com
+                  </a>
+                </p>
               </div>
-              <Button 
-                onClick={() => handleOpenChange(false)} 
-                className="mt-8 bg-teal-600 hover:bg-teal-700"
-              >
+              <Button onClick={() => handleOpenChange(false)} className="mt-8 bg-teal-600 hover:bg-teal-700">
                 Close
               </Button>
             </motion.div>
@@ -209,9 +369,12 @@ export function PartnerForm({ open, onOpenChange }: { open: boolean; onOpenChang
               transition={{ duration: 0.3 }}
             >
               <DialogHeader>
-                <DialogTitle className="text-2xl font-bold text-center">Join Our Global Verification Network</DialogTitle>
+                <DialogTitle className="text-2xl font-bold text-center">
+                  Join Our Global Verification Network
+                </DialogTitle>
                 <DialogDescription className="text-center mt-2">
-                  Partner with Theramplc to expand your reach across Africa and beyond. Collaborate on verification services, data analytics, and consulting solutions while accessing our established client network.
+                  Partner with Theramplc to expand your reach across Africa and beyond. Collaborate on verification
+                  services, data analytics, and consulting solutions while accessing our established client network.
                 </DialogDescription>
               </DialogHeader>
 
@@ -249,7 +412,7 @@ export function PartnerForm({ open, onOpenChange }: { open: boolean; onOpenChang
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="email"
@@ -279,7 +442,7 @@ export function PartnerForm({ open, onOpenChange }: { open: boolean; onOpenChang
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="phone"
@@ -327,9 +490,7 @@ export function PartnerForm({ open, onOpenChange }: { open: boolean; onOpenChang
                       <FormItem>
                         <div className="mb-2">
                           <FormLabel>Areas of Expertise</FormLabel>
-                          <FormDescription>
-                            Select all that apply to your organization
-                          </FormDescription>
+                          <FormDescription>Select all that apply to your organization</FormDescription>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           {expertiseAreas.map((item) => (
@@ -339,27 +500,18 @@ export function PartnerForm({ open, onOpenChange }: { open: boolean; onOpenChang
                               name="expertise"
                               render={({ field }) => {
                                 return (
-                                  <FormItem
-                                    key={item.id}
-                                    className="flex flex-row items-start space-x-3 space-y-0"
-                                  >
+                                  <FormItem key={item.id} className="flex flex-row items-start space-x-3 space-y-0">
                                     <FormControl>
                                       <Checkbox
                                         checked={field.value?.includes(item.id)}
                                         onCheckedChange={(checked) => {
                                           return checked
                                             ? field.onChange([...field.value, item.id])
-                                            : field.onChange(
-                                                field.value?.filter(
-                                                  (value) => value !== item.id
-                                                )
-                                              )
+                                            : field.onChange(field.value?.filter((value) => value !== item.id))
                                         }}
                                       />
                                     </FormControl>
-                                    <FormLabel className="font-normal cursor-pointer">
-                                      {item.label}
-                                    </FormLabel>
+                                    <FormLabel className="font-normal cursor-pointer">{item.label}</FormLabel>
                                   </FormItem>
                                 )
                               }}
@@ -389,9 +541,7 @@ export function PartnerForm({ open, onOpenChange }: { open: boolean; onOpenChang
                                   <FormControl>
                                     <RadioGroupItem value={type.id} />
                                   </FormControl>
-                                  <FormLabel className="font-normal cursor-pointer">
-                                    {type.label}
-                                  </FormLabel>
+                                  <FormLabel className="font-normal cursor-pointer">{type.label}</FormLabel>
                                 </FormItem>
                               ))}
                             </div>
@@ -433,10 +583,7 @@ export function PartnerForm({ open, onOpenChange }: { open: boolean; onOpenChang
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                         <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
+                          <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                         </FormControl>
                         <div className="space-y-1 leading-none">
                           <FormLabel className="font-normal">
@@ -460,8 +607,8 @@ export function PartnerForm({ open, onOpenChange }: { open: boolean; onOpenChang
                       <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
                         Cancel
                       </Button>
-                      <Button 
-                        type="submit" 
+                      <Button
+                        type="submit"
                         className="bg-teal-600 hover:bg-teal-700 mb-2 sm:mb-0"
                         disabled={isSubmitting}
                       >
@@ -469,13 +616,11 @@ export function PartnerForm({ open, onOpenChange }: { open: boolean; onOpenChang
                       </Button>
                     </div>
                   </DialogFooter>
-                  
+
                   {form.formState.errors.root && (
-                    <p className="text-sm font-medium text-red-500 text-center">
-                      {form.formState.errors.root.message}
-                    </p>
+                    <p className="text-sm font-medium text-red-500 text-center">{form.formState.errors.root.message}</p>
                   )}
-                  
+
                   <div className="text-center text-sm text-gray-500 pt-2">
                     <p className="flex items-center justify-center gap-1">
                       <HelpCircle className="h-4 w-4" />
