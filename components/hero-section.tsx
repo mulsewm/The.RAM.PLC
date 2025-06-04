@@ -73,9 +73,11 @@ export default function HeroSection() {
           >
             <div className="relative rounded-2xl overflow-hidden shadow-2xl">
               <img
-                src="https://blog.in.springverify.com/wp-content/uploads/2024/11/image-21.png"
+                src="/hero-image-the.ram.plc.jpg"
                 alt="Professional Business Consultancy"
                 className="w-full h-auto"
+                width={1200}
+                height={630}
               />
             </div>
           </motion.div>

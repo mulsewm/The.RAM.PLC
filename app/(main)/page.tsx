@@ -4,6 +4,7 @@ import ServicesSection from "@/components/services-section"
 import ClientLogos from "@/components/client-logos"
 import WhyChooseUsSection from "@/components/why-choose-us-section"
 import TestimonialsSection from "@/components/testimonials-section"
+import GlobalReachSection from "@/components/global-reach-section"
 import ContactSection from "@/components/contact-section"
 
 export default function Home() {
@@ -12,6 +13,7 @@ export default function Home() {
       <HeroSection />
       <AboutSection />
       <ServicesSection />
+      {/* <GlobalReachSection /> */}
       <ClientLogos />
       <WhyChooseUsSection />
       <TestimonialsSection />

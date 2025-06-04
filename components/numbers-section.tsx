@@ -125,7 +125,7 @@ export default function NumbersSection() {
   }
 
   return (
-    <section className="py-30 bg-gray-50 dark:bg-gray-900/50">
+    <section className="py-20 bg-gray-50 dark:bg-gray-900/50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <motion.h2

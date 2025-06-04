@@ -73,16 +73,20 @@ export default function AboutSection() {
             variants={fadeIn}
             className="w-24 h-1 bg-teal-600 mx-auto mb-6"
           ></motion.div>
-          <motion.p
+          <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.3 }}
             variants={fadeIn}
-            className="text-gray-700 dark:text-gray-300 max-w-2xl mx-auto"
+            className="max-w-3xl mx-auto space-y-6"
           >
-            A premier consultancy firm based in Addis Ababa, Ethiopia, specializing in verification, analytics, and risk assessment services across the World.
-          </motion.p>
+            <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Who We Are</h3>
+            <p className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed">
+              <span className="font-bold text-teal-600 dark:text-teal-400">the.R.A.M.</span> stands for <span className="font-medium">Research, Analysis, and Monitoring</span> — the foundation of everything we do. Our work helps businesses make smarter, safer, and faster decisions through verified data and actionable insights.
+            </p>
+           
+          </motion.div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
@@ -206,7 +210,7 @@ export default function AboutSection() {
           </motion.div>
         </div>
         
-        <motion.div
+        {/* <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
@@ -220,7 +224,7 @@ export default function AboutSection() {
           <p className="text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
             We combine deep regional expertise with global best practices to deliver customized solutions that address your specific needs. Our proven track record, commitment to excellence, and ethical conduct make us the partner of choice for organizations seeking reliable consultancy services in Africa.
           </p>
-        </motion.div>
+        </motion.div> */}
       </div>
     </section>
   )

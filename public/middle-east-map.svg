@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1440" height="650" viewBox="0 0 1440 650" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Middle East Map Outline -->
+  <path d="M300,200 C350,180 400,200 450,220 C500,240 550,260 600,250 C650,240 700,220 750,210 C800,200 850,200 900,210 C950,220 1000,240 1050,250 C1100,260 1150,260 1200,250 C1250,240 1300,220 1350,200" 
+        stroke="#0d9488" 
+        stroke-width="2" 
+        fill="none" 
+        stroke-dasharray="4 2" 
+        opacity="0.3"/>
+  
+  <!-- Country Outlines -->
+  <path d="M400,300 C420,290 440,280 460,290 C480,300 500,320 520,330 C540,340 560,350 580,340 C600,330 620,310 640,300 C660,290 680,290 700,300" 
+        stroke="#0d9488" 
+        stroke-width="1.5" 
+        fill="none" 
+        opacity="0.2"/>
+  
+  <path d="M600,400 C620,390 640,380 660,390 C680,400 700,420 720,430 C740,440 760,450 780,440 C800,430 820,410 840,400 C860,390 880,390 900,400" 
+        stroke="#0d9488" 
+        stroke-width="1.5" 
+        fill="none" 
+        opacity="0.2"/>
+  
+  <!-- Country Labels (hidden but present for reference) -->
+  <text x="700" y="350" font-family="Arial" font-size="12" fill="#0d9488" opacity="0.5" text-anchor="middle">UAE</text>
+  <text x="600" y="380" font-family="Arial" font-size="12" fill="#0d9488" opacity="0.5" text-anchor="middle">Saudi Arabia</text>
+  <text x="650" y="420" font-family="Arial" font-size="12" fill="#0d9488" opacity="0.5" text-anchor="middle">Qatar</text>
+  <text x="500" y="320" font-family="Arial" font-size="12" fill="#0d9488" opacity="0.5" text-anchor="middle">Kuwait</text>
+  <text x="550" y="350" font-family="Arial" font-size="12" fill="#0d9488" opacity="0.5" text-anchor="middle">Bahrain</text>
+  <text x="750" y="450" font-family="Arial" font-size="12" fill="#0d9488" opacity="0.5" text-anchor="middle">Oman</text>
+  <text x="450" y="280" font-family="Arial" font-size="12" fill="#0d9488" opacity="0.5" text-anchor="middle">Jordan</text>
+  <text x="400" y="260" font-family="Arial" font-size="12" fill="#0d9488" opacity="0.5" text-anchor="middle">Lebanon</text>
+  <text x="350" y="320" font-family="Arial" font-size="12" fill="#0d9488" opacity="0.5" text-anchor="middle">Egypt</text>
+</svg>
