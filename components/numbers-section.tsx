@@ -9,12 +9,12 @@ interface MetricProps {
   value: number
   suffix?: string
   label: string
-  description: string
+  // description: string // Description will be removed from individual cards to match screenshot layout
   icon: React.ReactNode
   delay: number
 }
 
-const Metric = ({ value, suffix = "", label, description, icon, delay }: MetricProps) => {
+const Metric = ({ value, suffix = "", label, /*description,*/ icon, delay }: MetricProps) => {
   const [count, setCount] = useState(0)
   const { ref, inView } = useInView({
     triggerOnce: true,
@@ -57,20 +57,24 @@ const Metric = ({ value, suffix = "", label, description, icon, delay }: MetricP
       animate={inView ? "visible" : "hidden"}
       variants={fadeIn}
       transition={{ duration: 0.6, delay }}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 border border-gray-100 dark:border-gray-700 transform transition-transform duration-300 hover:scale-105"
+      // Removed individual card background/shadow to make it cleaner like screenshot, section has bg
+      className="text-center p-6 flex flex-col items-center" // Added p-6 for padding, flex for centering
     >
-      <div className="flex items-center justify-center mb-4">
-        <div className="p-3 bg-teal-50 dark:bg-teal-900/30 rounded-full">
-          {icon}
+      <div className="flex items-center justify-center mb-5 md:mb-6">
+        {/* Icon background changed to solid square, icon color to white */}
+        <div className="w-16 h-16 bg-teal-600 rounded-lg flex items-center justify-center">
+          {icon} 
         </div>
       </div>
       <div className="text-center">
-        <h3 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-2 flex items-center justify-center">
-          <span>{count.toLocaleString()}</span>
-          <span className="text-teal-600 dark:text-teal-400">{suffix}</span>
-        </h3>
-        <h4 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">{label}</h4>
-        <p className="text-gray-600 dark:text-gray-400 text-sm">{description}</p>
+        <p className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-2">
+          {count.toLocaleString()}{suffix}
+        </p>
+        {/* Label is now the main description, uppercase and tracking like screenshot */}
+        <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 uppercase tracking-wider font-medium">
+          {label}
+        </p>
+        {/* Original 'description' field removed from card display */}
       </div>
     </motion.div>
   )
@@ -83,14 +87,14 @@ export default function NumbersSection() {
       suffix: "+",
       label: "Years of Excellence",
       description: "Delivering trusted verification services with proven expertise since 2019",
-      icon: <Clock className="h-8 w-8 text-teal-600 dark:text-teal-400" />,
+      icon: <Clock className="h-8 w-8 text-white" />,
       delay: 0.1
     },
     {
       value: 3,
       label: "Continents Covered",
       description: "Global presence across Africa, Eastern Europe, and beyond",
-      icon: <Globe className="h-8 w-8 text-teal-600 dark:text-teal-400" />,
+      icon: <Globe className="h-8 w-8 text-white" />,
       delay: 0.2
     },
     {
@@ -98,7 +102,7 @@ export default function NumbersSection() {
       suffix: " Days",
       label: "Turnaround Time",
       description: "Fast and efficient delivery within 3 working days",
-      icon: <Zap className="h-8 w-8 text-teal-600 dark:text-teal-400" />,
+      icon: <Zap className="h-8 w-8 text-white" />,
       delay: 0.25
     },
     {
@@ -106,7 +110,7 @@ export default function NumbersSection() {
       suffix: "+",
       label: "Documents Verified",
       description: "Ensuring authenticity through rigorous verification processes",
-      icon: <FileCheck className="h-8 w-8 text-teal-600 dark:text-teal-400" />,
+      icon: <FileCheck className="h-8 w-8 text-white" />,
       delay: 0.3
     },
     {
@@ -114,7 +118,7 @@ export default function NumbersSection() {
       suffix: "+",
       label: "Trusted Authorities",
       description: "Partnerships with authoritative institutions across multiple regions",
-      icon: <Building className="h-8 w-8 text-teal-600 dark:text-teal-400" />,
+      icon: <Building className="h-8 w-8 text-white" />,
       delay: 0.4
     }
   ]
@@ -158,17 +162,20 @@ export default function NumbersSection() {
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 lg:gap-12 justify-center">
+          {/* Conditional classes will be applied by the Metric component itself or by wrapping div if needed for 3-2 layout */}
+
           {metrics.map((metric, index) => (
-            <Metric
-              key={index}
-              value={metric.value}
-              suffix={metric.suffix}
-              label={metric.label}
-              description={metric.description}
-              icon={metric.icon}
-              delay={metric.delay}
-            />
+            <div key={index} className={`flex justify-center ${metrics.length === 5 && index === 3 ? 'lg:col-start-2' : ''} ${metrics.length === 5 && index === 4 ? '' : ''} `}>
+              <Metric
+                value={metric.value}
+                suffix={metric.suffix}
+                label={metric.label}
+                // description={metric.description} // Removed as per new MetricProps
+                icon={metric.icon}
+                delay={metric.delay}
+              />
+            </div>
           ))}
         </div>
       </div>

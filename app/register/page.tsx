@@ -72,14 +72,15 @@ export default function RegisterPage() {
         <div className="w-full max-w-md px-4">
           <div className="mb-8 flex flex-col items-center justify-center">
             <div className="mb-4">
-              <Image 
-                src="/logo.png" 
+              
+            </div>
+            <Image 
+                src="/the.RAM.plc_logo.jpeg" 
                 alt="The RAM PLC Logo" 
                 width={120} 
                 height={40} 
                 className="h-auto w-auto"
               />
-            </div>
             <h1 className="text-2xl font-bold text-foreground">Admin Portal</h1>
           </div>
           
