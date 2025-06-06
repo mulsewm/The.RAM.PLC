@@ -106,7 +106,7 @@ export default function NumbersSection() {
       delay: 0.25
     },
     {
-      value: 30000,
+      value: 50000,
       suffix: "+",
       label: "Documents Verified",
       description: "Ensuring authenticity through rigorous verification processes",
@@ -162,7 +162,7 @@ export default function NumbersSection() {
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 lg:gap-12 justify-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4 lg:gap-4 justify-center">
           {/* Conditional classes will be applied by the Metric component itself or by wrapping div if needed for 3-2 layout */}
 
           {metrics.map((metric, index) => (

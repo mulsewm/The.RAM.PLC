@@ -15,12 +15,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 export default function ServicesSection() {
   const [selectedService, setSelectedService] = useState<number | null>(null)
 
+  // AI-first intro for landing page
+  const servicesIntro = `The.RAM.PLC is a modern, AI-first verification and compliance company—not an IT agency. Our proprietary platform automates every step with AI-enabled communication: Auto Reminders, Auto Follow-ups, and Auto Feedback. No manual intervention is required—our system triggers smart reminders via SMS, email, and cloud calls to fast-track your screening and compliance processes. We transform raw data into actionable insights, empowering you to make informed, risk-mitigated decisions with confidence.`
+
   const services = [
     {
       icon: <FileCheck className="h-10 w-10 text-teal-600" />,
       title: "Primary Source Verification (PSV)",
-      description: "We verify credentials directly from the issuing source, ensuring authenticity and compliance with global regulatory requirements.",
-      detailedDescription: "Primary Source Verification (PSV) is the process of confirming credentials directly with the original source that issued them. Our PSV services adhere to global standards, providing a thorough validation process for educational qualifications, employment history, professional licenses, and other credentials. This rigorous approach ensures integrity and compliance with industry regulations, giving you confidence in your hiring decisions and protecting your organization from fraud.",
+      description: "We verify credentials directly from the issuing source, ensuring authenticity and compliance with global regulatory requirements. AI automates reminders, follow-ups, and feedback for a seamless PSV process.",
+      detailedDescription: "Primary Source Verification (PSV) is the process of confirming credentials directly with the original source that issued them. Our AI-first PSV services automate candidate reminders, follow-ups, and feedback, ensuring no manual intervention is needed. This rigorous, automated approach ensures integrity, compliance, and speed—giving you confidence in your hiring decisions and protecting your organization from fraud.",
       keyPoints: [
         "Direct verification from issuing institutions",
         "Compliance with international standards",
@@ -34,8 +37,8 @@ export default function ServicesSection() {
     {
       icon: <UserCheck className="h-10 w-10 text-teal-600" />,
       title: "Background Screening",
-      description: "Comprehensive background checks powered by AI and ML to help you make informed hiring decisions and mitigate employment risks.",
-      detailedDescription: "Our background screening services cover criminal history, employment verification, education confirmation, and more. We leverage a global network and cutting-edge technology to deliver accurate, timely, and cost-effective results. the.RAM.plc uses AI and ML capabilities to automate the traditional background check process, which was manual and time-consuming. Our proprietary technology digitizes the process, making it faster, more accurate, and compliant.",
+      description: "Comprehensive background checks powered by AI and ML to help you make informed hiring decisions and mitigate employment risks. Automated reminders and feedback keep candidates engaged and processes moving.",
+      detailedDescription: "Our background screening services cover criminal history, employment verification, education confirmation, and more. We leverage a global network and cutting-edge AI/ML technology to deliver accurate, timely, and cost-effective results. the.RAM.plc uses AI to automate candidate reminders, follow-ups, and feedback—digitizing the process for speed, accuracy, and compliance.",
       sections: [
         {
           title: "Key Components of Background Screening",
@@ -101,8 +104,8 @@ export default function ServicesSection() {
     {
       icon: <Globe className="h-10 w-10 text-teal-600" />,
       title: "Immigration Compliance Services",
-      description: "Expert assistance navigating complex immigration laws, including visa processing, audits, and documentation support.",
-      detailedDescription: "We work with legal experts and authorities to ensure seamless and compliant immigration processes for your organization. Our comprehensive immigration compliance services include visa processing, compliance audits, and thorough documentation support to help you navigate the complexities of international workforce management.",
+      description: "Expert assistance navigating complex immigration laws, including visa processing, audits, and documentation support. AI-driven reminders and automation accelerate every step.",
+      detailedDescription: "We work with legal experts and authorities to ensure seamless and compliant immigration processes for your organization. Our comprehensive immigration compliance services include visa processing, compliance audits, and documentation support—empowered by AI-driven reminders and workflow automation for accuracy and speed.",
       keyPoints: [
         "Visa application assistance",
         "Compliance audits and documentation",
@@ -116,8 +119,8 @@ export default function ServicesSection() {
     {
       icon: <Briefcase className="h-10 w-10 text-teal-600" />,
       title: "Media Consultancy",
-      description: "Strategic media services including public relations, crisis management, and social media strategy development.",
-      detailedDescription: "Our media consultancy services help craft and execute robust media strategies, including public relations, crisis management, and social media presence. We ensure your brand's voice is heard effectively in the marketplace, building credibility and managing reputation through strategic communication approaches.",
+      description: "Strategic media services including public relations, crisis management, and social media strategy development. AI-powered sentiment analysis and smart communication tools included.",
+      detailedDescription: "Our media consultancy services help craft and execute robust media strategies, including public relations, crisis management, and social media presence. AI-powered sentiment analysis and automated communication tools help you monitor, predict, and shape public sentiment for your brand.",
       keyPoints: [
         "Public relations management",
         "Crisis communication planning",
@@ -131,8 +134,8 @@ export default function ServicesSection() {
     {
       icon: <BarChart4 className="h-10 w-10 text-teal-600" />,
       title: "Data Analysis",
-      description: "Transform raw data into actionable insights to drive strategic decision-making and business growth.",
-      detailedDescription: "Using cutting-edge tools and methodologies, we analyze trends, identify patterns, and provide deeper understanding for data-driven decisions. Our data analysis services transform complex information into clear, actionable insights that drive strategic decision-making and business growth across all operational areas.",
+      description: "Transform raw data into actionable insights to drive strategic decision-making and business growth. AI and automation power every stage of the process.",
+      detailedDescription: "Using cutting-edge AI tools and methodologies, we analyze trends, identify patterns, and provide deeper understanding for data-driven decisions. Our data analysis services transform complex information into clear, actionable insights, powered by automation and intelligent algorithms.",
       keyPoints: [
         "Financial data analysis",
         "Customer behavior insights",
@@ -146,8 +149,8 @@ export default function ServicesSection() {
     {
       icon: <Brain className="h-10 w-10 text-teal-600" />,
       title: "Data Science",
-      description: "Advanced algorithms and machine learning to uncover meaningful patterns and predict future trends.",
-      detailedDescription: "Our data science services go beyond analysis, employing advanced algorithms and machine learning to identify meaningful patterns and predict future trends. We help optimize operations, enhance customer experiences, and drive product innovation through sophisticated predictive modeling and data-driven insights.",
+      description: "Advanced algorithms and machine learning to uncover meaningful patterns and predict future trends. AI-first, predictive, and actionable.",
+      detailedDescription: "Our data science services go beyond analysis, employing advanced algorithms and machine learning to identify meaningful patterns and predict future trends. All solutions are AI-first and predictive, helping you optimize operations, enhance customer experiences, and drive innovation.",
       sections: [
         {
           title: "Data Science Services",
@@ -195,8 +198,8 @@ export default function ServicesSection() {
     {
       icon: <Monitor className="h-10 w-10 text-teal-600" />,
       title: "Marketing Services",
-      description: "Comprehensive marketing solutions to build and promote your brand effectively in the digital age.",
-      detailedDescription: "Our marketing services take a comprehensive approach to building and promoting your brand through digital marketing, SEO, content creation, and campaign management. We help increase visibility, drive engagement, and boost your bottom line through data-driven marketing strategies tailored to your specific business goals and target audience.",
+      description: "Comprehensive marketing solutions to build and promote your brand effectively in the digital age. AI-driven targeting, automation, and analytics included.",
+      detailedDescription: "Our marketing services take a comprehensive approach to building and promoting your brand through digital marketing, SEO, content creation, and campaign management. AI-driven targeting, automation, and analytics help increase visibility, drive engagement, and boost your bottom line.",
       sections: [
         {
           title: "Marketing Services Offered",
@@ -233,8 +236,8 @@ export default function ServicesSection() {
     {
       icon: <CreditCard className="h-10 w-10 text-teal-600" />,
       title: "Payment Processing for Digital Applications",
-      description: "Secure and efficient payment processing solutions for digital applications and platforms.",
-      detailedDescription: "We provide secure and efficient payment processing for digital platforms through various methods including credit cards, mobile payments, and digital wallets. Our solutions are designed with security, compliance, and user convenience as top priorities, ensuring smooth transactions for your digital applications.",
+      description: "Secure and efficient payment processing solutions for digital applications and platforms. AI-driven fraud detection and automated compliance included.",
+      detailedDescription: "We provide secure and efficient payment processing for digital platforms through various methods including credit cards, mobile payments, and digital wallets. Our solutions are designed with security, compliance, and user convenience as top priorities, leveraging AI for fraud detection and automated compliance.",
       keyPoints: [
         "Secure transaction processing",
         "Multiple payment method integration",
@@ -248,8 +251,8 @@ export default function ServicesSection() {
     {
       icon: <Layout className="h-10 w-10 text-teal-600" />,
       title: "Website and Web Apps Design for Digital Health",
-      description: "Specialized web and app design services for digital health and other sectors requiring regulatory compliance.",
-      detailedDescription: "We offer specialized services for compliant and user-friendly online presence in digital health and other regulated industries. Our team creates intuitive, responsive, and secure websites and applications that meet industry-specific regulations while delivering exceptional user experiences and supporting your business objectives.",
+      description: "Specialized web and app design services for digital health and other sectors requiring regulatory compliance. AI and automation ensure compliance and user-centric design.",
+      detailedDescription: "We offer specialized services for compliant and user-friendly online presence in digital health and other regulated industries. Our team creates intuitive, responsive, and secure websites and applications that meet industry-specific regulations, leveraging AI and automation for compliance and user experience.",
       keyPoints: [
         "Responsive website design",
         "Web application development",
@@ -264,8 +267,8 @@ export default function ServicesSection() {
     {
       icon: <ShoppingCart className="h-10 w-10 text-teal-600" />,
       title: "General Merchant",
-      description: "Comprehensive trading and merchant solutions across various sectors and markets.",
-      detailedDescription: "We offer a wide range of trading and merchant solutions across various sectors, including sourcing, procurement, distribution, and logistics. Working with a network of trusted suppliers and buyers, we help optimize your supply chain and enhance your market presence through strategic merchant services.",
+      description: "Comprehensive trading and merchant solutions across various sectors and markets. AI-powered analytics and automation for supply chain optimization.",
+      detailedDescription: "We offer a wide range of trading and merchant solutions across various sectors, including sourcing, procurement, distribution, and logistics. AI-powered analytics and automation help optimize your supply chain and enhance your market presence through strategic merchant services.",
       sections: [
         {
           title: "Background Screening Considerations for General Merchants",
@@ -295,8 +298,8 @@ export default function ServicesSection() {
     {
       icon: <TestTubes className="h-10 w-10 text-teal-600" />,
       title: "Drug Testing Services",
-      description: "Comprehensive drug testing solutions for pre-employment screening and workplace safety programs.",
-      detailedDescription: "Our drug testing services provide accurate and reliable screening for a wide range of substances. We offer multiple testing panels (9, 10, and 11) with detailed substance screening to support your pre-employment verification processes and ongoing workplace safety programs.",
+      description: "Comprehensive drug testing solutions for pre-employment screening and workplace safety programs. AI-driven scheduling, reminders, and reporting.",
+      detailedDescription: "Our drug testing services provide accurate and reliable screening for a wide range of substances. AI-driven scheduling, automated reminders, and digital reporting support your pre-employment verification processes and ongoing workplace safety programs.",
       keyPoints: [
         "Multiple panel options (9, 10, 11)",
         "Quick turnaround times",
@@ -310,8 +313,8 @@ export default function ServicesSection() {
     {
       icon: <Database className="h-10 w-10 text-teal-600" />,
       title: "Specialized Database Checks",
-      description: "Comprehensive database searches including OFAC, FACIS, and sex offender registries for thorough screening.",
-      detailedDescription: "We provide specialized database checks that search through both Indian and global databases to identify potential red flags. Our services include OFAC checks, FACIS searches for healthcare professionals, and US National Sex Offender Registry verification to ensure comprehensive screening of candidates.",
+      description: "Comprehensive database searches including OFAC, FACIS, and sex offender registries for thorough screening. AI automates and accelerates screening for compliance.",
+      detailedDescription: "We provide specialized database checks that search through both Indian and global databases to identify potential red flags. AI automates and accelerates OFAC checks, FACIS searches for healthcare professionals, and US National Sex Offender Registry verification to ensure comprehensive, compliant screening of candidates.",
       keyPoints: [
         "OFAC sanctions list verification",
         "FACIS healthcare sanctions screening",

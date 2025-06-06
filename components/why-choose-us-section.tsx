@@ -1,39 +1,59 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Award, Globe, Users, Lightbulb, Shield, Clock } from "lucide-react"
+import { Award, Globe, Users, Lightbulb, Shield, Clock, Brain, Workflow, BarChart4, BadgeCheck } from "lucide-react"
 
 export default function WhyChooseUsSection() {
   const reasons = [
     {
-      icon: <Award className="h-8 w-8 text-teal-600" />,
-      title: "Proven Track Record",
-      description: "Over a decade of successful consultancy services across Africa.",
+      icon: <Brain className="h-8 w-8 text-teal-600" />,
+      title: "AI-First Leadership",
+      description: "Automated, intelligent, and data-driven solutions for the modern era—delivering speed, accuracy, and actionable insights.",
     },
     {
-      icon: <Globe className="h-8 w-8 text-teal-600" />,
-      title: "Pan-African Presence",
-      description: "Strong network and understanding of local markets across the continent.",
+      icon: <Award className="h-8 w-8 text-teal-600" />,
+      title: "Proven Track Record",
+      description: "Over a decade of successful consultancy and verification services across Africa.",
     },
+    // {
+    //   icon: <Globe className="h-8 w-8 text-teal-600" />,
+    //   title: "Pan-African Presence",
+    //   description: "Strong network and deep understanding of local markets across the continent.",
+    // },
     {
       icon: <Users className="h-8 w-8 text-teal-600" />,
       title: "Expert Team",
-      description: "Highly qualified professionals with industry-specific expertise.",
+      description: "Highly qualified professionals with industry-specific and technical expertise.",
     },
     {
       icon: <Lightbulb className="h-8 w-8 text-teal-600" />,
       title: "Innovative Solutions",
-      description: "Cutting-edge methodologies and technologies for optimal results.",
+      description: "Cutting-edge methodologies and AI technologies for optimal results.",
     },
     {
       icon: <Shield className="h-8 w-8 text-teal-600" />,
       title: "Ethical Conduct",
-      description: "Unwavering commitment to integrity and professional ethics.",
+      description: "Unwavering commitment to integrity, privacy, and professional ethics.",
     },
     {
       icon: <Clock className="h-8 w-8 text-teal-600" />,
       title: "Timely Delivery",
-      description: "Efficient processes ensuring prompt delivery of services.",
+      description: "Automated, efficient processes ensuring prompt delivery of all services.",
+    },
+    {
+      icon: <Workflow className="h-8 w-8 text-teal-600" />,
+      title: "Automated Communication",
+      description: "Smart reminders, follow-ups, and feedback via SMS, email, and cloud calls—no manual intervention needed.",
+    },
+    {
+      icon: <BarChart4 className="h-8 w-8 text-teal-600" />,
+      title: "Real-Time Insights",
+      description: "AI-powered dashboards and analytics provide actionable intelligence and transparency for every client.",
+    },
+    {
+      icon: <BadgeCheck className="h-8 w-8 text-teal-600" />,
+      title: "Trusted Compliance Partner",
+      description: "Global regulatory alignment and trusted verification for risk mitigation and peace of mind.",
     },
   ]
 
@@ -79,7 +99,7 @@ export default function WhyChooseUsSection() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-gray-700 dark:text-gray-300 max-w-2xl mx-auto"
           >
-            We stand out from the competition through our commitment to excellence, innovation, and client satisfaction.
+            the.RAM.plc stands out as Africa’s leading <span className="font-semibold text-teal-700 dark:text-teal-300">AI-first verification and compliance company</span>. Our commitment to automation, intelligent technology, and data-driven excellence ensures faster results, greater accuracy, and actionable insights for every client. We combine a proven track record with cutting-edge innovation, an expert team, and unwavering ethics to deliver superior outcomes—every time.
           </motion.p>
         </div>
 

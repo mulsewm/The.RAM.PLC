@@ -19,7 +19,7 @@ import { toast } from "sonner"
 import { PartnershipProvider } from "@/lib/partnership-provider"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Inter } from "next/font/google"
-
+import ChatWidget from "@/components/chatbot/ChatWidget"
 const inter = Inter({ subsets: ["latin"] })
 
 export default function AdminLayout({
@@ -31,6 +31,7 @@ export default function AdminLayout({
     <AuthProvider>
       <AdminLayoutContent>
         {children}
+        <ChatWidget />
       </AdminLayoutContent>
     </AuthProvider>
   )

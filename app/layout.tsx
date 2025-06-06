@@ -4,7 +4,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import ConditionalLayout from "@/components/conditional-layout"
-
+import ChatWidget from "@/components/chatbot/ChatWidget"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
@@ -26,6 +26,7 @@ export default function RootLayout({
           <ConditionalLayout>
             {children}
           </ConditionalLayout>
+          <ChatWidget />
         </ThemeProvider>
       </body>
     </html>
