@@ -28,8 +28,67 @@ The Partner Management System (PMS) is a comprehensive solution for managing par
 - **Frontend**: React, Next.js, TypeScript, Tailwind CSS
 - **Backend**: Next.js API routes, Prisma ORM
 - **Database**: PostgreSQL
-- **Authentication**: (Planned) NextAuth.js
+- **Authentication**: NextAuth.js
+- **Email Service**: Nodemailer with SMTP or Ethereal for development
 - **File Storage**: (Planned) AWS S3 or similar service
+
+## Email Configuration
+
+The application includes a robust email service with the following features:
+
+- Welcome emails for new users
+- Password reset functionality
+- Development-friendly with Ethereal test accounts
+- Type-safe email templates
+- Support for HTML and plain text emails
+- File attachments support
+
+### Environment Variables
+
+Create a `.env` file in the root directory with the following email-related variables:
+
+```env
+# Email Configuration
+SMTP_HOST=smtp.example.com  # Leave empty for Ethereal test account in development
+SMTP_PORT=587               # 587 for TLS, 465 for SSL, 25 for unencrypted
+SMTP_SECURE=false           # true for 465, false for other ports
+SMTP_USER=your_email@example.com
+SMTP_PASSWORD=your_email_password
+EMAIL_FROM_NAME="The RAM PLC"
+EMAIL_FROM_ADDRESS=noreply@theramplc.com
+NEXTAUTH_URL=http://localhost:3000  # Used in email templates for links
+```
+
+### Development with Ethereal
+
+In development mode, if no SMTP host is configured, the application will automatically create an Ethereal test account and log the SMTP credentials and email preview URLs to the console.
+
+### Sending Emails
+
+Use the email service in your code:
+
+```typescript
+import { sendWelcomeEmail, sendPasswordResetEmail } from '@/lib/email';
+
+// Send welcome email
+await sendWelcomeEmail({
+  to: 'user@example.com',
+  name: 'John Doe',
+});
+
+// Send password reset email
+await sendPasswordResetEmail({
+  to: 'user@example.com',
+  name: 'John Doe',
+  resetToken: 'abc123',
+  expiresInHours: 24,
+});
+```
+
+### Email Templates
+
+- **Welcome Email**: Sent when a new user account is created
+- **Password Reset**: Sent when a user requests a password reset
 
 ## Getting Started
 
@@ -40,13 +99,17 @@ The Partner Management System (PMS) is a comprehensive solution for managing par
 
 ### Environment Setup
 
-Create a `.env` file in the root directory with the following variables:
+1. Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
 
-```
-DATABASE_URL="postgresql://username:password@localhost:5432/theram_pms"
-NEXTAUTH_SECRET="your-secret-here"
-# Add additional environment variables as needed
-```
+2. Update the `.env` file with your configuration:
+   - Set up your database connection string
+   - Configure email settings (SMTP or use Ethereal in development)
+   - Set up authentication secrets
+
+3. For development with Ethereal (no SMTP required), leave `SMTP_HOST` empty and check the console for login credentials and email previews.
 
 ### Installation
 

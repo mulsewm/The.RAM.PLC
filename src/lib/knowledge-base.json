@@ -1,0 +1,121 @@
+{
+  "company": {
+    "name": "The.RAM.PLC",
+    "tagline": "AI-First Verification & Compliance Solutions Across Africa",
+    "description": "The.RAM.PLC is a leading AI-powered verification and compliance company operating across Africa, providing innovative solutions for businesses and organizations.",
+    "foundingYear": 2023,
+    "headquarters": "Nairobi, Kenya",
+    "coverage": "Pan-African presence with operations in multiple countries"
+  },
+  "coreServices": [
+    {
+      "name": "Primary Source Verification",
+      "description": "Comprehensive verification of academic credentials, professional qualifications, and work experience directly from issuing institutions.",
+      "benefits": [
+        "Ensures authenticity of qualifications",
+        "Reduces hiring risks",
+        "Maintains compliance with industry standards"
+      ]
+    },
+    {
+      "name": "Background Screening",
+      "description": "Thorough background checks including criminal records, credit history, and reference verification.",
+      "benefits": [
+        "Enhanced security",
+        "Regulatory compliance",
+        "Informed hiring decisions"
+      ]
+    },
+    {
+      "name": "Immigration Compliance",
+      "description": "End-to-end immigration support and compliance verification services for businesses and individuals.",
+      "benefits": [
+        "Work permit processing",
+        "Visa applications",
+        "Compliance monitoring"
+      ]
+    },
+    {
+      "name": "Data Analytics & AI Solutions",
+      "description": "Advanced data analysis and AI-driven insights for business intelligence and decision making.",
+      "benefits": [
+        "Predictive analytics",
+        "Business intelligence",
+        "Data visualization"
+      ]
+    },
+    {
+      "name": "Digital Health Solutions",
+      "description": "Innovative healthcare technology solutions including telemedicine and health data management.",
+      "benefits": [
+        "Remote healthcare access",
+        "Secure health records",
+        "Improved patient outcomes"
+      ]
+    },
+    {
+      "name": "Payment Processing",
+      "description": "Secure and efficient payment solutions for businesses of all sizes.",
+      "benefits": [
+        "Multiple payment methods",
+        "Secure transactions",
+        "Seamless integration"
+      ]
+    }
+  ],
+  "whyChooseUs": {
+    "aiFirst": "AI-first approach ensuring cutting-edge solutions and automation",
+    "panAfrican": "Extensive experience and presence across multiple African markets",
+    "compliance": "Strong focus on regulatory compliance and data protection",
+    "innovation": "Continuous investment in technology and innovation",
+    "customerCentric": "Tailored solutions to meet specific client needs"
+  },
+  "industriesServed": [
+    "Healthcare",
+    "Education",
+    "Financial Services",
+    "Technology",
+    "Government",
+    "Non-Profit Organizations",
+    "Corporate Sector"
+  ],
+  "contact": {
+    "email": "info@theramplc.com",
+    "phone": "+254 700 000000",
+    "address": "Nairobi, Kenya",
+    "workingHours": "Monday - Friday: 8:00 AM - 5:00 PM EAT",
+    "socialMedia": {
+      "linkedin": "https://linkedin.com/company/theramplc",
+      "twitter": "https://twitter.com/theramplc"
+    }
+  },
+  "values": [
+    "Integrity",
+    "Innovation",
+    "Excellence",
+    "Customer Focus",
+    "Data Security"
+  ],
+  "faqs": [
+    {
+      "question": "What makes The.RAM.PLC different from other verification companies?",
+      "answer": "Our AI-first approach and pan-African presence set us apart, enabling faster, more accurate verifications across multiple countries."
+    },
+    {
+      "question": "How long does the verification process take?",
+      "answer": "Most verifications are completed within 24-48 hours, though this can vary depending on the type of verification and institution response times."
+    },
+    {
+      "question": "Is my data secure with The.RAM.PLC?",
+      "answer": "Absolutely. We employ enterprise-grade security measures and comply with all relevant data protection regulations to ensure your information remains confidential and secure."
+    },
+    {
+      "question": "Do you offer services outside of Kenya?",
+      "answer": "Yes, we operate across multiple African countries. Please contact us for specific country availability and services."
+    },
+    {
+      "question": "Can I integrate your verification services with my existing HR systems?",
+      "answer": "Yes, we offer API integration options to seamlessly connect our verification services with your existing HR or business systems."
+    }
+  ]
+}

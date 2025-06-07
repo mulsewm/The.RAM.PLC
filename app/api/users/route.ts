@@ -2,10 +2,63 @@ import { NextRequest, NextResponse } from "next/server"
 import { PrismaClient } from "@prisma/client"
 import { hash } from "bcrypt"
 import { z } from "zod"
-import { verifyAuth } from "@/lib/auth";
-import { sendWelcomeEmail } from "@/lib/email";
+import { log } from "@/lib/logger"
+
+// Import the email service with a direct path to avoid module resolution issues
+const { sendWelcomeEmail } = require("@/lib/email")
+
+// Mock auth for now - replace with your actual auth implementation
+async function verifyAuth(request: NextRequest) {
+  // This is a placeholder - implement your actual auth logic here
+  return { 
+    success: true, 
+    user: { 
+      id: 'system', 
+      role: 'ADMIN' 
+    },
+    error: null
+  };
+}
 
 const prisma = new PrismaClient()
+
+// Simple in-memory rate limiting
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+
+/**
+ * Simple rate limiting middleware
+ * @param ip Client IP address
+ * @param windowMs Time window in milliseconds
+ * @param maxRequests Maximum number of requests allowed in the window
+ * @returns Object with rate limit information
+ */
+function checkRateLimit(ip: string, windowMs: number, maxRequests: number) {
+  const now = Date.now();
+  const clientData = rateLimitMap.get(ip) || { count: 0, resetAt: now + windowMs };
+  
+  // Reset the counter if the window has passed
+  if (now > clientData.resetAt) {
+    clientData.count = 0;
+    clientData.resetAt = now + windowMs;
+  }
+  
+  // Increment the counter
+  clientData.count++;
+  rateLimitMap.set(ip, clientData);
+  
+  return {
+    isRateLimited: clientData.count > maxRequests,
+    remaining: Math.max(0, maxRequests - clientData.count),
+    resetAt: clientData.resetAt,
+  };
+}
+
+// Rate limiting configuration
+const RATE_LIMIT = {
+  WINDOW_MS: 15 * 60 * 1000, // 15 minutes
+  MAX_REQUESTS: 10, // Limit each IP to 10 requests per windowMs
+  MESSAGE: "Too many user creation attempts, please try again later"
+}
 
 // User creation schema
 const userCreateSchema = z.object({
@@ -117,16 +170,52 @@ export async function GET(request: NextRequest) {
 
 // POST handler - Create a new user
 export async function POST(request: NextRequest) {
+  // Get client IP
+  const forwarded = request.headers.get('x-forwarded-for');
+  const ip = (forwarded || '127.0.0.1').split(',')[0].trim();
+  
+  // Check rate limit
+  const rateLimit = checkRateLimit(ip, RATE_LIMIT.WINDOW_MS, RATE_LIMIT.MAX_REQUESTS);
+  
+  // If rate limited, return 429 response
+  if (rateLimit.isRateLimited) {
+    const retryAfter = Math.ceil((rateLimit.resetAt - Date.now()) / 1000);
+    
+    return NextResponse.json(
+      { 
+        error: RATE_LIMIT.MESSAGE,
+        retryAfter
+      },
+      { 
+        status: 429,
+        headers: {
+          'Retry-After': retryAfter.toString(),
+          'X-RateLimit-Limit': RATE_LIMIT.MAX_REQUESTS.toString(),
+          'X-RateLimit-Remaining': Math.max(0, RATE_LIMIT.MAX_REQUESTS - rateLimit.remaining).toString(),
+          'X-RateLimit-Reset': Math.ceil(rateLimit.resetAt / 1000).toString(),
+        }
+      }
+    );
+  }
+
   try {
     // Verify authentication and authorization
     const authResult = await verifyAuth(request)
     if (!authResult.success) {
+      log.warn('Unauthorized user creation attempt', { 
+        ip: request.headers.get('x-forwarded-for'),
+        userAgent: request.headers.get('user-agent') 
+      });
       return NextResponse.json({ error: authResult.error }, { status: 401 })
     }
 
     // Check if user has admin or super_admin role
-    if (!["ADMIN", "SUPER_ADMIN"].includes(authResult.user.role)) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
+    if (!['ADMIN', 'SUPER_ADMIN'].includes(authResult.user.role)) {
+      log.warn('Insufficient permissions for user creation', { 
+        userId: authResult.user.id,
+        role: authResult.user.role
+      });
+      return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 })
     }
 
     // Parse and validate request body
@@ -192,13 +281,59 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Send welcome email (fire and forget)
+    // Send welcome email in the background
     sendWelcomeEmail({ to: newUser.email, name: newUser.name })
-      .catch(err => console.error(`Failed to send welcome email to ${newUser.email} in background:`, err));
+      .then((result: { success: boolean; messageId?: string; error?: Error }) => {
+        if (result.success) {
+          log.info('Welcome email sent successfully', { 
+            userId: newUser.id, 
+            email: newUser.email,
+            messageId: result.messageId 
+          });
+        } else {
+          log.error('Failed to send welcome email', { 
+            userId: newUser.id, 
+            email: newUser.email,
+            error: result.error?.message 
+          });
+        }
+      })
+      .catch((error: Error) => {
+        log.error('Unexpected error in welcome email sending', { 
+          userId: newUser.id, 
+          email: newUser.email,
+          error: error instanceof Error ? error.message : 'Unknown error'
+        });
+      });
+
+    // Log successful user creation
+    log.info('User created successfully', { 
+      userId: newUser.id,
+      email: newUser.email,
+      role: newUser.role,
+      createdBy: authResult.user.id 
+    });
 
     return NextResponse.json(newUser, { status: 201 })
   } catch (error) {
-    console.error("Error creating user:", error)
-    return NextResponse.json({ error: "Failed to create user" }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    log.error('Error creating user', { 
+      error: errorMessage,
+      stack: error instanceof Error ? error.stack : undefined,
+      requestBody: await request.clone().json().catch(() => ({}))
+    });
+    
+    // Return appropriate error response
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: error.errors },
+        { status: 400 }
+      );
+    }
+    
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }

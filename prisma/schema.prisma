@@ -25,6 +25,9 @@ model User {
   updatedAt     DateTime  @updatedAt
   active        Boolean   @default(true)
   lastLogin     DateTime?
+  passwordResetToken String?  @db.VarChar(255)
+  passwordResetExpires DateTime?
+  passwordChangedAt DateTime?
 
   // Relations
   notes         Note[]

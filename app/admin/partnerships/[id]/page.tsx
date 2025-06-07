@@ -91,7 +91,13 @@ const StatusBadge = ({ status }: { status: string }) => {
   )
 }
 
-export default function PartnershipDetail({ params }: { params: { id: string } }) {
+interface PageProps {
+  params: {
+    id: string
+  }
+}
+
+export default function PartnershipDetail({ params }: PageProps) {
   const router = useRouter()
   const [application, setApplication] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
