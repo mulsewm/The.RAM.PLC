@@ -2,181 +2,265 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
-// Public routes that don't require authentication
-const PUBLIC_ROUTES = [
+// List of allowed origins (update this with your frontend URL)
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'https://your-production-domain.com',
+];
+
+// List of public paths that don't require authentication
+const publicPaths = [
   '/',
-  '/login',
-  '/api/auth',
-  '/_next',
-  '/favicon.ico',
-  '/_vercel',
-  '/public',
-  '/images',
-  '/error',
-  '/unauthorized'
-];
-
-// Routes that require authentication but are not admin-specific
-const AUTH_ROUTES = [
-  '/dashboard',
-  '/account',
-  '/api/user',
-];
-
-// Admin-only routes
-const ADMIN_ROUTES = [
-  '/admin',
-  '/api/admin',
-  '/users',
-  '/api/users'
-];
-
-// Routes that should be accessible even when logged in
-const GUEST_ONLY_ROUTES = [
-  '/login',
-  '/register',
-  '/forgot-password',
-];
-
-// API routes that don't require authentication
-const PUBLIC_API_ROUTES = [
+  '/auth/signin',
+  '/auth/signup',
+  '/auth/forgot-password',
+  '/auth/reset-password',
   '/api/auth/[...nextauth]',
   '/api/auth/session',
-  '/api/auth/csrf',
-  '/api/auth/providers',
-  '/api/auth/signin',
-  '/api/auth/signout',
-  '/api/auth/error',
-  '/api/auth/verify-request',
-  '/api/auth/_log'
+  '/api/test',
+  '/api/status',
+  '/api/health',
+  '/_next/static',
+  '/_next/image',
+  '/favicon.ico',
 ];
+
+// List of admin paths that require admin role
+const adminPaths = ['/admin'];
+
+// List of auth paths that should only be accessible to guests
+const guestOnlyPaths = [
+  '/auth/signin',
+  '/auth/signup',
+  '/auth/forgot-password',
+  '/auth/reset-password',
+];
+
+// List of API routes that should be handled by the middleware
+const apiRoutes = [
+  '/api/auth/[...nextauth]',
+  '/api/auth/session',
+  '/api/test',
+  '/api/status',
+  '/api/health',
+];
+
+// List of API routes that should bypass middleware completely
+const bypassApiRoutes = [
+  '/api/auth/[...nextauth]',
+  '/api/session',
+  '/api/auth/session',
+  '/api/test',
+  '/api/status',
+  '/api/health',
+];
+
+// Skip middleware for these specific API routes and static files
+const skipMiddlewareForApiRoutes = [
+  ...bypassApiRoutes,  // Include all bypass routes in skip list
+  '/_next/static',
+  '/_next/image',
+  '/favicon.ico',
+];
+
+// Check if a path should skip middleware
+const shouldSkipMiddleware = (pathname: string): boolean => {
+  return skipMiddlewareForApiRoutes.some(route => 
+    pathname === route || 
+    pathname.startsWith(`${route}/`)
+  );
+};
+
+// Helper to check if the origin is allowed
+const isAllowedOrigin = (origin: string | null): boolean => {
+  if (!origin) return false;
+  return allowedOrigins.some(allowedOrigin => 
+    origin === allowedOrigin || 
+    origin.startsWith(`${allowedOrigin}/`)
+  );
+};
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const isApiRoute = pathname.startsWith('/api/');
-  const response = NextResponse.next();
+  const origin = request.headers.get('origin');
+  const isAllowed = isAllowedOrigin(origin);
+  
+  // Create a response object that we'll modify as needed
+  let response = NextResponse.next();
 
-  try {
-    // Skip middleware for public routes
-    const isPublicRoute = PUBLIC_ROUTES.some(route => {
-      if (route.endsWith('*')) {
-        return pathname.startsWith(route.slice(0, -1));
+  // Handle OPTIONS request for CORS preflight
+  if (request.method === 'OPTIONS') {
+    return new NextResponse(null, { 
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': origin || '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Credentials': 'true',
+        'Content-Length': '0'
       }
-      return pathname === route || pathname.startsWith(`${route}/`);
     });
-
-    // Skip middleware for public API routes
-    const isPublicApiRoute = isApiRoute && 
-      (PUBLIC_API_ROUTES.some(route => pathname.startsWith(route)) ||
-       pathname.includes('/_next') ||
-       pathname.includes('/static'));
-
-    if (isPublicRoute || isPublicApiRoute) {
-      return response;
-    }
-
-    // Get the session token
-    const token = await getToken({ 
-      req: request,
-      secret: process.env.NEXTAUTH_SECRET,
-    });
-
-    // Handle guest-only routes (like login, register)
-    const isGuestRoute = GUEST_ONLY_ROUTES.some(route => pathname.startsWith(route));
-    if (isGuestRoute) {
-      if (token) {
-        // If user is logged in, redirect to dashboard
-        const redirectUrl = new URL('/dashboard', request.url);
-        return NextResponse.redirect(redirectUrl);
-      }
-      return response; // Allow access to guest routes
-    }
-
-    // Check if user is authenticated
-    if (!token) {
-      if (isApiRoute) {
-        return new NextResponse(
-          JSON.stringify({ 
-            success: false, 
-            error: 'Authentication required',
-            code: 'UNAUTHORIZED'
-          }), 
-          { 
-            status: 401, 
-            headers: { 
-              'Content-Type': 'application/json',
-              'Cache-Control': 'no-store, max-age=0'
-            } 
-          }
-        );
-      }
-      
-      // For non-API routes, redirect to login with callback URL
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('callbackUrl', pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-
-    // Check admin routes
-    const isAdminRoute = ADMIN_ROUTES.some(route => pathname.startsWith(route));
-    const isAdmin = token.role === 'ADMIN' || token.role === 'SUPER_ADMIN';
-    
-    if (isAdminRoute && !isAdmin) {
-      if (isApiRoute) {
-        return new NextResponse(
-          JSON.stringify({ 
-            success: false,
-            error: 'Insufficient permissions',
-            code: 'FORBIDDEN'
-          }), 
-          { 
-            status: 403, 
-            headers: { 
-              'Content-Type': 'application/json',
-              'Cache-Control': 'no-store, max-age=0'
-            } 
-          }
-        );
-      }
-      return NextResponse.redirect(new URL('/unauthorized', request.url));
-    }
-
-    // Add security headers to all responses
-    response.headers.set('X-Content-Type-Options', 'nosniff');
-    response.headers.set('X-Frame-Options', 'DENY');
-    response.headers.set('X-XSS-Protection', '1; mode=block');
-    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-    response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-    response.headers.set('Cache-Control', 'no-store, max-age=0');
-
-    return response;
-  } catch (error) {
-    console.error('Middleware error:', error);
-    
-    if (isApiRoute) {
-      return new NextResponse(
-        JSON.stringify({ 
-          success: false,
-          error: 'Internal server error',
-          code: 'INTERNAL_SERVER_ERROR'
-        }), 
-        { 
-          status: 500, 
-          headers: { 
-            'Content-Type': 'application/json',
-            'Cache-Control': 'no-store, max-age=0'
-          } 
-        }
-      );
-    }
-    
-    // For non-API routes, redirect to error page
-    const errorUrl = new URL('/error', request.url);
-    errorUrl.searchParams.set('message', 'An unexpected error occurred');
-    return NextResponse.redirect(errorUrl);
   }
+
+  // Add CORS headers to all responses
+  if (isAllowed) {
+    response.headers.set('Access-Control-Allow-Origin', origin || '*');
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    response.headers.set('Access-Control-Allow-Credentials', 'true');
+  }
+  
+  // Skip middleware for specific API routes by returning early
+  if (shouldSkipMiddleware(pathname)) {
+    // For these API routes, just return the response with CORS headers
+    return response;
+  }
+
+  // For non-API routes, check authentication and authorization
+  const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
+  const isAdminPath = adminPaths.some(path => pathname.startsWith(path));
+  const isGuestOnlyPath = guestOnlyPaths.some(path => pathname.startsWith(path));
+
+  // Handle preflight requests
+  if (request.method === 'OPTIONS') {
+    return new NextResponse(null, { 
+      status: 204,
+      headers: {
+        ...Object.fromEntries(response.headers),
+        'Access-Control-Max-Age': '86400', // 24 hours
+      },
+    });
+  }
+
+  // Skip middleware for public paths and static files
+  if (isPublicPath || pathname.startsWith('/_next/') || pathname.endsWith('.ico')) {
+    return response;
+  }
+
+  // Handle other API routes that need authentication
+  if (pathname.startsWith('/api/')) {
+    // For protected API routes, check authentication if not public
+    if (!isPublicPath) {
+      type SessionToken = { role?: string; [key: string]: any } | null;
+      const session = await getToken({ req: request }) as SessionToken;
+      
+      if (!session) {
+        const headers = new Headers({
+          'Content-Type': 'application/json',
+          ...(isAllowed ? { 'Access-Control-Allow-Origin': origin || '*' } : {})
+        });
+        
+        return new NextResponse(
+          JSON.stringify({ error: 'Unauthorized' }),
+          { 
+            status: 401,
+            headers
+          }
+        );
+      }
+
+      // Check for admin routes
+      if (isAdminPath && session.role !== 'ADMIN') {
+        const headers = new Headers({
+          'Content-Type': 'application/json',
+          ...(isAllowed ? { 'Access-Control-Allow-Origin': origin || '*' } : {})
+        });
+        
+        return new NextResponse(
+          JSON.stringify({ error: 'Forbidden' }),
+          { 
+            status: 403,
+            headers
+          }
+        );
+      }
+    }
+    
+    // Return the response with CORS headers for API routes
+    const apiResponse = NextResponse.next();
+    if (isAllowed) {
+      apiResponse.headers.set('Access-Control-Allow-Origin', origin || '*');
+      apiResponse.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+      apiResponse.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      apiResponse.headers.set('Access-Control-Allow-Credentials', 'true');
+    }
+    return apiResponse;
+  }
+
+  // Handle page routes
+  type SessionToken = { role?: string; [key: string]: any } | null;
+  const session = await getToken({ req: request }) as SessionToken;
+  
+  // Redirect to login if trying to access protected page
+  if (!isPublicPath && !session) {
+    const loginUrl = new URL('/auth/signin', request.url);
+    loginUrl.searchParams.set('callbackUrl', pathname);
+    const redirectResponse = NextResponse.redirect(loginUrl);
+    addCorsHeaders(redirectResponse);
+    addSecurityHeaders(redirectResponse);
+    return redirectResponse;
+  }
+
+  // Redirect to home if trying to access guest-only page while logged in
+  if (isGuestOnlyPath && session) {
+    const redirectResponse = NextResponse.redirect(new URL('/', request.url));
+    addCorsHeaders(redirectResponse);
+    addSecurityHeaders(redirectResponse);
+    return redirectResponse;
+  }
+
+  // Redirect to unauthorized if trying to access admin page without admin role
+  if (isAdminPath && session && session.role !== 'ADMIN') {
+    const redirectResponse = NextResponse.redirect(new URL('/unauthorized', request.url));
+    addCorsHeaders(redirectResponse);
+    addSecurityHeaders(redirectResponse);
+    return redirectResponse;
+  }
+
+  // Add CORS and security headers to the response
+  const finalResponse = NextResponse.next();
+  addCorsHeaders(finalResponse);
+  addSecurityHeaders(finalResponse);
+
+  return finalResponse;
 }
 
+// Add CORS headers to a response
+function addCorsHeaders(response: NextResponse) {
+  response.headers.set('Access-Control-Allow-Credentials', 'true');
+  response.headers.set('Access-Control-Allow-Origin', '*');
+  response.headers.set('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  response.headers.set(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization'
+  );
+  return response;
+}
+
+// Get CORS headers
+function getCorsHeaders() {
+  return {
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET,OPTIONS,PATCH,DELETE,POST,PUT',
+    'Access-Control-Allow-Headers': 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization',
+  };
+}
+
+// Add security headers to a response
+function addSecurityHeaders(response: NextResponse) {
+  // Security headers
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  
+  return response;
+}
+
+// Export the config with matcher that excludes bypass routes
 export const config = {
   matcher: [
     /*
@@ -185,7 +269,11 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public folder
+     * - auth pages
+     * - specific API routes that should bypass middleware
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|public/|auth/|' + 
+      bypassApiRoutes.map(route => route.replace(/\//g, '\\/')).join('|') + 
+    ').*)',
   ],
 };

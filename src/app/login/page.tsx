@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth-provider';
+import { Loader2 } from 'lucide-react';
 
 interface LoginFormData {
   email: string;
@@ -16,10 +17,32 @@ export default function LoginPage() {
     password: '',
   });
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Start with loading true to prevent flash of content
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/admin';
+  
+  // Set mounted state after component mounts
+  useEffect(() => {
+    setMounted(true);
+    setLoading(false);
+  }, []);
+  
+  // Get auth context
+  const auth = useAuth();
+  
+  // If not mounted yet, show loading state
+  if (!mounted || loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center">
+          <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+          <p className="mt-2 text-sm text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -29,15 +52,13 @@ export default function LoginPage() {
     }));
   };
 
-  const { signIn } = useAuth();
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-      const success = await signIn(formData.email, formData.password);
+      const success = await auth.signIn(formData.email, formData.password);
       
       if (!success) {
         throw new Error('Login failed. Please check your credentials and try again.');

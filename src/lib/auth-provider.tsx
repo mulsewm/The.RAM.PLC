@@ -33,18 +33,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const checkAuth = useCallback(async () => {
     try {
       const response = await fetch('/api/auth/session', {
-        credentials: 'include', // Important for cookies to be sent
+        method: 'GET',
+        credentials: 'same-origin', // Send cookies for same-origin requests
         headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
         },
       });
       
-      if (!response.ok) {
-        throw new Error('Session check failed');
-      }
-      
       const data = await response.json();
+      
+      if (!response.ok) {
+        // If we get a 401, the session is invalid
+        if (response.status === 401) {
+          setUser(null);
+          setStatus('unauthenticated');
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('user');
+          }
+          return;
+        }
+        throw new Error(data.error || 'Session check failed');
+      }
       
       if (data.authenticated && data.user) {
         // Update user state

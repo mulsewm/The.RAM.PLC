@@ -3,8 +3,6 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { PrismaClient } from '@prisma/client';
 
-console.log('Session route module loaded');
-
 // CORS headers configuration
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -86,7 +84,7 @@ export async function GET() {
           }
         );
       }
-
+      
       // Update last login time
       await prisma.user.update({
         where: { id: user.id },
