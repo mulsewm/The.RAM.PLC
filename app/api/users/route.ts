@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from "next/server"
 import { PrismaClient } from "@prisma/client"
 import { hash } from "bcrypt"
 import { z } from "zod"
-import { log } from "@/lib/logger"
+import logger from "../../../lib/logger"
 
-// Import the email service with a direct path to avoid module resolution issues
-const { sendWelcomeEmail } = require("@/lib/email")
+// Import the email service with a relative path to avoid module resolution issues
+import { sendWelcomeEmail } from "../../../lib/email"
 
 // Mock auth for now - replace with your actual auth implementation
 async function verifyAuth(request: NextRequest) {
@@ -202,18 +202,28 @@ export async function POST(request: NextRequest) {
     // Verify authentication and authorization
     const authResult = await verifyAuth(request)
     if (!authResult.success) {
-      log.warn('Unauthorized user creation attempt', { 
-        ip: request.headers.get('x-forwarded-for'),
-        userAgent: request.headers.get('user-agent') 
+      await logger.warn('Unauthorized user creation attempt', {
+        action: 'user.unauthorized_attempt',
+        userId: 'anonymous',
+        entityType: 'User',
+        entityId: 'new',
+        details: 'Unauthorized attempt to create user',
+        ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
+        userAgent: request.headers.get('user-agent') || 'unknown',
       });
       return NextResponse.json({ error: authResult.error }, { status: 401 })
     }
 
     // Check if user has admin or super_admin role
     if (!['ADMIN', 'SUPER_ADMIN'].includes(authResult.user.role)) {
-      log.warn('Insufficient permissions for user creation', { 
+      await logger.warn('Insufficient permissions for user creation', {
+        action: 'user.insufficient_permissions',
         userId: authResult.user.id,
-        role: authResult.user.role
+        entityType: 'User',
+        entityId: 'new',
+        details: `User with role ${authResult.user.role} attempted to create a user`,
+        ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
+        userAgent: request.headers.get('user-agent') || 'unknown',
       });
       return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 })
     }
@@ -223,6 +233,15 @@ export async function POST(request: NextRequest) {
     const validation = userCreateSchema.safeParse(body)
     
     if (!validation.success) {
+      await logger.warn('Invalid user creation request', {
+        action: 'user.create_validation_failed',
+        userId: authResult.user.id,
+        entityType: 'User',
+        entityId: 'new',
+        details: JSON.stringify(validation.error.errors),
+        ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
+        userAgent: request.headers.get('user-agent') || 'unknown',
+      });
       return NextResponse.json({ error: validation.error.errors }, { status: 400 })
     }
     
@@ -237,6 +256,15 @@ export async function POST(request: NextRequest) {
     })
 
     if (existingUser) {
+      await logger.warn('Email already in use', {
+        action: 'user.duplicate_email',
+        userId: authResult.user.id,
+        entityType: 'User',
+        entityId: existingUser.id,
+        details: `Attempt to create user with existing email: ${email}`,
+        ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
+        userAgent: request.headers.get('user-agent') || 'unknown',
+      });
       return NextResponse.json({ error: "Email already in use" }, { status: 409 })
     }
 
@@ -263,65 +291,81 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Log audit entry
-    // @ts-ignore - The auditLog model exists in the database schema but TypeScript doesn't recognize it
-    await prisma.auditLog.create({
-      data: {
-        action: "user.create",
-        entityType: "User",
-        entityId: newUser.id,
-        performedBy: { connect: { id: authResult.user.id } },
-        details: JSON.stringify({ 
-          name: newUser.name, 
-          email: newUser.email, 
-          role: newUser.role 
-        }),
-        ipAddress: request.headers.get("x-forwarded-for") || "unknown",
-        userAgent: request.headers.get("user-agent") || "unknown",
-      },
+    // Log user creation
+    await logger.info('User created successfully', {
+      action: 'user.create',
+      userId: newUser.id,
+      entityType: 'User',
+      entityId: newUser.id,
+      details: JSON.stringify({
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role
+      }),
+      ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
+      userAgent: request.headers.get('user-agent') || 'unknown',
     })
 
     // Send welcome email in the background
     sendWelcomeEmail({ to: newUser.email, name: newUser.name })
-      .then((result: { success: boolean; messageId?: string; error?: Error }) => {
-        if (result.success) {
-          log.info('Welcome email sent successfully', { 
-            userId: newUser.id, 
-            email: newUser.email,
-            messageId: result.messageId 
-          });
-        } else {
-          log.error('Failed to send welcome email', { 
-            userId: newUser.id, 
-            email: newUser.email,
-            error: result.error?.message 
-          });
-        }
+      .then(() => {
+        logger.info('Welcome email sent successfully', {
+          action: 'email.welcome_sent',
+          userId: newUser.id,
+          entityType: 'User',
+          entityId: newUser.id,
+          details: `Welcome email sent to ${newUser.email}`,
+          ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
+        });
       })
       .catch((error: Error) => {
-        log.error('Unexpected error in welcome email sending', { 
-          userId: newUser.id, 
-          email: newUser.email,
-          error: error instanceof Error ? error.message : 'Unknown error'
+        logger.error('Failed to send welcome email', {
+          action: 'email.welcome_failed',
+          userId: newUser.id,
+          entityType: 'User',
+          entityId: newUser.id,
+          details: `Error sending welcome email to ${newUser.email}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
         });
       });
 
-    // Log successful user creation
-    log.info('User created successfully', { 
-      userId: newUser.id,
-      email: newUser.email,
-      role: newUser.role,
-      createdBy: authResult.user.id 
-    });
+    // Success response already logged above
 
     return NextResponse.json(newUser, { status: 201 })
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    log.error('Error creating user', { 
-      error: errorMessage,
-      stack: error instanceof Error ? error.stack : undefined,
-      requestBody: await request.clone().json().catch(() => ({}))
-    });
+    const requestBody = await request.clone().json().catch(() => ({}));
+    
+    try {
+      const authResult = await verifyAuth(request);
+      await logger.error('Error creating user', {
+        action: 'user.create',
+        userId: authResult?.user?.id || 'system',
+        entityType: 'User',
+        entityId: 'new',
+        details: JSON.stringify({
+          error: errorMessage,
+          stack: error instanceof Error ? error.stack : undefined,
+          requestBody: requestBody
+        }),
+        ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
+        userAgent: request.headers.get('user-agent') || 'unknown',
+      });
+    } catch (authError) {
+      // If we can't verify auth, log with system user
+      await logger.error('Error creating user (unauthenticated)', {
+        action: 'user.create',
+        userId: 'system',
+        entityType: 'User',
+        entityId: 'new',
+        details: JSON.stringify({
+          error: errorMessage,
+          requestBody: requestBody
+        }),
+        ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
+        userAgent: request.headers.get('user-agent') || 'unknown',
+      });
+    }
     
     // Return appropriate error response
     if (error instanceof z.ZodError) {
