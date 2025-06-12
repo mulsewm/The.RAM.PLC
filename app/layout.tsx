@@ -5,6 +5,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import ConditionalLayout from "@/components/conditional-layout"
 import ChatWidget from "@/components/chatbot/ChatWidget"
+import { ToastProvider } from "@/components/providers/toast-provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
@@ -27,6 +28,7 @@ export default function RootLayout({
             {children}
           </ConditionalLayout>
           <ChatWidget />
+          <ToastProvider />
         </ThemeProvider>
       </body>
     </html>

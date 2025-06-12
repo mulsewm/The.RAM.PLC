@@ -1,17 +1,74 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { Status, Role } from '@prisma/client';
-import { withErrorHandler } from '@/middleware/error-handler';
-import { ApiResponse } from '@/lib/api-response';
-import { getPagination } from '@/lib/api-response';
-import prisma from '@/lib/db';
-import { rateLimit } from '@/lib/rate-limit';
+import { prisma } from '@/lib/prisma';
 
-// Rate limiting configuration
-const limiter = rateLimit({
-  interval: 60 * 1000, // 1 minute
-  uniqueTokenPerInterval: 500, // Max 500 users per second
+// Temporary in-file implementation of ApiResponse and getPagination
+// TODO: Move these to a shared utility file
+
+// Error class for API errors
+class ApiError extends Error {
+  constructor(public status: number, message: string, public details?: any) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+const ApiResponse = {
+  success: (data: any, meta: any = {}) => ({
+    success: true,
+    data,
+    meta
+  }),
+  error: (error: Error, message: string = 'An error occurred') => ({
+    success: false,
+    error: message,
+    details: error.message
+  }),
+  paginated: (data: any[], { page, limit, total }: { page: number; limit: number; total: number }) => ({
+    success: true,
+    data,
+    meta: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+      hasNextPage: page * limit < total,
+      hasPreviousPage: page > 1
+    }
+  })
+};
+
+const getPagination = (page: number, limit: number) => ({
+  skip: (page - 1) * limit,
+  take: limit
 });
+
+// Simple in-memory rate limiting
+const rateLimits = new Map<string, { count: number; resetTime: number }>();
+
+const checkRateLimit = (ip: string, limit: number, windowMs: number = 60 * 1000) => {
+  const now = Date.now();
+  const rateLimit = rateLimits.get(ip);
+
+  if (!rateLimit || rateLimit.resetTime < now) {
+    // New or expired rate limit window
+    rateLimits.set(ip, { count: 1, resetTime: now + windowMs });
+    return { success: true, remaining: limit - 1 };
+  }
+
+
+  if (rateLimit.count >= limit) {
+    return { 
+      success: false, 
+      error: 'Too many requests',
+      retryAfter: Math.ceil((rateLimit.resetTime - now) / 1000)
+    };
+  }
+
+  // Increment the counter
+  rateLimit.count++;
+  return { success: true, remaining: limit - rateLimit.count };
+};
 
 // Input validation schemas
 const searchParamsSchema = z.object({
@@ -74,24 +131,38 @@ interface PartnershipFilters {
   }>;
 }
 
-export const GET = withErrorHandler(async (request: NextRequest) => {
+export const GET = async (request: NextRequest) => {
   try {
     // Apply rate limiting
-    const identifier = request.ip || '127.0.0.1';
-    await limiter.check(10, identifier); // 10 requests per minute
+    const forwarded = request.headers.get('x-forwarded-for');
+    const ip = forwarded ? forwarded.split(/, /)[0] : '127.0.0.1';
+    
+    const rateLimitResult = checkRateLimit(ip, 10); // 10 requests per minute
+    if (!rateLimitResult.success) {
+      return new Response(
+        JSON.stringify({ 
+          error: rateLimitResult.error || 'Rate limit exceeded',
+          retryAfter: rateLimitResult.retryAfter 
+        }),
+        { 
+          status: 429, 
+          headers: { 
+            'Content-Type': 'application/json',
+            'Retry-After': rateLimitResult.retryAfter?.toString() || '60',
+            'X-RateLimit-Limit': '10',
+            'X-RateLimit-Remaining': rateLimitResult.remaining?.toString() || '0',
+            'X-RateLimit-Reset': (Math.floor(Date.now() / 1000) + (rateLimitResult.retryAfter || 60)).toString()
+          } 
+        }
+      );
+    }
 
     // Validate and parse query parameters
     const searchParams = Object.fromEntries(request.nextUrl.searchParams);
     const params = searchParamsSchema.safeParse(searchParams);
     
     if (!params.success) {
-      return ApiResponse.error(
-        new Response(JSON.stringify({ errors: params.error.flatten() }), {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
-        }),
-        'Invalid query parameters'
-      );
+      throw new ApiError(400, 'Invalid query parameters', params.error.flatten());
     }
     
     const { status, country, businessType, search, page, limit } = params.data;
@@ -174,30 +245,70 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
     });
 
     // Return paginated response
-    return ApiResponse.paginated(applications, {
-      page,
-      limit: take,
-      total,
-    });
-  } catch (error) {
-    console.error('Error fetching applications:', error);
     return new Response(
-      JSON.stringify({ error: 'Internal Server Error' }), 
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      JSON.stringify(ApiResponse.paginated(applications, {
+        page,
+        limit: take,
+        total,
+      })),
+      { 
+        status: 200, 
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-RateLimit-Limit': '10',
+          'X-RateLimit-Remaining': rateLimitResult.remaining?.toString() || '0',
+          'X-RateLimit-Reset': (Math.floor(Date.now() / 1000) + 60).toString()
+        } 
+      }
+    );
+  } catch (error) {
+    console.error('Error in GET /api/partnerships:', error);
+    
+    if (error instanceof ApiError) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: error.message,
+          details: error.details,
+          requestId: crypto.randomUUID()
+        }),
+        {
+          status: error.status,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Request-ID': crypto.randomUUID()
+          }
+        }
+      );
+    }
+    
+    // For unexpected errors
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: 'Internal Server Error',
+        requestId: crypto.randomUUID()
+      }),
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Request-ID': crypto.randomUUID()
+        }
+      }
     );
   }
-});
+};
 
 export async function POST(request: NextRequest) {
   try {
-    // Apply rate limiting using headers since IP might not be directly available
-    const forwarded = request.headers.get('x-forwarded-for');
-    const ip = forwarded ? forwarded.split(/, /)[0] : '127.0.1.1';
-    
     // Apply rate limiting
-    const rateLimitResult = await limiter.check(request, 5, ip); // 5 requests per minute
+    const forwarded = request.headers.get('x-forwarded-for');
+    const ip = forwarded ? forwarded.split(/, /)[0] : '127.0.0.1';
     
-    // Check if rate limited (should be handled by the error, but just in case)
+    const rateLimitResult = checkRateLimit(ip, 5); // 5 requests per minute
+    
+    // Check if rate limited
     if (!rateLimitResult.success) {
       return new Response(
         JSON.stringify({ 
@@ -210,8 +321,8 @@ export async function POST(request: NextRequest) {
           headers: { 
             'Content-Type': 'application/json',
             'Retry-After': rateLimitResult.retryAfter?.toString() || '60',
-            'X-RateLimit-Limit': rateLimitResult.limit.toString(),
-            'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+            'X-RateLimit-Limit': '5',
+            'X-RateLimit-Remaining': rateLimitResult.remaining?.toString() || '0',
             'X-RateLimit-Reset': (Math.floor(Date.now() / 1000) + (rateLimitResult.retryAfter || 60)).toString()
           } 
         }

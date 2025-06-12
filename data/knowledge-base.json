@@ -116,6 +116,46 @@
     {
       "question": "Can I integrate your verification services with my existing HR systems?",
       "answer": "Yes, we offer API integration options to seamlessly connect our verification services with your existing HR or business systems."
+    },
+    {
+      "question": "What documents are needed for a tourist visa?",
+      "answer": "Valid passport (6+ months validity)\n\nCompleted visa application form\n\nPassport-sized photos\n\nProof of travel (flight itinerary)\n\nHotel bookings or invitation letter\n\nBank statements (proof of funds)"
+    },
+    {
+      "question": "How do I apply for a work visa?",
+      "answer": "To apply for a work visa:\n\n- Get a job offer from an employer in the destination country.\n\n- Ensure the employer sponsors your visa (if required).\n\n- Submit documents like contract, qualifications, and passport."
+    },
+    {
+      "question": "How long does visa processing take?",
+      "answer": "Processing times vary:\n\n- Tourist visas: 5–15 business days\n\n- Work/Student visas: 2–8 weeks\n\nExpress processing may be available for extra fees.\n\nCheck the embassy website for exact timelines."
+    },
+    {
+      "question": "Can I extend my visa?",
+      "answer": "Some visas can be extended. You’ll need to:\n\n- Apply before the current visa expires.\n\n- Provide a valid reason (e.g., medical, work extension).\n\n- Pay extension fees."
+    },
+    {
+      "question": "How do I check my visa status?",
+      "answer": "You can check your status:\n\n- Online via The RAM PLC embassy/consulate’s tracking portal.\n\n- Using your application reference number.\n\n- By contacting the visa center directly.\n\nShare your country, and I’ll guide you further!"
+    },
+    {
+      "question": "How do I create an account on The RAM PLC?",
+      "answer": "Follow these steps:\n\n- Go to The RAM PLC website (insert link).\n\n- Click \"Sign Up\" or \"Register\".\n\n- Fill in your details (Name, Email, Company, etc.).\n\n- Verify your email via the confirmation link sent.\n\n- Log in with your credentials.\n\nFollow-up Options:\n\n- Didn’t receive the verification email? → Check spam or request a new link.\n\n- Need help with company registration? → Contact admin@ramplc.com."
+    },
+    {
+      "question": "How do I upload files to The RAM PLC?",
+      "answer": "To upload files:\n\n- Log in to your account.\n\n- Navigate to \"Upload Files\" (Dashboard > Uploads).\n\n- Click \"Browse\" or drag & drop files.\n\n- Select file type (e.g., Project Docs, Reports).\n\n- Click \"Submit\".\n\nSupported Formats:\n\n- Documents: PDF, DOCX, XLSX, PPTX\n\n- Images: JPG, PNG, TIFF\n\n- CAD/Design: DWG, STEP, STL\n\nTroubleshooting:\n\n- \"File too large?\" → Compress or split files.\n\n- \"Upload failed?\" → Check format/size or try again later."
+    },
+    {
+      "question": "Why can’t I upload my file?",
+      "answer": "Possible reasons:\n\n❌ File too large (Max size: 50MB).\n\n❌ Unsupported format (Check allowed formats above).\n\n❌ No permissions → Contact your admin."
+    },
+    {
+      "question": "How do I delete/replace an uploaded file?",
+      "answer": "Go to \"My Files\".\n\nClick the 🗑️ (Delete) or 🔄 (Replace) button.\n\nConfirm the action."
+    },
+    {
+      "question": "I forgot my password. How do I reset it?",
+      "answer": "Click \"Forgot Password?\" on the login page.\n\nEnter your registered email.\n\nClick the reset link in the email.\n\nSet a new password.\n\nStill stuck? Email support@ramplc.com"
     }
   ]
 }

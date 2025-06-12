@@ -56,7 +56,13 @@ function AdminLayoutContent({
 
   // Handle logout
   const handleLogout = async () => {
-    await logout()
+    try {
+      await logout()
+      toast.success('Successfully logged out')
+    } catch (error) {
+      console.error('Logout error:', error)
+      toast.error('Failed to log out. Please try again.')
+    }
   }
 
   const [sidebarOpen, setSidebarOpen] = useState(false)

@@ -20,12 +20,8 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@/components/*": ["./components/*"],
-      "@/lib/*": ["./src/lib/*"],
-      "@/config": ["./src/config"],
-      "@/middleware/*": ["./src/middleware/*"]
-    }
+      "@/*": ["*"]
+    } 
   },
   "include": [
     "next-env.d.ts",
