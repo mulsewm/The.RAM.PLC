@@ -7,9 +7,9 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '2mb',
     },
-    // Enable output file tracing for better deployment
-    outputFileTracingRoot: process.env.NODE_ENV === 'production' ? '/var/task' : undefined,
   },
+  // Enable output file tracing for better deployment
+  outputFileTracingRoot: process.env.NODE_ENV === 'production' ? '/var/task' : undefined,
   
   // Output standalone build for better compatibility with Vercel
   output: 'standalone',
@@ -61,7 +61,7 @@ const nextConfig = {
         path: false,
         os: false,
       };
-    },
+    }
     return config;
   },
 };
