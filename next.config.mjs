@@ -7,7 +7,12 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '2mb',
     },
+    // Enable output file tracing for better deployment
+    outputFileTracingRoot: process.env.NODE_ENV === 'production' ? '/var/task' : undefined,
   },
+  
+  // Output standalone build for better compatibility with Vercel
+  output: 'standalone',
   
   // External packages for server components
   serverExternalPackages: ['@prisma/client'],
@@ -45,16 +50,18 @@ const nextConfig = {
   },
   
   // Webpack configuration
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, dev }) => {
     // Important: return the modified config
     if (!isServer) {
-      // Don't resolve 'fs' module on the client to prevent this error on build:
-      // Module not found: Can't resolve 'fs'
+      // Fixes npm packages that depend on `fs` module
+      // and prevents 'Module not found: Can\'t resolve' errors
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
+        path: false,
+        os: false,
       };
-    }
+    },
     return config;
   },
 };
