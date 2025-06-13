@@ -1,8 +1,7 @@
-import { Prisma } from '@prisma/client'
-import { prisma } from './prisma'
+import { prisma } from "./prisma"
 
 type LogData = {
-  level: 'info' | 'warn' | 'error'
+  level: "info" | "warn" | "error"
   message: string
   userId: string
   action: string
@@ -13,51 +12,57 @@ type LogData = {
   userAgent?: string
 }
 
+// First, extract the log function to be a standalone function before the logger object
+export async function log(data: LogData) {
+  try {
+    // Create a log entry in the database
+    await prisma.auditLog.create({
+      data: {
+        action: data.action,
+        entityType: data.entityType,
+        entityId: data.entityId,
+        details: data.details || data.message,
+        performedBy: { connect: { id: data.userId } },
+        ipAddress: data.ipAddress || "",
+        userAgent: data.userAgent || "",
+      },
+    })
+
+    // Also log to console in development
+    if (process.env.NODE_ENV === "development") {
+      const logMethod = console[data.level] || console.log
+      logMethod(`[${data.level.toUpperCase()}] ${data.action}: ${data.message}`)
+    }
+  } catch (error) {
+    console.error("Failed to write log:", error)
+  }
+}
+
+// Then update the logger object to use this function
 const logger = {
   async log(data: LogData) {
-    try {
-      // Create a log entry in the database
-      await prisma.auditLog.create({
-        data: {
-          action: data.action,
-          entityType: data.entityType,
-          entityId: data.entityId,
-          details: data.details || data.message,
-          performedBy: { connect: { id: data.userId } },
-          ipAddress: data.ipAddress || '',
-          userAgent: data.userAgent || ''
-        },
-      })
-      
-      // Also log to console in development
-      if (process.env.NODE_ENV === 'development') {
-        const logMethod = console[data.level] || console.log
-        logMethod(`[${data.level.toUpperCase()}] ${data.action}: ${data.message}`)
-      }
-    } catch (error) {
-      console.error('Failed to write log:', error)
-    }
+    return log(data)
   },
 
-  async info(message: string, options: Omit<LogData, 'level' | 'message'>) {
+  async info(message: string, options: Omit<LogData, "level" | "message">) {
     await this.log({
-      level: 'info',
+      level: "info",
       message,
       ...options,
     })
   },
 
-  async error(message: string, options: Omit<LogData, 'level' | 'message'>) {
+  async error(message: string, options: Omit<LogData, "level" | "message">) {
     await this.log({
-      level: 'error',
+      level: "error",
       message,
       ...options,
     })
   },
 
-  async warn(message: string, options: Omit<LogData, 'level' | 'message'>) {
+  async warn(message: string, options: Omit<LogData, "level" | "message">) {
     await this.log({
-      level: 'warn',
+      level: "warn",
       message,
       ...options,
     })
