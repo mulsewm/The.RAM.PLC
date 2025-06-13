@@ -2,18 +2,6 @@
   "version": 2,
   "buildCommand": "npm install && npm run build",
   "outputDirectory": ".next",
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    }
-  ],
   "env": {
     "NODE_ENV": "production"
   },
@@ -21,5 +9,11 @@
     "env": {
       "NEXT_PUBLIC_VERCEL_ENV": "production"
     }
-  }
+  },
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    }
+  ]
 }
