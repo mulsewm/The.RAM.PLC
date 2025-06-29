@@ -2,7 +2,7 @@
 
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { api } from '@/lib/api';
+import axios from 'axios';
 import { toast } from 'sonner';
 
 type User = {
@@ -10,114 +10,110 @@ type User = {
   email: string;
   name: string;
   role: string;
-  createdAt: string;
-  updatedAt: string;
+  active: boolean;
 };
 
 type AuthContextType = {
   user: User | null;
-  loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  isLoading: boolean;
   isAuthenticated: boolean;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<void>;
+  checkAuth: () => Promise<boolean>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (token) {
-          api.setAuthToken(token);
-          const { data } = await api.get('/auth/me');
-          setUser(data.user);
-        }
-      } catch (error) {
-        console.error('Failed to load user', error);
-        localStorage.removeItem('token');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadUser();
-  }, []);
-
-  const login = async (email: string, password: string) => {
+  const checkAuth = async (): Promise<boolean> => {
     try {
-      setLoading(true);
-      const response = await api.post('/auth/login', { email, password });
-  
-      const { token, user } = response?.data?.data || {};
-      if (!token || !user) {
-        throw new Error('Invalid response from server');
+      setIsLoading(true);
+      const response = await axios.get('/api/auth/me');
+      if (response.data.user) {
+        setUser(response.data.user);
+        setIsAuthenticated(true);
+        return true;
       }
-  
-      // Update auth state
-      api.setAuthToken(token);
-      localStorage.setItem('token', token);
-      setUser(user);
-      
-      // Show success message
-      toast.success('Logged in successfully');
-      
-      // Always redirect to admin dashboard after login
-      setTimeout(() => {
-        window.location.href = '/admin';
-      }, 100);
-      
-    } catch (error: any) {
-      console.error('Login failed', error);
-      const errorMessage = error?.response?.data?.message || 'Login failed. Please try again.';
-      toast.error(errorMessage);
-      throw error;
+      return false;
+    } catch (error) {
+      setUser(null);
+      setIsAuthenticated(false);
+      return false;
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
-  
 
-  const logout = () => {
-    api.setAuthToken(null);
-    localStorage.removeItem('token');
-    setUser(null);
-    router.push('/login');
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      setIsLoading(true);
+      const response = await axios.post('/api/auth/login', { email, password });
+      
+      if (response.data.success && response.data.user) {
+        setUser(response.data.user);
+        setIsAuthenticated(true);
+        toast.success('Logged in successfully');
+        return { success: true };
+      } else {
+        const error = response.data.error || 'Login failed';
+        toast.error(error);
+        return { success: false, error };
+      }
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.error || error.message || 'Login failed';
+      toast.error(errorMessage);
+      setUser(null);
+      setIsAuthenticated(false);
+      return { success: false, error: errorMessage };
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const value = {
-    user,
-    loading,
-    login,
-    logout,
-    isAuthenticated: !!user,
+  const logout = async (): Promise<void> => {
+    try {
+      setIsLoading(true);
+      await axios.post('/api/auth/logout');
+      setUser(null);
+      setIsAuthenticated(false);
+      router.replace('/login');
+      toast.success('Logged out successfully');
+    } catch (error) {
+      toast.error('Logout failed');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Show loading state if needed, but always render children to maintain context
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        isAuthenticated,
+        login,
+        logout,
+        checkAuth,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
 
-export const useAuth = () => {
+export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-};
+}

@@ -14,7 +14,7 @@ import {
   Menu,
   X
 } from "lucide-react"
-import { AuthProvider, useAuth } from "@/lib/auth-provider"
+import { useAuth } from "@/contexts/AuthContext"
 import { toast } from "sonner"
 import { PartnershipProvider } from "@/lib/partnership-provider"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -28,12 +28,10 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <AuthProvider>
-      <AdminLayoutContent>
-        {children}
-        <ChatWidget />
-      </AdminLayoutContent>
-    </AuthProvider>
+    <AdminLayoutContent>
+      {children}
+      <ChatWidget />
+    </AdminLayoutContent>
   )
 }
 
@@ -45,14 +43,18 @@ function AdminLayoutContent({
   const pathname = usePathname()
   const router = useRouter()
   const { user, isLoading, isAuthenticated, logout } = useAuth()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
+    console.log('Auth state changed:', { isAuthenticated, isLoading, user });
+    
     // Redirect to login if not authenticated and not loading
     if (!isLoading && !isAuthenticated) {
-      router.push("/login")
-      toast.error("Please login to access the admin dashboard")
+      console.log('Redirecting to login, not authenticated');
+      router.replace('/login');
+      return;
     }
-  }, [isLoading, isAuthenticated, router])
+  }, [isAuthenticated, isLoading, router, user]);
 
   // Handle logout
   const handleLogout = async () => {
@@ -64,8 +66,6 @@ function AdminLayoutContent({
       toast.error('Failed to log out. Please try again.')
     }
   }
-
-  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   // Show loading state or nothing if not authenticated
   if (isLoading || !isAuthenticated) {
@@ -105,152 +105,84 @@ function AdminLayoutContent({
   ]
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-            {/* Mobile sidebar toggle */}
-            <div className="lg:hidden fixed top-0 left-0 w-full bg-white dark:bg-gray-800 z-50 flex items-center justify-between p-4 border-b">
-              <Link href="/admin" className="font-bold text-xl text-teal-600">
-                the.RAM.plc Admin
-              </Link>
+        <ThemeProvider>
+          <div className="flex h-screen">
+            {/* Sidebar */}
+            <div className={cn(
+              "fixed inset-y-0 left-0 z-50 w-64 transform bg-white shadow-lg transition-transform duration-200 ease-in-out dark:bg-gray-800 lg:translate-x-0 lg:shadow-none",
+              sidebarOpen ? "translate-x-0" : "-translate-x-full"
+            )}>
+              {/* Mobile menu button */}
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="absolute right-4 top-4 lg:hidden"
               >
-                {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+                {sidebarOpen ? (
+                  <X className="h-6 w-6" />
+                ) : (
+                  <Menu className="h-6 w-6" />
+                )}
               </button>
-            </div>
 
-            {/* Overlay to close sidebar on mobile */}
-            <div
-              className={`fixed inset-0 z-40 ${sidebarOpen ? 'block' : 'hidden'} bg-black/50 lg:hidden`}
-              onClick={() => setSidebarOpen(false)}
-            />
-
-            {/* Sidebar */}
-            <div
-              className={`fixed top-0 left-0 h-full bg-white dark:bg-gray-800 w-64 shadow-lg transform transition-transform duration-300 ease-in-out z-40 ${
-                sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-              }`}
-            >
-              <div className="p-6 border-b">
-                <Link href="/admin" className="font-bold text-xl text-teal-600">
-                  the.RAM.plc Admin
-                </Link>
-              </div>
-              <nav className="mt-6 px-4">
-                <ul className="space-y-2">
-                  {navItems.map((item) => {
-                    const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
-                    return (
-                      <li key={item.name}>
-                        <Link
-                          href={item.href}
-                          className={`flex items-center p-3 rounded-md transition-colors ${
-                            isActive
-                              ? "bg-teal-50 text-teal-600 dark:bg-teal-900/20 dark:text-teal-400"
-                              : "hover:bg-gray-100 dark:hover:bg-gray-700"
-                          }`}
-                        >
-                          <item.icon size={20} className="mr-3" />
-                          <span>{item.name}</span>
-                          {isActive && (
-                            <div
-                              className="absolute left-0 w-1 h-8 bg-teal-600 dark:bg-teal-400 rounded-r-md"
-                            />
-                          )}
-                        </Link>
-                      </li>
-                    )
-                  })}
-                </ul>
-              </nav>
-              <div className="absolute bottom-0 left-0 w-full p-4 border-t">
-                <div className="flex items-center gap-2 px-2">
-                  <div className="h-8 w-8 rounded-full bg-primary" />
-                  <div>
-                    <p className="text-sm font-medium">{user?.name || "Admin User"}</p>
-                    <p className="text-xs text-muted-foreground">{user?.email || "admin@example.com"}</p>
-                  </div>
+              {/* Sidebar content */}
+              <div className="flex h-full flex-col">
+                <div className="flex-1 overflow-y-auto p-4">
+                  <nav>
+                    <ul className="space-y-1">
+                      {navItems.map((item) => {
+                        const isActive = pathname === item.href
+                        return (
+                          <li key={item.href}>
+                            <Link
+                              href={item.href}
+                              className={cn(
+                                "flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors",
+                                isActive
+                                  ? "bg-teal-50 text-teal-600 dark:bg-teal-900/20 dark:text-teal-400"
+                                  : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                              )}
+                            >
+                              <item.icon size={20} className="mr-3" />
+                              <span>{item.name}</span>
+                              {isActive && (
+                                <div className="absolute left-0 w-1 h-8 bg-teal-600 dark:bg-teal-400 rounded-r-md" />
+                              )}
+                            </Link>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </nav>
                 </div>
-                <nav className="grid items-start px-2 text-sm font-medium">
-                  <Link
-                    href="/admin"
-                    className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-accent",
-                      pathname === "/admin" ? "bg-accent" : "transparent"
-                    )}
-                  >
-                    <LayoutDashboard className="h-4 w-4" />
-                    <span>Dashboard</span>
-                  </Link>
-                  {/* Only show Users link for ADMIN and SUPER_ADMIN */}
-                  {user?.role && ["ADMIN", "SUPER_ADMIN"].includes(user.role) && (
-                    <Link
-                      href="/admin/users"
-                      className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-accent",
-                        pathname === "/admin/users" ? "bg-accent" : "transparent"
-                      )}
-                    >
-                      <Users className="h-4 w-4" />
-                      <span>Users</span>
-                    </Link>
-                  )}
-                  <Link
-                    href="/admin/partnerships"
-                    className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-accent",
-                      pathname === "/admin/partnerships" ? "bg-accent" : "transparent"
-                    )}
-                  >
-                    <Handshake className="h-4 w-4" />
-                    <span>Partnerships</span>
-                  </Link>
-                  {/* Only show Settings link for ADMIN and SUPER_ADMIN */}
-                  {user?.role && ["ADMIN", "SUPER_ADMIN"].includes(user.role) && (
-                    <Link
-                      href="/admin/settings"
-                      className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-accent",
-                        pathname === "/admin/settings" ? "bg-accent" : "transparent"
-                      )}
-                    >
-                      <Settings className="h-4 w-4" />
-                      <span>Settings</span>
-                    </Link>
-                  )}
-                  {/* Only show Audit Logs link for ADMIN and SUPER_ADMIN */}
-                  {user?.role && ["ADMIN", "SUPER_ADMIN"].includes(user.role) && (
-                    <Link
-                      href="/admin/audit-logs"
-                      className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-accent",
-                        pathname === "/admin/audit-logs" ? "bg-accent" : "transparent"
-                      )}
-                    >
-                      <FileText className="h-4 w-4" />
-                      <span>Audit Logs</span>
-                    </Link>
-                  )}
-                  {/* Logout button */}
+
+                {/* User info and logout */}
+                <div className="border-t p-4">
+                  <div className="mb-4 flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-full bg-primary" />
+                    <div>
+                      <p className="text-sm font-medium">{user?.name || "Admin User"}</p>
+                      <p className="text-xs text-muted-foreground">{user?.email || "admin@example.com"}</p>
+                    </div>
+                  </div>
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-3 rounded-lg px-3 py-2 text-left hover:bg-accent mt-4 text-red-500"
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
                   >
-                    <LogOut className="h-4 w-4" />
+                    <LogOut size={16} />
                     <span>Logout</span>
                   </button>
-                </nav>
+                </div>
               </div>
             </div>
 
             {/* Main content */}
-            <div className="lg:pl-64 pt-16 lg:pt-0">
+            <div className="flex-1 lg:pl-64">
               <PartnershipProvider>
-                <main className="p-6">{children}</main>
-                {/* Simple copyright footer */}
+                <main className="container mx-auto p-6">
+                  {children}
+                </main>
                 <footer className="text-center py-4 text-sm text-gray-500 dark:text-gray-400">
                   © {new Date().getFullYear()} the.RAM.plc. All rights reserved.
                 </footer>

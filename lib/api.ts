@@ -6,9 +6,11 @@ import axios, {
 } from 'axios';
 
 type ApiResponse<T = any> = {
-  data: T;
+  data?: T;
   message?: string;
   success: boolean;
+  token?: string;
+  user?: any;
 };
 
 type RequestConfig = Omit<AxiosRequestConfig, 'headers'> & {
@@ -42,7 +44,7 @@ class ApiClient {
 
   private initAuthToken() {
     if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('auth_token');
       if (token) this.setAuthToken(token);
     }
   }
@@ -50,10 +52,7 @@ class ApiClient {
   private setupInterceptors() {
     this.client.interceptors.request.use((config) => {
       if (this.authToken) {
-        config.headers = {
-          ...config.headers,
-          Authorization: `Bearer ${this.authToken}`,
-        };
+        config.headers.Authorization = `Bearer ${this.authToken}`;
       }
       return config;
     });
@@ -77,10 +76,10 @@ class ApiClient {
     if (typeof window === 'undefined') return;
 
     if (token) {
-      localStorage.setItem('token', token);
+      localStorage.setItem('auth_token', token);
       this.client.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     } else {
-      localStorage.removeItem('token');
+      localStorage.removeItem('auth_token');
       delete this.client.defaults.headers.common['Authorization'];
     }
   }
@@ -114,8 +113,21 @@ class ApiClient {
   // Authentication
   public async login(credentials: { email: string; password: string }) {
     const res = await this.post('/auth/login', credentials);
-    if (res.data.token) this.setAuthToken(res.data.token);
-    return res.data;
+    console.log('API login response:', res);
+    
+    // Extract data from the nested response
+    const token = res.data?.token;
+    const user = res.data?.user;
+    
+    if (token) {
+      this.setAuthToken(token);
+    }
+    
+    return {
+      success: true,
+      user,
+      token
+    };
   }
 
   public async register(userData: { name: string; email: string; password: string }) {

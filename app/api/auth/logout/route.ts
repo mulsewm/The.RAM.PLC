@@ -17,12 +17,7 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({ success: true })
     
     // Clear the auth cookie on the response
-    response.cookies.set("auth_token", "", {
-      httpOnly: true,
-      expires: new Date(0),
-      path: "/",
-      secure: process.env.NODE_ENV === "production",
-    })
+    response.cookies.delete("auth_token")
     
     // If we have a valid user, log the logout
     if (authResult.success && authResult.user) {
@@ -49,12 +44,7 @@ export async function POST(request: NextRequest) {
     const errorResponse = NextResponse.json({ error: "Logout failed" }, { status: 500 })
     
     // Clear the auth cookie on the error response
-    errorResponse.cookies.set("auth_token", "", {
-      httpOnly: true,
-      expires: new Date(0),
-      path: "/",
-      secure: process.env.NODE_ENV === "production",
-    })
+    errorResponse.cookies.delete("auth_token")
     
     return errorResponse
   }

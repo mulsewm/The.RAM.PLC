@@ -1,17 +1,19 @@
 # Dependencies
-node_modules/
-.pnp
+/node_modules
+/.pnp
 .pnp.js
 
 # Build output
-.next/
-out/
-build/
-dist/
+/.next/
+/out/
+/build
 
 # Testing
-coverage/
-.nyc_output/
+/coverage
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 
 # Environment files
 .env
@@ -44,6 +46,9 @@ Thumbs.db
 
 # Local development
 .env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Cache
 .cache/
@@ -87,7 +92,7 @@ prisma/migrations/
 .next
 
 # Production
-build
+/build
 
 # Debug
 npm-debug.log*
@@ -105,3 +110,4 @@ yarn-error.log*
 
 # Typescript
 *.tsbuildinfo
+next-env.d.ts

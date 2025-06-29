@@ -19,7 +19,7 @@ export const useAuth = () => {
   // Check if user is authenticated
   const checkAuth = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('auth_token');
       if (!token) {
         setUser(null);
         return false;
@@ -40,7 +40,11 @@ export const useAuth = () => {
   // Login user
   const login = async (email: string, password: string) => {
     try {
-      const { user, token } = await api.login({ email, password });
+      const response = await api.login({ email, password });
+      const { user, token } = response;
+      if (token) {
+        localStorage.setItem('auth_token', token);
+      }
       setUser(user);
       return { success: true };
     } catch (error: any) {

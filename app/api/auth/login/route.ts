@@ -118,6 +118,11 @@ export async function POST(request: NextRequest) {
     )
 
     console.log("JWT token created successfully")
+    console.log("Token payload:", {
+      id: user.id,
+      email: user.email,
+      role: user.role
+    })
 
     // Create response object first
     const response = NextResponse.json({
@@ -135,7 +140,7 @@ export async function POST(request: NextRequest) {
     response.cookies.set("auth_token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "lax", // Changed from strict to lax for better compatibility
       maxAge: 60 * 60 * 24, // 1 day
       path: "/",
     })
