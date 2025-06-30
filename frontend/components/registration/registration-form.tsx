@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, Suspense } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -22,6 +22,8 @@ import { Button } from "@/components/ui/button"
 import { FileUpload } from "@/components/ui/file-upload"
 import { cn } from "@/lib/utils"
 import { CheckCircle, ChevronRight, Loader2 } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 // Form schemas for each step
 const personalInfoSchema = z.object({
@@ -105,6 +107,8 @@ export function RegistrationForm() {
   const [step, setStep] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -176,8 +180,10 @@ export function RegistrationForm() {
   }, [watch, step])
 
   const onSubmit = async (data: FormValues) => {
-    setIsSubmitting(true)
     try {
+      setIsLoading(true)
+      setError("")
+
       const formData = new FormData()
       Object.entries(data).forEach(([key, value]) => {
         if (value instanceof FileList) {
@@ -187,19 +193,19 @@ export function RegistrationForm() {
         }
       })
 
-      await axios.post("/api/apply", formData, {
+      const response = await axios.post("/api/apply", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })
 
+      if (!response.data.success) {
+        throw new Error(response.data.message || "Something went wrong")
+      }
+
       setIsSubmitted(true)
-    } catch (error) {
-      console.error("Application error:", error)
-      form.setError("root", {
-        type: "manual",
-        message: "There was an error submitting your application. Please try again.",
-      })
+    } catch (err: any) {
+      setError(err.message)
     } finally {
-      setIsSubmitting(false)
+      setIsLoading(false)
     }
   }
 
@@ -221,464 +227,479 @@ export function RegistrationForm() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <AnimatePresence mode="wait">
-        {isSubmitted ? (
-          <motion.div
-            key="success"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="text-center"
-          >
-            <div className="h-20 w-20 mx-auto mb-8 bg-primary/10 rounded-full flex items-center justify-center">
-              <CheckCircle className="h-12 w-12 text-primary" />
-            </div>
-            <h2 className="text-2xl font-bold mb-4">Application Successful!</h2>
-            <p className="text-gray-600 mb-8">
-              Thank you for applying with THE RAM PLC. Our team will review your application and contact you within 24-48 hours.
-            </p>
-            <Button onClick={() => router.push("/dashboard")} className="bg-primary hover:bg-primary/90">
-              Go to Dashboard
-            </Button>
-          </motion.div>
-        ) : (
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <div className="flex justify-between items-center mb-8">
-                {steps.map((s, i) => (
-                  <div
-                    key={i}
-                    className={cn(
-                      "flex items-center",
-                      i !== steps.length - 1 && "flex-1"
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "h-10 w-10 rounded-full flex items-center justify-center border-2",
-                        step === i
-                          ? "border-primary bg-primary text-white"
-                          : step > i
-                          ? "border-primary bg-primary text-white"
-                          : "border-gray-300 text-gray-500"
-                      )}
-                    >
-                      {step > i ? (
-                        <CheckCircle className="h-6 w-6" />
-                      ) : (
-                        <span>{i + 1}</span>
-                      )}
-                    </div>
-                    {i !== steps.length - 1 && (
-                      <div
-                        className={cn(
-                          "flex-1 h-0.5 mx-4",
-                          step > i ? "bg-primary" : "bg-gray-300"
-                        )}
-                      />
-                    )}
-                  </div>
-                ))}
+    <Suspense fallback={<div>Loading...</div>}>
+      <div className="max-w-3xl mx-auto px-4 py-8">
+        <AnimatePresence mode="wait">
+          {isSubmitted ? (
+            <motion.div
+              key="success"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="text-center"
+            >
+              <div className="h-20 w-20 mx-auto mb-8 bg-primary/10 rounded-full flex items-center justify-center">
+                <CheckCircle className="h-12 w-12 text-primary" />
               </div>
-
-              <motion.div
-                key={step}
-                custom={step}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{
-                  x: { type: "spring", stiffness: 300, damping: 30 },
-                  opacity: { duration: 0.2 }
-                }}
-              >
-                {step === 0 && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                      control={form.control}
-                      name="firstName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>First Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="John" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="lastName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Last Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Doe" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email Address</FormLabel>
-                          <FormControl>
-                            <Input type="email" placeholder="john@example.com" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="phone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Phone Number</FormLabel>
-                          <FormControl>
-                            <Input type="tel" placeholder="+1 (555) 123-4567" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+              <h2 className="text-2xl font-bold mb-4">Application Successful!</h2>
+              <p className="text-gray-600 mb-8">
+                Thank you for applying with THE RAM PLC. Our team will review your application and contact you within 24-48 hours.
+              </p>
+              <Button onClick={() => router.push("/dashboard")} className="bg-primary hover:bg-primary/90">
+                Go to Dashboard
+              </Button>
+            </motion.div>
+          ) : (
+            <Card className="w-full max-w-lg">
+              <CardHeader className="space-y-1">
+                <CardTitle className="text-2xl">Create an account</CardTitle>
+                <CardDescription>Enter your information to get started</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {error && (
+                  <Alert variant="destructive" className="mb-6">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
                 )}
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <div className="flex justify-between items-center mb-8">
+                      {steps.map((s, i) => (
+                        <div
+                          key={i}
+                          className={cn(
+                            "flex items-center",
+                            i !== steps.length - 1 && "flex-1"
+                          )}
+                        >
+                          <div
+                            className={cn(
+                              "h-10 w-10 rounded-full flex items-center justify-center border-2",
+                              step === i
+                                ? "border-primary bg-primary text-white"
+                                : step > i
+                                ? "border-primary bg-primary text-white"
+                                : "border-gray-300 text-gray-500"
+                            )}
+                          >
+                            {step > i ? (
+                              <CheckCircle className="h-6 w-6" />
+                            ) : (
+                              <span>{i + 1}</span>
+                            )}
+                          </div>
+                          {i !== steps.length - 1 && (
+                            <div
+                              className={cn(
+                                "flex-1 h-0.5 mx-4",
+                                step > i ? "bg-primary" : "bg-gray-300"
+                              )}
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </div>
 
-                {step === 1 && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                      control={form.control}
-                      name="profession"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Profession</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select your profession" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {professionOptions.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="specialization"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Specialization</FormLabel>
-                          <FormControl>
-                            <Input placeholder="e.g., Cardiology, ICU Nursing" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="yearsOfExperience"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Years of Experience</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select experience level" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {experienceOptions.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="licensingStatus"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Licensing Status</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select licensing status" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="licensed">Licensed</SelectItem>
-                              <SelectItem value="inProgress">In Progress</SelectItem>
-                              <SelectItem value="notStarted">Not Started</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                )}
-
-                {step === 2 && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                      control={form.control}
-                      name="currentLocation"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Current Location</FormLabel>
-                          <FormControl>
-                            <Input placeholder="City, Country" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="preferredLocation"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Preferred Location</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select preferred location" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {locationOptions.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="visaType"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Visa Type</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select visa type" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {visaOptions.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="processingUrgency"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Processing Urgency</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select urgency level" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {urgencyOptions.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                )}
-
-                {step === 3 && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                      control={form.control}
-                      name="passport"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Passport Copy</FormLabel>
-                          <FormControl>
-                            <FileUpload
-                              {...field}
-                              accept="image/*,application/pdf"
-                              maxSize={5 * 1024 * 1024} // 5MB
-                              helperText="PDF, JPG, PNG (Max 5MB)"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="license"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Professional License</FormLabel>
-                          <FormControl>
-                            <FileUpload
-                              {...field}
-                              accept="image/*,application/pdf"
-                              maxSize={5 * 1024 * 1024}
-                              helperText="PDF, JPG, PNG (Max 5MB)"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="degree"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Degree Certificate</FormLabel>
-                          <FormControl>
-                            <FileUpload
-                              {...field}
-                              accept="image/*,application/pdf"
-                              maxSize={5 * 1024 * 1024}
-                              helperText="PDF, JPG, PNG (Max 5MB)"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="experience"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Experience Certificate</FormLabel>
-                          <FormControl>
-                            <FileUpload
-                              {...field}
-                              accept="image/*,application/pdf"
-                              maxSize={5 * 1024 * 1024}
-                              helperText="PDF, JPG, PNG (Max 5MB)"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="medicalReport"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Medical Test Reports</FormLabel>
-                          <FormControl>
-                            <FileUpload
-                              {...field}
-                              accept="image/*,application/pdf"
-                              maxSize={5 * 1024 * 1024}
-                              helperText="PDF, JPG, PNG (Max 5MB)"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="photo"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Passport-Sized Photo</FormLabel>
-                          <FormControl>
-                            <FileUpload
-                              {...field}
-                              accept="image/*"
-                              maxSize={5 * 1024 * 1024}
-                              helperText="JPG, PNG (Max 5MB)"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                )}
-
-                <div className="flex justify-between mt-8">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setStep(step - 1)}
-                    disabled={step === 0}
-                    className="border-primary text-primary hover:bg-primary/10"
-                  >
-                    Back
-                  </Button>
-                  {step === steps.length - 1 ? (
-                    <Button type="submit" disabled={isSubmitting} className="bg-primary hover:bg-primary/90">
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Submitting...
-                        </>
-                      ) : (
-                        "Submit Application"
-                      )}
-                    </Button>
-                  ) : (
-                    <Button
-                      type="button"
-                      onClick={() => checkStepValidity()}
-                      className="bg-primary hover:bg-primary/90"
+                    <motion.div
+                      key={step}
+                      custom={step}
+                      variants={slideVariants}
+                      initial="enter"
+                      animate="center"
+                      exit="exit"
+                      transition={{
+                        x: { type: "spring", stiffness: 300, damping: 30 },
+                        opacity: { duration: 0.2 }
+                      }}
                     >
-                      Next
-                      <ChevronRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              </motion.div>
-            </form>
-          </Form>
-        )}
-      </AnimatePresence>
-    </div>
+                      {step === 0 && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <FormField
+                            control={form.control}
+                            name="firstName"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>First Name</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="John" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="lastName"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Last Name</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Doe" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="email"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Email</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="john.doe@example.com" type="email" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="phone"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Phone Number</FormLabel>
+                                <FormControl>
+                                  <Input type="tel" placeholder="+1 (555) 123-4567" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      )}
+
+                      {step === 1 && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <FormField
+                            control={form.control}
+                            name="profession"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Profession</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select your profession" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {professionOptions.map((option) => (
+                                      <SelectItem key={option.value} value={option.value}>
+                                        {option.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="specialization"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Specialization</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="e.g., Cardiology, ICU Nursing" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="yearsOfExperience"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Years of Experience</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select experience level" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {experienceOptions.map((option) => (
+                                      <SelectItem key={option.value} value={option.value}>
+                                        {option.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="licensingStatus"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Licensing Status</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select licensing status" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="licensed">Licensed</SelectItem>
+                                    <SelectItem value="inProgress">In Progress</SelectItem>
+                                    <SelectItem value="notStarted">Not Started</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      )}
+
+                      {step === 2 && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <FormField
+                            control={form.control}
+                            name="currentLocation"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Current Location</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="City, Country" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="preferredLocation"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Preferred Location</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select preferred location" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {locationOptions.map((option) => (
+                                      <SelectItem key={option.value} value={option.value}>
+                                        {option.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="visaType"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Visa Type</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select visa type" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {visaOptions.map((option) => (
+                                      <SelectItem key={option.value} value={option.value}>
+                                        {option.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="processingUrgency"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Processing Urgency</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select urgency level" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {urgencyOptions.map((option) => (
+                                      <SelectItem key={option.value} value={option.value}>
+                                        {option.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      )}
+
+                      {step === 3 && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <FormField
+                            control={form.control}
+                            name="passport"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Passport Copy</FormLabel>
+                                <FormControl>
+                                  <FileUpload
+                                    {...field}
+                                    accept="image/*,application/pdf"
+                                    maxSize={5 * 1024 * 1024} // 5MB
+                                    helperText="PDF, JPG, PNG (Max 5MB)"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="license"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Professional License</FormLabel>
+                                <FormControl>
+                                  <FileUpload
+                                    {...field}
+                                    accept="image/*,application/pdf"
+                                    maxSize={5 * 1024 * 1024}
+                                    helperText="PDF, JPG, PNG (Max 5MB)"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="degree"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Degree Certificate</FormLabel>
+                                <FormControl>
+                                  <FileUpload
+                                    {...field}
+                                    accept="image/*,application/pdf"
+                                    maxSize={5 * 1024 * 1024}
+                                    helperText="PDF, JPG, PNG (Max 5MB)"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="experience"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Experience Certificate</FormLabel>
+                                <FormControl>
+                                  <FileUpload
+                                    {...field}
+                                    accept="image/*,application/pdf"
+                                    maxSize={5 * 1024 * 1024}
+                                    helperText="PDF, JPG, PNG (Max 5MB)"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="medicalReport"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Medical Test Reports</FormLabel>
+                                <FormControl>
+                                  <FileUpload
+                                    {...field}
+                                    accept="image/*,application/pdf"
+                                    maxSize={5 * 1024 * 1024}
+                                    helperText="PDF, JPG, PNG (Max 5MB)"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="photo"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Passport-Sized Photo</FormLabel>
+                                <FormControl>
+                                  <FileUpload
+                                    {...field}
+                                    accept="image/*"
+                                    maxSize={5 * 1024 * 1024}
+                                    helperText="JPG, PNG (Max 5MB)"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      )}
+
+                      <div className="flex justify-between mt-8">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setStep(step - 1)}
+                          disabled={step === 0}
+                          className="border-primary text-primary hover:bg-primary/10"
+                        >
+                          Back
+                        </Button>
+                        {step === steps.length - 1 ? (
+                          <Button type="submit" disabled={isLoading} className="bg-primary hover:bg-primary/90">
+                            {isLoading ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Submitting...
+                              </>
+                            ) : (
+                              "Submit Application"
+                            )}
+                          </Button>
+                        ) : (
+                          <Button
+                            type="button"
+                            onClick={() => checkStepValidity()}
+                            className="bg-primary hover:bg-primary/90"
+                          >
+                            Next
+                            <ChevronRight className="ml-2 h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </motion.div>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
+          )}
+        </AnimatePresence>
+      </div>
+    </Suspense>
   )
 } 

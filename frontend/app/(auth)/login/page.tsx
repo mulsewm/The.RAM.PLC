@@ -1,135 +1,119 @@
-'use client';
+"use client"
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
-import Link from 'next/link';
-import { toast } from 'sonner';
+import { Suspense } from "react"
+import { useSearchParams } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import Link from "next/link"
+
+const formSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+})
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const router = useRouter()
+  const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
-  // Clear URL if it contains email/password
-  useEffect(() => {
-    const url = new URL(window.location.href);
-    if (url.searchParams.has('email') || url.searchParams.has('password')) {
-      // Keep only the 'from' parameter if it exists
-      const from = url.searchParams.get('from');
-      url.search = from ? `?from=${from}` : '';
-      window.history.replaceState({}, '', url.toString());
-    }
-  }, []);
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  })
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const result = await login(email, password);
-      if (result.success) {
-        // Get the redirect URL from query params or default to /admin
-        const redirectTo = searchParams.get('from') || '/admin';
-        // Use router.replace to avoid adding to history stack
-        router.replace(redirectTo);
-      } else {
-        toast.error(result.error || 'Login failed');
+      setIsLoading(true)
+      setError("")
+
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || "Something went wrong")
       }
+
+      router.push("/dashboard")
     } catch (err: any) {
-      toast.error(err.message || 'An error occurred');
+      setError(err.message)
     } finally {
-      setLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <Link href="/register" className="font-medium text-primary hover:text-primary/80">
-              create a new account
-            </Link>
-          </p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit} method="POST">
-          <input type="hidden" name="remember" value="true" />
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={loading}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={loading}
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                Remember me
-              </label>
-            </div>
-
-            <div className="text-sm">
-              <Link href="/forgot-password" className="font-medium text-primary hover:text-primary/80">
-                Forgot your password?
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <Suspense fallback={<div>Loading...</div>}>
+        <Card className="w-full max-w-lg">
+          <CardHeader className="space-y-1 text-center">
+            <CardTitle className="text-3xl font-bold">Welcome back</CardTitle>
+            <CardDescription>Enter your credentials to access your account</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {error && (
+              <Alert variant="destructive" className="mb-6">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter your email" type="email" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter your password" type="password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Signing in..." : "Sign in"}
+                </Button>
+              </form>
+            </Form>
+            <div className="mt-4 text-center text-sm">
+              Don&apos;t have an account?{" "}
+              <Link href="/apply" className="text-primary hover:underline">
+                Apply now
               </Link>
             </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </div>
-        </form>
-      </div>
+          </CardContent>
+        </Card>
+      </Suspense>
     </div>
-  );
+  )
 }

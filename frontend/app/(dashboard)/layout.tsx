@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { Toaster } from '@/components/ui/toaster';
@@ -31,13 +31,15 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar />
-      <div className="flex flex-col flex-1 overflow-hidden">
-        <Header />
-        <main className="flex-1 overflow-y-auto p-6">
-          {children}
-        </main>
-      </div>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Sidebar />
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <Header />
+          <main className="flex-1 overflow-y-auto p-6">
+            {children}
+          </main>
+        </div>
+      </Suspense>
       <Toaster />
     </div>
   );

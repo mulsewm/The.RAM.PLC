@@ -1,33 +1,17 @@
-import type { Metadata } from "next"
 import { Inter } from "next/font/google"
+import { ClientWrapper } from "./client-wrapper"
 import "./globals.css"
-import { Providers } from "./providers"
-import ConditionalLayout from "@/components/conditional-layout"
-import ChatWidget from "@/components/chatbot/ChatWidget"
+import { metadata } from "./metadata"
 
 const inter = Inter({ subsets: ["latin"] })
 
-export const metadata: Metadata = {
-  title: "the.RAM.plc | African Expertise in Global Verification & Analytics",
-  description:
-    "Experts in Primary Source Verification, Background Screening, Mystery Shopping, Data Analytics, and Risk Assessment across Africa.",
-  generator: "v0.dev",
-}
+export { metadata }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <Providers>
-          <ConditionalLayout>
-            {children}
-          </ConditionalLayout>
-          <ChatWidget />
-        </Providers>
+        <ClientWrapper>{children}</ClientWrapper>
       </body>
     </html>
   )

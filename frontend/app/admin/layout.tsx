@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -20,6 +20,8 @@ import { PartnershipProvider } from "@/lib/partnership-provider"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Inter } from "next/font/google"
 import ChatWidget from "@/components/chatbot/ChatWidget"
+import { Sidebar } from "@/components/ui/sidebar"
+import { Button } from "@/components/ui/button"
 const inter = Inter({ subsets: ["latin"] })
 
 export default function AdminLayout({
@@ -27,11 +29,36 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
+  const pathname = usePathname()
+  const router = useRouter()
+  const { user, logout } = useAuth()
+
+  if (!user || user.role !== "ADMIN") {
+    router.push("/unauthorized")
+    return null
+  }
+
   return (
-    <AdminLayoutContent>
-      {children}
+    <div className="flex h-screen">
+      <Suspense fallback={<div>Loading...</div>}>
+        <Sidebar>
+          <nav className="space-y-1">
+            {navigation.map((item) => (
+              <Button
+                key={item.name}
+                variant={pathname === item.href ? "secondary" : "ghost"}
+                className="w-full justify-start"
+                onClick={() => router.push(item.href)}
+              >
+                {item.name}
+              </Button>
+            ))}
+          </nav>
+        </Sidebar>
+        <main className="flex-1 overflow-y-auto p-8">{children}</main>
+      </Suspense>
       <ChatWidget />
-    </AdminLayoutContent>
+    </div>
   )
 }
 
