@@ -29,6 +29,7 @@ import {
   User,
   Users,
   X,
+  ArrowLeft,
   type Icon as LucideIcon,
 } from "lucide-react";
 
@@ -63,6 +64,7 @@ export const Icons = {
   user: User,
   users: Users,
   x: X,
+  arrowLeft: ArrowLeft,
 };
 
 export type Icon = keyof typeof Icons;
