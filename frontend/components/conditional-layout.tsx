@@ -3,7 +3,6 @@
 import { usePathname } from "next/navigation"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
-import { StickyHeader } from "@/components/sticky-header"
 
 export default function ConditionalLayout({
   children,
@@ -16,12 +15,7 @@ export default function ConditionalLayout({
   
   return (
     <>
-      {!isAdminPage && !isAuthPage && (
-        <>
-          <Navbar />
-          <StickyHeader />
-        </>
-      )}
+      {!isAdminPage && !isAuthPage && <Navbar />}
       <main>{children}</main>
       {!isAdminPage && !isAuthPage && <Footer />}
     </>

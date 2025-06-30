@@ -107,8 +107,8 @@ export default function LoginPage() {
             </Form>
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{" "}
-              <Link href="/apply" className="text-primary hover:underline">
-                Apply now
+              <Link href="/account-creation" className="text-primary hover:underline">
+                Apply for GCC
               </Link>
             </div>
           </CardContent>

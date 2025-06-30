@@ -5,23 +5,24 @@ import Image from "next/image"
 
 export default function TestimonialsPage() {
   return (
-    <div className="min-h-screen">
+    <>
       {/* Hero Section */}
-      <section className="relative py-12 bg-gradient-to-b from-primary/5 to-white">
+      <section className="relative py-16 md:py-24 bg-gradient-to-b from-primary/5 to-background">
         <div className="absolute inset-0 z-0 opacity-10">
           <Image
             src="/grid-pattern.svg"
             alt="Background Pattern"
             fill
             className="object-cover"
+            priority
           />
         </div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl font-bold mb-2 text-primary">
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
               Success Stories
             </h1>
-            <p className="text-xl text-gray-600">
+            <p className="text-lg md:text-xl text-muted-foreground">
               Discover how healthcare professionals like you have successfully started their careers in the GCC region.
             </p>
           </div>
@@ -68,38 +69,38 @@ export default function TestimonialsPage() {
               <div className="text-gray-600">Nurses Hired</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-primary mb-2">500+</div>
-              <div className="text-gray-600">Partner Hospitals</div>
+              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">500+</div>
+              <div className="text-muted-foreground">Partner Hospitals</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-primary mb-2">6</div>
-              <div className="text-gray-600">GCC Countries</div>
+              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">6</div>
+              <div className="text-muted-foreground">GCC Countries</div>
             </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-12 bg-gradient-to-r from-primary to-primary-dark text-white">
+      <section className="py-16 bg-gradient-to-r from-primary to-primary/90 text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-2">Join Our Success Stories</h2>
-          <p className="text-xl mb-6 text-primary-foreground/90">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4">Join Our Success Stories</h2>
+          <p className="text-lg md:text-xl mb-8 text-primary-foreground/90 max-w-2xl mx-auto">
             Take the first step towards your career in the GCC healthcare sector.
           </p>
-          <div className="flex justify-center gap-4">
-            <Link href="/apply">
-              <Button size="lg" variant="secondary" className="bg-white text-primary hover:bg-gray-100">
-                Apply Now
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Link href="/account-creation" className="w-full sm:w-auto">
+              <Button size="lg" variant="secondary" className="w-full sm:w-auto bg-white text-primary hover:bg-gray-100">
+                Apply for GCC
               </Button>
             </Link>
-            <Link href="/visa-services/requirements">
-              <Button size="lg" variant="outline" className="text-white border-white hover:bg-primary-dark">
+            <Link href="/visa-services/requirements" className="w-full sm:w-auto">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto text-white border-white hover:bg-white/10">
                 Learn More
               </Button>
             </Link>
           </div>
         </div>
       </section>
-    </div>
+    </>
   )
 } 

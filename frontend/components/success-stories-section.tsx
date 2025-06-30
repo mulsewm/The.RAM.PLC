@@ -34,28 +34,30 @@ const testimonials = [
 
 export function SuccessStoriesSection() {
   return (
-    <section className="py-12">
+    <section className="py-12 md:py-16">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold mb-2 text-primary">Success Stories</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-foreground">Success Stories</h2>
+          <p className="text-muted-foreground max-w-3xl mx-auto text-lg">
             Hear from healthcare professionals who successfully obtained their visas through our services.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {testimonials.map((testimonial, index) => (
-            <Card key={index} className="hover:shadow-lg transition-shadow duration-300">
-              <CardContent className="p-6">
-                <div className="flex flex-col items-center text-center">
-                  <Avatar className="h-20 w-20 mb-4">
-                    <AvatarImage src={testimonial.image} alt={testimonial.name} />
-                    <AvatarFallback>{testimonial.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
+            <Card key={index} className="h-full hover:shadow-md transition-all duration-300 border-border/50 hover:border-primary/30">
+              <CardContent className="p-6 flex flex-col h-full">
+                <div className="flex flex-col items-center text-center flex-grow">
+                  <Avatar className="h-20 w-20 mb-4 border-2 border-primary/20">
+                    <AvatarImage src={testimonial.image} alt={testimonial.name} className="object-cover" />
+                    <AvatarFallback className="bg-primary/10 text-primary">
+                      {testimonial.name.split(" ").map(n => n[0]).join("")}
+                    </AvatarFallback>
                   </Avatar>
-                  <blockquote className="mb-4 text-gray-600">"{testimonial.quote}"</blockquote>
-                  <div className="mt-auto">
-                    <h3 className="font-semibold">{testimonial.name}</h3>
-                    <p className="text-sm text-gray-500">{testimonial.role}</p>
-                    <p className="text-sm text-gray-500">{testimonial.location}</p>
+                  <blockquote className="mb-4 text-muted-foreground italic">"{testimonial.quote}"</blockquote>
+                  <div className="mt-4">
+                    <h3 className="font-semibold text-foreground">{testimonial.name}</h3>
+                    <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                    <p className="text-sm text-muted-foreground/80">{testimonial.location}</p>
                   </div>
                 </div>
               </CardContent>

@@ -50,28 +50,28 @@ const visaTypes = [
 
 export function VisaTypesSection() {
   return (
-    <section className="py-12 bg-white">
+    <section className="py-12 md:py-16 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold mb-2 text-primary">Healthcare Visa Types</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-foreground">Healthcare Visa Types</h2>
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
             Choose from our range of specialized visa options designed for healthcare professionals seeking opportunities in the GCC region.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {visaTypes.map((visa, index) => (
-            <Card key={index} className="h-full hover:shadow-lg transition-all duration-300 border-gray-100">
-              <CardContent className="p-6">
+            <Card key={index} className="h-full hover:shadow-md transition-all duration-300 border-border/50 hover:border-primary/30">
+              <CardContent className="p-6 flex flex-col h-full">
                 <div className="mb-4">
                   {visa.icon}
                 </div>
-                <h3 className="text-xl font-semibold mb-2">{visa.title}</h3>
-                <p className="text-sm text-green-600 mb-4">{visa.subtitle}</p>
-                <ul className="space-y-3">
+                <h3 className="text-xl font-semibold mb-2 text-foreground">{visa.title}</h3>
+                <p className="text-sm text-primary mb-4 font-medium">{visa.subtitle}</p>
+                <ul className="space-y-3 mt-2">
                   {visa.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-start text-sm text-gray-600">
+                    <li key={featureIndex} className="flex items-start text-sm text-muted-foreground">
                       <svg
-                        className="h-5 w-5 mr-2 text-green-500 flex-shrink-0 mt-0.5"
+                        className="h-5 w-5 mr-2 text-primary flex-shrink-0 mt-0.5"
                         fill="none"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -81,7 +81,7 @@ export function VisaTypesSection() {
                       >
                         <path d="M5 13l4 4L19 7" />
                       </svg>
-                      <span>{feature}</span>
+                      <span className="leading-relaxed">{feature}</span>
                     </li>
                   ))}
                 </ul>

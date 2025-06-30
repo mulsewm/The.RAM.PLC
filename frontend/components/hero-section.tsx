@@ -42,7 +42,7 @@ export default function HeroSection() {
             The.RAM.PLC delivers premier global consultancy services in verification, data analytics, and risk assessment, empowering businesses worldwide to make confident decisions in today's complex market.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Link href="/apply">
+              <Link href="/account-creation">
                 <Button className="bg-teal-600 hover:bg-teal-700 text-white text-lg px-8 py-6 shadow-lg hover:shadow-xl transition-all">
                   Apply for GCC
                 </Button>

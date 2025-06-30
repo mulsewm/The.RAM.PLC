@@ -5,15 +5,15 @@ import Link from "next/link"
 
 export default function RequirementsPage() {
   return (
-    <div className="min-h-screen">
+    <>
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-primary/5 to-white py-20">
+      <section className="bg-gradient-to-b from-primary/5 to-background py-16 md:py-24">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl font-bold mb-6 text-primary">
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
               Visa Requirements & Process
             </h1>
-            <p className="text-xl text-gray-600 mb-8">
+            <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
               Everything you need to know about the documentation and steps required for your healthcare visa application.
             </p>
           </div>
@@ -35,21 +35,21 @@ export default function RequirementsPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-primary">Frequently Asked Questions</h2>
-          <div className="max-w-3xl mx-auto space-y-6">
-            <div className="bg-primary/5 p-6 rounded-lg hover:bg-primary/10 transition-colors">
-              <h3 className="font-semibold mb-2">How long does the visa process take?</h3>
-              <p className="text-gray-600">The standard processing time is 15-30 days, though this can vary based on the type of visa and your specific circumstances.</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-foreground">Frequently Asked Questions</h2>
+          <div className="max-w-3xl mx-auto space-y-4">
+            <div className="bg-muted/50 p-6 rounded-lg hover:bg-muted transition-colors">
+              <h3 className="font-semibold text-lg mb-2">How long does the visa process take?</h3>
+              <p className="text-muted-foreground">The standard processing time is 15-30 days, though this can vary based on the type of visa and your specific circumstances.</p>
             </div>
-            <div className="bg-primary/5 p-6 rounded-lg hover:bg-primary/10 transition-colors">
-              <h3 className="font-semibold mb-2">Do I need to have a job offer first?</h3>
-              <p className="text-gray-600">While having a job offer can expedite the process, we also assist healthcare professionals in securing positions after arrival.</p>
+            <div className="bg-muted/50 p-6 rounded-lg hover:bg-muted transition-colors">
+              <h3 className="font-semibold text-lg mb-2">Do I need to have a job offer first?</h3>
+              <p className="text-muted-foreground">While having a job offer can expedite the process, we also assist healthcare professionals in securing positions after arrival.</p>
             </div>
-            <div className="bg-primary/5 p-6 rounded-lg hover:bg-primary/10 transition-colors">
-              <h3 className="font-semibold mb-2">What happens after I submit my application?</h3>
-              <p className="text-gray-600">Our team will review your application within 48 hours and guide you through the next steps, including document verification and authority submissions.</p>
+            <div className="bg-muted/50 p-6 rounded-lg hover:bg-muted transition-colors">
+              <h3 className="font-semibold text-lg mb-2">What documents will I need?</h3>
+              <p className="text-muted-foreground">Typical requirements include your passport, educational certificates, professional licenses, and a clean criminal record. See our requirements section for a complete list.</p>
             </div>
           </div>
         </div>
@@ -63,9 +63,9 @@ export default function RequirementsPage() {
             Our team is here to support you throughout the entire process.
           </p>
           <div className="flex justify-center gap-4">
-            <Link href="/apply">
+            <Link href="/account-creation">
               <Button size="lg" variant="secondary" className="bg-white text-primary hover:bg-gray-100">
-                Start Application
+                Create Account
               </Button>
             </Link>
             <Link href="/chat">
@@ -76,6 +76,6 @@ export default function RequirementsPage() {
           </div>
         </div>
       </section>
-    </div>
+    </>
   )
-} 
+}

@@ -45,21 +45,21 @@ const requirements = [
 
 export function VisaRequirementsSection() {
   return (
-    <section className="py-12">
+    <section className="py-12 md:py-16">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold mb-2 text-primary">Visa Requirements Checklist</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-foreground">Visa Requirements Checklist</h2>
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
             Ensure you have all the necessary documents ready for a smooth visa application process.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {requirements.map((req, index) => (
-            <Card key={index} className="hover:shadow-lg transition-shadow duration-300">
+            <Card key={index} className="h-full hover:shadow-md transition-all duration-300 border-border/50 hover:border-primary/30">
               <CardContent className="p-6">
                 <div className="text-4xl mb-4">{req.icon}</div>
-                <h3 className="font-semibold mb-2 text-primary">{req.title}</h3>
-                <p className="text-sm text-gray-600">{req.description}</p>
+                <h3 className="font-semibold mb-2 text-foreground">{req.title}</h3>
+                <p className="text-sm text-muted-foreground">{req.description}</p>
               </CardContent>
             </Card>
           ))}
