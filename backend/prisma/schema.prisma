@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
@@ -35,6 +36,7 @@ model User {
   attachments   Attachment[]
   auditLogs     AuditLog[]
   settingsChanges SettingsChange[]
+  registrations Registration[]
 
   @@map("users")
 }
@@ -151,19 +153,137 @@ model Note {
   @@map("notes")
 }
 
-// Attachments for partnership applications
+// Attachments for partnership applications and registrations
 model Attachment {
-  id            String                @id @default(cuid())
-  application   PartnershipApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  applicationId String
-  fileName      String
-  fileType      String
-  fileSize      Int
-  description   String?
-  filePath      String
-  uploadedBy    User                  @relation(fields: [userId], references: [id])
-  userId        String
-  uploadedAt    DateTime              @default(now())
+  id              String                @id @default(cuid())
+  application     PartnershipApplication? @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId   String?
+  registration    Registration?          @relation("RegistrationDocuments", fields: [registrationId], references: [id], onDelete: Cascade)
+  registrationId  String?
+  fileName        String
+  fileType        String
+  fileSize        Int
+  description     String?
+  fileUrl         String
+  documentType    String? // e.g., 'PASSPORT', 'RESUME', 'OTHER'
+  uploadedBy      User                   @relation(fields: [userId], references: [id])
+  userId          String
+  uploadedAt      DateTime               @default(now())
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
 
   @@map("attachments")
+}
+
+// Multi-step registration model
+model Registration {
+  id                     String              @id @default(cuid())
+
+  // ── Step 1: Personal Information ──
+  firstName              String
+  middleName             String?
+  lastName               String
+  dateOfBirth            DateTime
+  gender                 Gender
+  maritalStatus          MaritalStatus
+  
+  // ── Contact Information ──
+  email                  String              @unique
+  phoneNumber            String
+  currentLocation        String
+  
+  // ── Professional Information ──
+  profession            String
+  specialization        String?
+  yearsOfExperience     String
+  licensingStatus       String
+  
+  // ── Location & Visa Information ──
+  preferredLocation     String
+  visaType             String
+  processingUrgency     String
+  
+  // ── Documents (one-to-many) ──
+  documents            Attachment[]        @relation("RegistrationDocuments")
+  
+  // File uploads
+  passport              String?            // File path or URL
+  license               String?            // File path or URL
+  degree                String?            // File path or URL
+  experience            String?            // File path or URL
+  medicalReport         String?            // File path or URL
+  photo                 String?            // File path or URL
+
+  // ── Status & metadata ──
+  status                RegistrationStatus  @default(SUBMITTED)
+  notes                 String?             @db.Text
+  statusUpdatedAt       DateTime?
+  statusUpdatedBy       String?             // User ID of who last updated the status
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  submittedAt           DateTime?           @default(now())
+
+  // ── Owner ──
+  userId                String
+  user                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("registrations")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum MaritalStatus {
+  SINGLE
+  MARRIED
+  DIVORCED
+  WIDOWED
+  OTHER
+}
+
+enum EducationLevel {
+  HIGH_SCHOOL
+  ASSOCIATE
+  BACHELORS
+  MASTERS
+  PHD
+  OTHER
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  TEMPORARY
+  INTERNSHIP
+  FREELANCE
+  SELF_EMPLOYED
+  UNEMPLOYED
+  OTHER
+}
+
+enum VisaType {
+  EMPLOYMENT
+  PSV
+  FAMILY
+  VISIT
+}
+
+enum ProcessingUrgency {
+  STANDARD
+  URGENT
+  EMERGENCY
+}
+
+enum RegistrationStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  MORE_INFO_NEEDED
 }

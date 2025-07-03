@@ -9,7 +9,7 @@ services:
       - "3001:3001"
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/partner_management?schema=public
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/the_ram_plc?schema=public
       - JWT_SECRET=your_jwt_secret_key
       - JWT_EXPIRES_IN=7d
       - FRONTEND_URL=http://localhost:3000
@@ -27,7 +27,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=partner_management
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 

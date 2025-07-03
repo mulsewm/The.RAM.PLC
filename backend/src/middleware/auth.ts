@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { prisma } from '..';
-import { ApiResponse } from '../utils/apiResponse';
+import { prisma } from '../lib/prisma.js';
+import { ApiResponse } from '../utils/apiResponse.js';
 
 declare global {
   namespace Express {
@@ -19,9 +19,12 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
       return ApiResponse.unauthorized(res, 'No token provided');
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as { id: string };
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret_here') as { id: string | number };
+    // Convert ID to string to match Prisma's expected type
+    const userId = String(decoded.id);
+    
     const user = await prisma.user.findUnique({
-      where: { id: decoded.id },
+      where: { id: userId },
       select: {
         id: true,
         email: true,

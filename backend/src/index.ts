@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { setupSwagger } from './utils/swagger.js';
 
 // Load environment variables
 dotenv.config();
@@ -23,6 +24,7 @@ const allowedOrigins = [
   'http://localhost:3001',
   'http://localhost:3002',
   'http://localhost:5001',
+  'http://localhost:5002',
   'https://the-ram-plc.vercel.app',
   'https://the-ram-plc-git-main-mulsewm.vercel.app',
   'https://the-ram-plc-mulsewm.vercel.app',
@@ -136,7 +138,7 @@ app.use((req, res, next) => {
     "style-src 'self' 'unsafe-inline'; " +
     "img-src 'self' data:; " +
     "font-src 'self'; " +
-    "connect-src 'self' http://localhost:5001;"
+    "connect-src 'self' http://localhost:5002;"
   );
   
   next();
@@ -148,6 +150,9 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Logging middleware
 app.use(morgan('dev'));
+
+// Setup Swagger documentation
+setupSwagger(app);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -164,11 +169,13 @@ import authRoutes from './api/auth/routes.js';
 import userRoutes from './api/users/routes.js';
 import partnershipRoutes from './api/partnerships/routes.js';
 import settingsRoutes from './api/settings/routes.js';
+import registrationRoutes from './api/registrations/routes.js';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/partnerships', partnershipRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/registrations', registrationRoutes); 
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
@@ -234,11 +241,19 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 
-// Start server
+// Setup Swagger documentation
+if (process.env.NODE_ENV !== 'production') {
+  setupSwagger(app);
+}
+
+// Start the server
 const server = app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`Database URL: ${process.env.DATABASE_URL ? 'Set' : 'Not set'}`);
+  console.log('Database URL:', process.env.DATABASE_URL ? 'Set' : 'Not set');
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('📚 API Documentation available at http://localhost:' + port + '/api-docs');
+  }
 });
 
 // Handle unhandled promise rejections

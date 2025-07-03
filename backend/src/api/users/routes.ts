@@ -1,9 +1,10 @@
 import { Router } from 'express';
-import { authenticate, authorize } from '../../middleware/auth';
-import { prisma } from '../../index';
-import { ApiResponse } from '../../utils/apiResponse';
+import { authenticate, authorize } from '../../middleware/auth.js';
+import { prisma } from '../../lib/prisma.js';
+import { ApiResponse } from '../../utils/apiResponse.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import type { SignOptions } from 'jsonwebtoken';
 
 const router = Router();
 
@@ -43,15 +44,17 @@ router.post('/register', async (req, res) => {
     });
 
     // Generate JWT
+    const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
+    const expiresIn = process.env.JWT_EXPIRES_IN || '7d';
     const token = jwt.sign(
-      { id: user.id },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      { id: user.id } as object,
+      jwtSecret,
+      { expiresIn } as jwt.SignOptions
     );
 
     return ApiResponse.success(res, { user, token });
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('Cant Register:', error);
     return ApiResponse.error(res, 'Registration failed', 500, error);
   }
 });
@@ -71,10 +74,12 @@ router.post('/login', async (req, res) => {
     }
 
     // Generate JWT
+    const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
+    const expiresIn = process.env.JWT_EXPIRES_IN || '7d';
     const token = jwt.sign(
-      { id: user.id },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      { id: user.id } as object,
+      jwtSecret,
+      { expiresIn } as jwt.SignOptions
     );
 
     const userData = {
