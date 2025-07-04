@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import * as registrationController from './controllers/registration.controller.js';
 import { authenticate } from '../../middleware/auth.js';
-import { upload } from './middleware/upload.js';
+import { upload, uploadFileMiddleware, serveUploadedFile } from './middleware/upload.js';
+import * as uploadController from './controllers/upload.controller.js';
 
 const router = Router();
 
@@ -24,5 +25,16 @@ router.get('/:id', authenticate, registrationController.getRegistration);
 
 // Update registration status
 router.patch('/:id/status', authenticate, registrationController.updateRegistrationStatus);
+
+// Upload document to registration
+router.post(
+  '/:id/documents',
+  authenticate,
+  uploadFileMiddleware,
+  uploadController.uploadFile
+);
+
+// Serve uploaded files
+router.get('/documents/:filename', serveUploadedFile);
 
 export default router;

@@ -2,147 +2,135 @@
  * @swagger
  * components:
  *   schemas:
- *     Document:
+ *     FileUploadResponse:
  *       type: object
- *       required:
- *         - fileName
- *         - fileUrl
- *         - fileType
- *         - fileSize
  *       properties:
- *         id:
+ *         success:
+ *           type: boolean
+ *           example: true
+ *         message:
  *           type: string
- *           format: uuid
- *           description: Auto-generated document ID
- *         fileName:
- *           type: string
- *           description: Original filename
- *         fileUrl:
- *           type: string
- *           format: uri
- *           description: URL to access the uploaded file
- *         fileType:
- *           type: string
- *           description: MIME type of the file
- *         fileSize:
- *           type: integer
- *           description: File size in bytes
- *         description:
- *           type: string
- *           description: Optional description
- *         documentType:
- *           type: string
- *           enum: [PASSPORT, RESUME, DEGREE, CERTIFICATE, OTHER]
- *           description: Type of document
- *         createdAt:
- *           type: string
- *           format: date-time
- * 
+ *           example: 'File uploaded successfully'
+ *         data:
+ *           type: object
+ *           properties:
+ *             id:
+ *               type: string
+ *               format: uuid
+ *               example: '123e4567-e89b-12d3-a456-426614174000'
+ *             fileName:
+ *               type: string
+ *               example: 'resume.pdf'
+ *             fileUrl:
+ *               type: string
+ *               format: uri
+ *               example: 'http://localhost:3000/api/registrations/documents/123e4567-e89b-12d3-a456-426614174000.pdf'
+ *             fileType:
+ *               type: string
+ *               example: 'application/pdf'
  *     Registration:
  *       type: object
- *       required:
- *         - firstName
- *         - lastName
- *         - email
- *         - phoneNumber
- *         - dateOfBirth
- *         - nationality
- *         - currentCountry
- *         - profession
- *         - yearsOfExperience
- *         - educationLevel
- *         - skills
- *         - languages
- *         - preferredCountries
- *         - visaType
- *         - relocationTimeline
  *       properties:
  *         id:
  *           type: string
  *           format: uuid
- *           description: Auto-generated registration ID
- *         firstName:
+ *           example: '123e4567-e89b-12d3-a456-426614174000'
+ *         fullName:
  *           type: string
- *           description: First name of the applicant
- *         lastName:
- *           type: string
- *           description: Last name of the applicant
+ *           example: 'John Doe'
  *         email:
  *           type: string
  *           format: email
- *           description: Email address of the applicant
- *         phoneNumber:
+ *           example: 'john.doe@example.com'
+ *         phone:
  *           type: string
- *           description: Phone number with country code
+ *           example: '+1234567890'
+ *         nationality:
+ *           type: string
+ *           example: 'United States'
  *         dateOfBirth:
  *           type: string
  *           format: date
- *           description: Date of birth in YYYY-MM-DD format
- *         nationality:
+ *           example: '1990-01-01'
+ *         gender:
  *           type: string
- *           description: Nationality of the applicant
- *         currentCountry:
+ *           enum: [MALE, FEMALE, OTHER, PREFER_NOT_TO_SAY]
+ *           example: 'MALE'
+ *         address:
  *           type: string
- *           description: Current country of residence
- *         profession:
- *           type: string
- *           description: Current profession
- *         yearsOfExperience:
- *           type: integer
- *           minimum: 0
- *           description: Years of professional experience
+ *           example: '123 Main St, Anytown, USA'
  *         educationLevel:
  *           type: string
- *           enum: [HIGHSCHOOL, BACHELORS, MASTERS, PHD, OTHER]
- *           description: Highest level of education
+ *           example: 'BACHELORS'
+ *         fieldOfStudy:
+ *           type: string
+ *           example: 'Computer Science'
+ *         workExperience:
+ *           type: number
+ *           example: 5
+ *         currentJobTitle:
+ *           type: string
+ *           example: 'Software Engineer'
+ *         currentEmployer:
+ *           type: string
+ *           example: 'Tech Corp'
  *         skills:
  *           type: array
  *           items:
  *             type: string
- *           description: List of professional skills
+ *           example: ['JavaScript', 'Node.js', 'React']
  *         languages:
  *           type: array
  *           items:
  *             type: string
- *           description: List of languages spoken
+ *           example: ['English', 'Spanish']
+ *         relocationWillingness:
+ *           type: boolean
+ *           example: true
  *         preferredCountries:
  *           type: array
  *           items:
  *             type: string
- *           description: List of preferred countries for relocation
+ *           example: ['Canada', 'Germany']
  *         visaType:
  *           type: string
- *           enum: [WORK, STUDENT, BUSINESS, TOURIST, OTHER]
- *           description: Type of visa being applied for
- *         relocationTimeline:
+ *           example: 'WORK'
+ *         visaExpiryDate:
  *           type: string
- *           enum: [IMMEDIATE, 3_MONTHS, 6_MONTHS, 1_YEAR, FLEXIBLE]
- *           description: Expected timeline for relocation
+ *           format: date
+ *           example: '2025-12-31'
+ *         resumeUrl:
+ *           type: string
+ *           format: uri
+ *           example: 'http://localhost:3000/api/registrations/documents/resume-123.pdf'
+ *         passportOrIdUrl:
+ *           type: string
+ *           format: uri
+ *           example: 'http://localhost:3000/api/registrations/documents/passport-123.pdf'
  *         status:
  *           type: string
- *           enum: [DRAFT, SUBMITTED, UNDER_REVIEW, APPROVED, REJECTED]
- *           default: DRAFT
- *           description: Current status of the application
- *         statusNotes:
- *           type: string
- *           nullable: true
- *           description: Notes about the application status
- *         documents:
- *           type: array
- *           items:
- *             $ref: '#/components/schemas/Document'
- *           description: List of uploaded documents
- *         userId:
- *           type: string
- *           format: uuid
- *           description: ID of the user who created the registration
+ *           enum: [PENDING, UNDER_REVIEW, APPROVED, REJECTED]
+ *           example: 'PENDING'
  *         createdAt:
  *           type: string
  *           format: date-time
+ *           example: '2023-01-01T12:00:00Z'
  *         updatedAt:
  *           type: string
  *           format: date-time
- * 
+ *           example: '2023-01-01T12:00:00Z'
+ *     ErrorResponse:
+ *       type: object
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           example: false
+ *         message:
+ *           type: string
+ *           example: 'Error message'
+ *         error:
+ *           type: string
+ *           example: 'ERROR_CODE'
  *     RegistrationStatusUpdate:
  *       type: object
  *       required:
@@ -150,36 +138,57 @@
  *       properties:
  *         status:
  *           type: string
- *           enum: [SUBMITTED, UNDER_REVIEW, APPROVED, REJECTED]
- *           description: New status for the registration
- *         notes:
- *           type: string
- *           description: Optional notes about the status change
- * 
- *     ErrorResponse:
- *       type: object
- *       properties:
- *         success:
- *           type: boolean
- *           default: false
- *         message:
- *           type: string
- *         error:
- *           type: string
- *           description: Error code/type
- *         details:
- *           type: object
- *           description: Additional error details
- */
-
-/**
+ *           enum: [PENDING, UNDER_REVIEW, APPROVED, REJECTED]
+ *           example: 'APPROVED'
+ *   responses:
+ *     Unauthorized:
+ *       description: Unauthorized - Authentication credentials were missing or incorrect
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ErrorResponse'
+ *     Forbidden:
+ *       description: Forbidden - User does not have permission to access this resource
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ErrorResponse'
+ *     NotFound:
+ *       description: The specified resource was not found
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ErrorResponse'
+ *     BadRequest:
+ *       description: Bad request - The request was invalid or cannot be served
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ErrorResponse'
+ *     ServerError:
+ *       description: Internal server error - Something went wrong on the server
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ErrorResponse'
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *
+ * @swagger
+ * tags:
+ *   - name: Registrations
+ *     description: Registration management
+ *   - name: Documents
+ *     description: Document upload and management
+ *
  * @swagger
  * /api/registrations:
  *   post:
  *     summary: Create a new registration
  *     tags: [Registrations]
- *     security:
- *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -187,35 +196,23 @@
  *           schema:
  *             $ref: '#/components/schemas/Registration'
  *     responses:
- *       201:
+ *       '201':
  *         description: Registration created successfully
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 data:
- *                   $ref: '#/components/schemas/Registration'
- *       400:
- *         $ref: '#/components/responses/ValidationError'
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- * 
+ *               $ref: '#/components/schemas/Registration'
+ *       '400':
+ *         $ref: '#/components/responses/BadRequest'
+ *       '500':
+ *         $ref: '#/components/responses/ServerError'
+ *
  *   get:
  *     summary: Get all registrations (Admin only)
  *     tags: [Registrations]
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: query
- *         name: status
- *         schema:
- *           type: string
- *           enum: [DRAFT, SUBMITTED, UNDER_REVIEW, APPROVED, REJECTED]
- *         description: Filter by status
  *       - in: query
  *         name: page
  *         schema:
@@ -227,11 +224,10 @@
  *         schema:
  *           type: integer
  *           default: 10
- *           maximum: 100
  *         description: Number of items per page
  *     responses:
- *       200:
- *         description: List of registrations
+ *       '200':
+ *         description: A list of registrations
  *         content:
  *           application/json:
  *             schema:
@@ -239,7 +235,6 @@
  *               properties:
  *                 success:
  *                   type: boolean
- *                   example: true
  *                 data:
  *                   type: array
  *                   items:
@@ -253,75 +248,117 @@
  *                       type: integer
  *                     limit:
  *                       type: integer
- *                     pages:
+ *                     totalPages:
  *                       type: integer
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- *       403:
- *         description: Forbidden - Admin access required
- * 
- * @swagger
- * /api/registrations/me:
- *   get:
- *     summary: Get current user's registration
- *     tags: [Registrations]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Current user's registration
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 data:
- *                   $ref: '#/components/schemas/Registration'
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- *       404:
- *         description: No registration found for current user
- * 
-/**
+ *       '401':
+ *         $ref: '#/components/responses/Unauthorized'
+ *       '403':
+ *         $ref: '#/components/responses/Forbidden'
+ *
  * @swagger
  * /api/registrations/{id}:
  *   get:
- *     summary: Get registration by ID
+ *     summary: Get a registration by ID
  *     tags: [Registrations]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Registration ID
+ *     responses:
+ *       '200':
+ *         description: Registration details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Registration'
+ *       '400':
+ *         $ref: '#/components/responses/BadRequest'
+ *       '401':
+ *         $ref: '#/components/responses/Unauthorized'
+ *       '404':
+ *         $ref: '#/components/responses/NotFound'
+ *
+ * @swagger
+ * /api/registrations/{id}/documents:
+ *   post:
+ *     summary: Upload a document for a registration
+ *     tags: [Documents]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
- *         required: true
  *         schema:
  *           type: string
+ *         required: true
  *         description: Registration ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - file
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: The file to upload (max 10MB)
+ *               documentType:
+ *                 type: string
+ *                 enum: [PASSPORT, RESUME, DEGREE, CERTIFICATE, OTHER]
+ *                 default: OTHER
+ *                 description: Type of document
+ *               description:
+ *                 type: string
+ *                 description: Optional description of the document
  *     responses:
- *       200:
- *         description: Registration details
+ *       '201':
+ *         description: File uploaded successfully
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 data:
- *                   $ref: '#/components/schemas/Registration'
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- *       403:
- *         description: Forbidden - Not authorized to view this registration
- *       404:
- *         $ref: '#/components/responses/NotFoundError'
- */
-
-/**
+ *               $ref: '#/components/schemas/FileUploadResponse'
+ *       '400':
+ *         description: Bad request (e.g., no file provided, invalid file type, file too large)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       '401':
+ *         $ref: '#/components/responses/Unauthorized'
+ *       '404':
+ *         $ref: '#/components/responses/NotFound'
+ *       '500':
+ *         $ref: '#/components/responses/ServerError'
+ *
+ * @swagger
+ * /api/registrations/documents/{filename}:
+ *   get:
+ *     summary: Get an uploaded document
+ *     tags: [Documents]
+ *     parameters:
+ *       - in: path
+ *         name: filename
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The filename of the document to retrieve
+ *     responses:
+ *       '200':
+ *         description: Document file
+ *         content:
+ *           application/octet-stream:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       '404':
+ *         $ref: '#/components/responses/NotFound'
+ *
  * @swagger
  * /api/registrations/{id}/status:
  *   patch:
@@ -332,9 +369,9 @@
  *     parameters:
  *       - in: path
  *         name: id
- *         required: true
  *         schema:
  *           type: string
+ *         required: true
  *         description: Registration ID
  *     requestBody:
  *       required: true
@@ -343,24 +380,18 @@
  *           schema:
  *             $ref: '#/components/schemas/RegistrationStatusUpdate'
  *     responses:
- *       200:
- *         description: Status updated successfully
+ *       '200':
+ *         description: Registration status updated successfully
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 data:
- *                   $ref: '#/components/schemas/Registration'
- *       400:
- *         $ref: '#/components/responses/ValidationError'
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- *       403:
- *         description: Forbidden - Admin access required
- *       404:
- *         $ref: '#/components/responses/NotFoundError'
+ *               $ref: '#/components/schemas/Registration'
+ *       '400':
+ *         $ref: '#/components/responses/BadRequest'
+ *       '401':
+ *         $ref: '#/components/responses/Unauthorized'
+ *       '403':
+ *         $ref: '#/components/responses/Forbidden'
+ *       '404':
+ *         $ref: '#/components/responses/NotFound'
  */

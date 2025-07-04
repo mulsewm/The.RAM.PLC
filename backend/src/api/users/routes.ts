@@ -91,7 +91,14 @@ router.post('/login', async (req, res) => {
       updatedAt: user.updatedAt
     };
 
-    return ApiResponse.success(res, { user: userData, token });
+    // Set redirect URL based on user role
+    const redirectUrl = user.role === 'ADMIN' ? '/admin' : '/dashboard';
+
+    return ApiResponse.success(res, { 
+      user: userData, 
+      token, 
+      redirectUrl 
+    });
   } catch (error) {
     console.error('Login error:', error);
     return ApiResponse.error(res, 'Login failed', 500, error);

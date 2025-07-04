@@ -1,8 +1,9 @@
-import { Request, Response, Express } from 'express';
+import { Request, Response } from 'express';
 import { prisma } from '../../../../src/lib/prisma.js';
 import { ApiResponse } from '../../../../src/utils/apiResponse.js';
 import { documentSchema } from '../validations/registration.schema.js';
 import { DocumentInput } from '../validations/registration.types.js';
+import path from 'path';
 
 export const uploadFile = async (req: Request, res: Response) => {
   try {
@@ -80,13 +81,17 @@ export const uploadFile = async (req: Request, res: Response) => {
     }
 
     try {
+      // For local storage, the file path is stored in file.path
+      // For S3, the file key is stored in file.key
+      const fileUrl = file.key || `/api/registrations/documents/${path.basename(file.path)}`;
+      
       // Create document record in database
       const document = await prisma.attachment.create({
         data: {
           fileName: file.originalname,
           fileType: file.mimetype,
           fileSize: file.size,
-          fileUrl: file.key,
+          fileUrl,
           description: description || null,
           documentType: documentType || 'OTHER',
           userId: req.user.id,
@@ -100,41 +105,40 @@ export const uploadFile = async (req: Request, res: Response) => {
             } 
           })
         },
-        select: {
-          id: true,
-          fileName: true,
-          fileType: true,
-          fileSize: true,
-          fileUrl: true,
-          description: true,
-          documentType: true,
-          uploadedAt: true,
-          registrationId: true,
-          userId: true,
-          // These fields are automatically included by Prisma
-          // createdAt: true,
-          // updatedAt: true
-        },
+        include: {
+          uploadedBy: {
+            select: {
+              id: true,
+              name: true,
+              email: true
+            }
+          },
+          registration: {
+            select: {
+              id: true,
+              status: true
+            }
+          }
+        }
       });
+
+      // Return the document with a public URL if using local storage
+      const responseData: any = {
+        ...document,
+        fileUrl: file.key ? document.fileUrl : `${process.env.API_URL || 'http://localhost:3000'}${document.fileUrl}`,
+        description: document.description || null,
+        documentType: document.documentType || 'OTHER',
+        uploadedAt: document.uploadedAt.toISOString(),
+        user: document.uploadedBy, // Map uploadedBy to user for backward compatibility
+      };
+      
+      // Remove the uploadedBy field to avoid duplicate data
+      delete responseData.uploadedBy;
 
       return res.status(201).json({
         success: true,
         message: 'File uploaded successfully',
-        data: {
-          document: {
-            id: document.id,
-            fileName: document.fileName,
-            fileType: document.fileType,
-            fileSize: document.fileSize,
-            fileUrl: document.fileUrl,
-            description: document.description || null,
-            documentType: document.documentType || 'OTHER',
-            uploadedAt: document.uploadedAt.toISOString(),
-            registrationId: document.registrationId,
-            userId: document.userId
-          },
-          fileUrl: file.key,
-        }
+        data: responseData
       });
     } catch (error) {
       console.error('Error creating document record:', error);
