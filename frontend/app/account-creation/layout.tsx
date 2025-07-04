@@ -35,7 +35,7 @@ export default function ApplicationLayout({
                   Our streamlined process helps medical professionals secure their visas efficiently.
                 </p>
                 <Button variant="outline" className="w-full" asChild>
-                  <Link href="/requirements">
+                  <Link href="visa-services/requirements">
                     <FileText className="mr-2 h-4 w-4" />
                     View Requirements
                   </Link>

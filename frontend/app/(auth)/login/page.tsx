@@ -11,9 +11,10 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, useContext, useEffect } from "react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import Link from "next/link"
+import { useAuth } from "@/contexts/AuthContext"
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -22,6 +23,7 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const router = useRouter()
+  const { login, user, isAuthenticated } = useAuth()
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
@@ -38,22 +40,15 @@ export default function LoginPage() {
       setIsLoading(true)
       setError("")
 
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || "Something went wrong")
+      const { success, error } = await login(values.email, values.password)
+      
+      if (!success) {
+        throw new Error(error || "Login failed")
       }
-
-      router.push("/dashboard")
+      
+      // The AuthContext will handle the redirection based on user role
     } catch (err: any) {
-      setError(err.message)
-    } finally {
+      setError(err.message || "An error occurred during login")
       setIsLoading(false)
     }
   }

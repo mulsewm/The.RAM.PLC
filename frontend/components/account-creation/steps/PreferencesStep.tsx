@@ -2,9 +2,44 @@ import { useFormContext } from "react-hook-form"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useEffect, useState } from "react"
+
+interface Country {
+  cca2: string;
+  name: {
+    common: string;
+  };
+}
 
 const PreferencesStep = () => {
-  const { control } = useFormContext()
+  const { control, setValue } = useFormContext()
+  const [countries, setCountries] = useState<Country[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const response = await fetch('https://restcountries.com/v3.1/all?fields=cca2,name')
+        if (!response.ok) {
+          throw new Error('Failed to fetch countries')
+        }
+        const data = await response.json()
+        // Sort countries alphabetically by name
+        const sortedCountries = data.sort((a: Country, b: Country) => 
+          a.name.common.localeCompare(b.name.common)
+        )
+        setCountries(sortedCountries)
+      } catch (err) {
+        console.error('Error fetching countries:', err)
+        setError('Failed to load countries. Please try again later.')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchCountries()
+  }, [])
 
   const locationOptions = [
     { value: "dubai", label: "Dubai, UAE" },
@@ -43,10 +78,30 @@ const PreferencesStep = () => {
             <FormItem>
               <FormLabel>Current Location</FormLabel>
               <FormControl>
-                <Input 
-                  placeholder="City, Country" 
-                  {...field} 
-                />
+                {isLoading ? (
+                  <Input placeholder="Loading countries..." disabled />
+                ) : error ? (
+                  <div className="text-red-500 text-sm">{error}</div>
+                ) : (
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value)
+                      setValue('currentLocation', value, { shouldValidate: true })
+                    }}
+                    value={field.value || ''}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your country" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-60 overflow-y-auto">
+                      {countries.map((country) => (
+                        <SelectItem key={country.cca2} value={country.name.common}>
+                          {country.name.common}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </FormControl>
               <FormMessage />
             </FormItem>

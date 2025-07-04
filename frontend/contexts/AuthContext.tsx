@@ -55,9 +55,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await axios.post('/api/auth/login', { email, password });
       
       if (response.data.success && response.data.user) {
-        setUser(response.data.user);
+        const userData = response.data.user;
+        setUser(userData);
         setIsAuthenticated(true);
         toast.success('Logged in successfully');
+        
+        // Redirect based on user role
+        const redirectUrl = userData.role === 'ADMIN' ? '/admin' : '/dashboard';
+        router.push(redirectUrl);
+        
         return { success: true };
       } else {
         const error = response.data.error || 'Login failed';
