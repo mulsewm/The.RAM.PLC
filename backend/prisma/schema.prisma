@@ -93,6 +93,94 @@ model AuditLog {
   @@map("audit_logs")
 }
 
+// Multi-step registration model
+model Registration {
+  id                     String              @id @default(cuid())
+
+  // ── Step 1: Personal Information ──
+  firstName              String
+  middleName             String?
+  lastName               String
+  dateOfBirth            DateTime
+  gender                 Gender
+  maritalStatus          MaritalStatus
+  
+  // ── Contact Information ──
+  email                  String              @unique
+  phoneNumber            String
+  currentLocation        String
+  country               String              @default("")
+  city                  String              @default("")
+  address               String              @default("")
+  postalCode            String              @default("")
+  emergencyContactName  String              @default("")
+  emergencyContactPhone String              @default("")
+  
+  // ── Education Information ──
+  educationLevel       EducationLevel?  @default(OTHER)
+  institution          String?          @default("")
+  fieldOfStudy         String?          @default("")
+  graduationYear       Int?             @default(0)
+  educationStatus      EducationStatus?  @default(COMPLETED)
+  educationCountry     String?          @default("")
+  educationCity        String?          @default("")
+  
+  // ── Professional Information ──
+  profession          String
+  specialization      String?
+  yearsOfExperience   String
+  currentEmployer     String?
+  jobTitle           String
+  
+  // ── Licensing & Certification ──
+  hasProfessionalLicense Boolean           @default(false)
+  licenseType          String?
+  licenseNumber        String?
+  issuingOrganization  String?
+  licenseExpiryDate    DateTime?
+  licensingStatus      String?             // e.g., "In Process", "Active", "Expired"
+  
+  // ── Work Preferences ──
+  preferredLocations   String[]           @default([])
+  willingToRelocate    Boolean           @default(false)
+  preferredJobTypes    String[]           @default([])
+  expectedSalary       Float?
+  noticePeriodValue    Int?
+  noticePeriodUnit     String?           // 'days', 'weeks', 'months'
+  
+  // ── Visa Information ──
+  visaType            VisaType?
+  processingUrgency   ProcessingUrgency?
+  
+  // ── Professional References ──
+  references           Json?              // Array of reference objects
+  
+  // ── Document Uploads ──
+  resume              String?            // File path
+  passportOrId        String?            // File path
+  professionalCertificates String[]      @default([])  // Array of file paths
+  policeClearance     String?            // File path
+  
+  // ── Terms & Declaration ──
+  confirmAccuracy     Boolean           @default(false)
+  termsAccepted       Boolean           @default(false)
+  backgroundCheckConsent Boolean        @default(false)
+  
+  // ── Status & metadata ──
+  status              RegistrationStatus @default(DRAFT)
+  notes               String?
+  submittedAt         DateTime?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  
+  // ── Relations ──
+  user                User               @relation(fields: [userId], references: [id])
+  userId              String
+  documents           Attachment[]       @relation("RegistrationDocuments")
+
+  @@map("registrations")
+}
+
 // Partnership application model
 model PartnershipApplication {
   id           String   @id @default(cuid())
@@ -175,61 +263,6 @@ model Attachment {
   @@map("attachments")
 }
 
-// Multi-step registration model
-model Registration {
-  id                     String              @id @default(cuid())
-
-  // ── Step 1: Personal Information ──
-  firstName              String
-  middleName             String?
-  lastName               String
-  dateOfBirth            DateTime
-  gender                 Gender
-  maritalStatus          MaritalStatus
-  
-  // ── Contact Information ──
-  email                  String              @unique
-  phoneNumber            String
-  currentLocation        String
-  
-  // ── Professional Information ──
-  profession            String
-  specialization        String?
-  yearsOfExperience     String
-  licensingStatus       String
-  
-  // ── Location & Visa Information ──
-  preferredLocation     String
-  visaType             String
-  processingUrgency     String
-  
-  // ── Documents (one-to-many) ──
-  documents            Attachment[]        @relation("RegistrationDocuments")
-  
-  // File uploads
-  passport              String?            // File path or URL
-  license               String?            // File path or URL
-  degree                String?            // File path or URL
-  experience            String?            // File path or URL
-  medicalReport         String?            // File path or URL
-  photo                 String?            // File path or URL
-
-  // ── Status & metadata ──
-  status                RegistrationStatus  @default(SUBMITTED)
-  notes                 String?             @db.Text
-  statusUpdatedAt       DateTime?
-  statusUpdatedBy       String?             // User ID of who last updated the status
-  createdAt             DateTime            @default(now())
-  updatedAt             DateTime            @updatedAt
-  submittedAt           DateTime?           @default(now())
-
-  // ── Owner ──
-  userId                String
-  user                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("registrations")
-}
-
 enum Gender {
   MALE
   FEMALE
@@ -243,6 +276,13 @@ enum MaritalStatus {
   DIVORCED
   WIDOWED
   OTHER
+}
+
+enum EducationStatus {
+  IN_PROGRESS
+  COMPLETED
+  DROPPED_OUT
+  ON_HOLD
 }
 
 enum EducationLevel {

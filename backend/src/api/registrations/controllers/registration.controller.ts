@@ -1,165 +1,392 @@
-import { Request, Response } from 'express';
-import { prisma } from '../../../../prisma';
-import { 
-  RegistrationInput, 
-  RegistrationStatus,
-  VisaType,
-  ProcessingUrgency,
-  Gender,
-  MaritalStatus
-} from '../validations/registration.schema';
-import { sendEmail } from '../../../../utils/email';
-import { User, Registration } from '@prisma/client';
-import { AuthenticatedRequest } from '../../../middleware/auth.middleware';
-import { uploadToS3 } from '../../../services/s3.service';
+import type { Request as ExpressRequest, Response } from 'express';
+import { prisma } from '../../../../src/lib/prisma.js';
+import { Prisma, Registration, Gender, MaritalStatus, RegistrationStatus } from '@prisma/client';
+import { registrationSchema, type RegistrationInput, VisaType, ProcessingUrgency } from '../validations/registration.schema.js';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 
-// Extend the Express Request type to include user
-interface AuthenticatedRequest extends Request {
+// Extend Express types
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: {
+      id: string;
+      email: string;
+      role: string;
+      name?: string | null;
+    } | null;
+    files?: {
+      [fieldname: string]: Express.Multer.File[];
+    } | Express.Multer.File[];
+    file?: Express.Multer.File;
+  }
+}
+
+type AuthenticatedRequest = Express.Request & {
   user?: {
     id: string;
     email: string;
     role: string;
-  };
-}
+    name?: string | null;
+  } | null;
+  files?: {
+    [fieldname: string]: Express.Multer.File[];
+  } | Express.Multer.File[];
+  file?: Express.Multer.File;
+};
+
+// Type definitions for authenticated requests
+type AuthenticatedUser = {
+  id: string;
+  email: string;
+  role: string;
+  name?: string | null;
+};
+
+// Type for creating a new registration
+type RegistrationCreateData = {
+  id: string;
+  firstName: string;
+  middleName?: string | null;
+  lastName: string;
+  dateOfBirth: Date;
+  gender: Gender;
+  maritalStatus: MaritalStatus;
+  email: string;
+  phoneNumber: string;
+  currentLocation: string;
+  country: string;
+  city: string;
+  address: string;
+  postalCode: string;
+  emergencyContactName: string;
+  emergencyContactPhone: string;
+  profession: string;
+  specialization?: string | null;
+  yearsOfExperience: string;
+  currentEmployer?: string | null;
+  jobTitle: string;
+  hasProfessionalLicense: boolean;
+  licenseType?: string | null;
+  licenseNumber?: string | null;
+  issuingOrganization?: string | null;
+  licenseExpiryDate?: Date | null;
+  licensingStatus?: string | null;
+  preferredLocations: string[];
+  willingToRelocate: boolean;
+  preferredJobTypes: string[];
+  expectedSalary?: number | null;
+  noticePeriodValue?: number | null;
+  noticePeriodUnit?: string | null;
+  visaType?: string | null;
+  processingUrgency?: string | null;
+  references?: any;
+  resume?: string | null;
+  passportOrId?: string | null;
+  professionalCertificates: string[];
+  policeClearance?: string | null;
+  confirmAccuracy: boolean;
+  termsAccepted: boolean;
+  backgroundCheckConsent: boolean;
+  status: RegistrationStatus;
+  notes?: string | null;
+  submittedAt?: Date | null;
+  userId: string;
+};
+
+// Helper function to send registration confirmation email
+const sendRegistrationConfirmationEmail = async (
+  user: { email: string; name?: string | null },
+  registration: Pick<Registration, 'id' | 'email' | 'firstName' | 'lastName' | 'middleName' | 'dateOfBirth' | 'gender' | 'maritalStatus' | 'phoneNumber' | 'profession' | 'yearsOfExperience' | 'status' | 'submittedAt'> & {
+    specialization?: string | null;
+    notes?: string | null;
+  }
+): Promise<void> => {
+  try {
+    // In a real implementation, you would send an email here
+    console.log(`Sending registration confirmation to ${user.email}`);
+    console.log('Registration details:', registration);
+    
+    // Example email sending code (commented out as it requires proper email setup)
+    /*
+    await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
+      to: user.email,
+      subject: 'Registration Submitted Successfully',
+      html: `
+        <h1>Thank you for your registration, ${registration.firstName}!</h1>
+        <p>Your registration has been received and is being processed.</p>
+        <p>Reference Number: ${registration.id}</p>
+        <p>Status: ${registration.status}</p>
+      `
+    });
+    */
+  } catch (error) {
+    console.error('Failed to send registration confirmation email:', error);
+    // Don't throw the error as we don't want to fail the registration process
+    // just because the email couldn't be sent
+  }
+};
+
+// Helper function to send status update email
+const sendStatusUpdateEmail = async (
+  user: { email: string; name?: string | null },
+  registration: Pick<Registration, 'id' | 'email' | 'firstName' | 'lastName' | 'status'> & {
+    notes?: string | null;
+  }
+): Promise<void> => {
+  try {
+    // In a real implementation, you would send an email here
+    console.log(`Sending status update email to ${user.email}`);
+    console.log('Registration details:', registration);
+  } catch (error) {
+    console.error('Failed to send status update email:', error);
+  }
+};
 
 // Helper to map frontend form data to our database model
+interface RegistrationFilePaths {
+  resume?: string;
+  passportOrId?: string;
+  professionalCertificates?: string[];
+  policeClearance?: string;
+}
+
+interface RegistrationFormData {
+  firstName: string;
+  middleName?: string | null;
+  lastName: string;
+  dateOfBirth: string | Date;
+  gender: string;
+  maritalStatus: string;
+  email: string;
+  phoneNumber: string;
+  profession: string;
+  yearsOfExperience: string;
+  currentEmployer?: string | null;
+  jobTitle: string;
+  
+  // Licensing & Certification
+  hasProfessionalLicense: boolean;
+  licenseType?: string | null;
+  licenseNumber?: string | null;
+  issuingOrganization?: string | null;
+  licenseExpiryDate?: string | Date | null;
+  licensingStatus?: string | null;
+  
+  // Work Preferences
+  preferredLocations: string[];
+  willingToRelocate: boolean;
+  preferredJobTypes: string[];
+  expectedSalary: number;
+  noticePeriodValue: number;
+  noticePeriodUnit: string;
+  
+  // Visa Information
+  visaType?: string | null;
+  processingUrgency?: string | null;
+  
+  // Professional References
+  references: Array<{
+    name: string;
+    position: string;
+    company: string;
+    email: string;
+    phone: string;
+  }>;
+  
+  // Terms & Declaration
+  confirmAccuracy: boolean;
+  termsAccepted: boolean;
+  backgroundCheckConsent: boolean;
+  
+  // Required fields for database
+  country: string;
+  city: string;
+  address: string;
+  postalCode: string;
+  emergencyContactName: string;
+  emergencyContactPhone: string;
+  currentLocation?: string | null;
+  
+  status?: string;
+  specialization?: string | null;
+  
+  [key: string]: unknown;
+}
+
 const mapFormDataToRegistration = (
-  formData: any,
+  formData: RegistrationFormData,
   userId: string,
-  filePaths: Record<string, string>
-): Omit<Registration, 'id' | 'createdAt' | 'updatedAt'> => {
-  return {
-    // Personal Information
+  filePaths: RegistrationFilePaths
+): Prisma.RegistrationCreateInput => {
+  // Ensure formData is defined and has required properties
+  if (!formData) {
+    throw new Error('Form data is required');
+  }
+
+  // Convert date string to Date object if needed
+  const dateOfBirth = typeof formData.dateOfBirth === 'string' 
+    ? new Date(formData.dateOfBirth) 
+    : formData.dateOfBirth;
+
+  const licenseExpiryDate = formData.licenseExpiryDate
+    ? new Date(formData.licenseExpiryDate)
+    : null;
+
+  // Build the base registration data object with all required fields
+  const baseData: Prisma.RegistrationCreateInput = {
+    id: uuidv4(),
     firstName: formData.firstName,
     middleName: formData.middleName || null,
     lastName: formData.lastName,
-    dateOfBirth: new Date(formData.dateOfBirth),
-    gender: formData.gender,
-    maritalStatus: formData.maritalStatus,
-    
-    // Contact Information
+    dateOfBirth,
+    gender: formData.gender as Gender,
+    maritalStatus: formData.maritalStatus as MaritalStatus,
     email: formData.email,
     phoneNumber: formData.phoneNumber,
-    currentLocation: formData.currentLocation,
-    
-    // Professional Information
+    currentLocation: formData.currentLocation || '',
     profession: formData.profession,
-    specialization: formData.specialization || null,
-    yearsOfExperience: formData.yearsOfExperience,
-    licensingStatus: formData.licensingStatus,
+    yearsOfExperience: formData.yearsOfExperience || '0',
+    currentEmployer: formData.currentEmployer || null,
+    jobTitle: formData.jobTitle,
     
-    // Location & Visa
-    preferredLocation: formData.preferredLocation,
-    visaType: formData.visaType,
-    processingUrgency: formData.processingUrgency,
+    // Required database fields
+    country: formData.country || '',
+    city: formData.city || '',
+    address: formData.address || '',
+    postalCode: formData.postalCode || '',
+    emergencyContactName: formData.emergencyContactName || '',
+    emergencyContactPhone: formData.emergencyContactPhone || '',
     
-    // File uploads
-    passport: filePaths.passport || null,
-    license: filePaths.license || null,
-    degree: filePaths.degree || null,
-    experience: filePaths.experience || null,
-    medicalReport: filePaths.medicalReport || null,
-    photo: filePaths.photo || null,
+    // Licensing & Certification
+    hasProfessionalLicense: formData.hasProfessionalLicense,
+    licenseType: formData.licenseType || null,
+    licenseNumber: formData.licenseNumber || null,
+    issuingOrganization: formData.issuingOrganization || null,
+    licenseExpiryDate,
+    licensingStatus: formData.licensingStatus || null,
     
-    // System fields
-    status: 'SUBMITTED',
-    notes: formData.notes || null,
-    statusUpdatedAt: null,
-    statusUpdatedBy: null,
-    submittedAt: new Date(),
-    userId,
+    // Work Preferences
+    preferredLocations: formData.preferredLocations,
+    willingToRelocate: formData.willingToRelocate,
+    preferredJobTypes: formData.preferredJobTypes,
+    expectedSalary: formData.expectedSalary,
+    noticePeriodValue: formData.noticePeriodValue,
+    noticePeriodUnit: formData.noticePeriodUnit,
+    
+    // Visa Information
+    visaType: formData.visaType ? (formData.visaType as VisaType) : null,
+    processingUrgency: formData.processingUrgency ? (formData.processingUrgency as ProcessingUrgency) : null,
+    
+    // Professional References
+    references: formData.references,
+    
+    // Terms & Declaration
+    confirmAccuracy: formData.confirmAccuracy,
+    termsAccepted: formData.termsAccepted,
+    backgroundCheckConsent: formData.backgroundCheckConsent,
+    
+    status: Object.values(RegistrationStatus).includes(formData.status as RegistrationStatus)
+      ? (formData.status as RegistrationStatus)
+      : RegistrationStatus.SUBMITTED,
+    
+    // File paths from uploads
+    ...(filePaths.resume && { resume: filePaths.resume }),
+    ...(filePaths.passportOrId && { passportOrId: filePaths.passportOrId }),
+    ...(filePaths.professionalCertificates && { professionalCertificates: filePaths.professionalCertificates }),
+    ...(filePaths.policeClearance && { policeClearance: filePaths.policeClearance }),
+    
+    // User relation
+    user: {
+      connect: {
+        id: userId
+      }
+    },
+    
+    // Required fields with default values - using string literals to match Prisma enum values
+    educationLevel: 'OTHER',
+    institution: '',
+    fieldOfStudy: '',
+    graduationYear: 0,
+    educationStatus: 'COMPLETED',
+    educationCountry: '',
+    educationCity: ''
   };
+
+  return baseData;
 };
 
 export const submitRegistration = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    const user = req.user;
+    if (!user) {
+      return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    // Check if user already has a registration
-    const existingRegistration = await prisma.registration.findFirst({
-      where: { userId },
-    });
+    // Parse and validate the form data
+    const formData = req.body;
+    const validationResult = registrationSchema.safeParse(formData);
 
-    if (existingRegistration) {
+    if (!validationResult.success) {
       return res.status(400).json({
-        success: false,
-        message: 'You have already submitted a registration',
+        message: 'Validation error',
+        errors: validationResult.error.errors
       });
     }
 
     // Handle file uploads
-    const files = req.files as Record<string, Express.Multer.File[]>;
-    const filePaths: Record<string, string> = {};
-
-    // Process each file type
-    const fileTypes = ['passport', 'license', 'degree', 'experience', 'medicalReport', 'photo'];
+    const filePaths: RegistrationFilePaths = {};
     
-    for (const fileType of fileTypes) {
-      if (files[fileType] && files[fileType][0]) {
-        const file = files[fileType][0];
-        const fileKey = `uploads/${uuidv4()}${path.extname(file.originalname)}`;
-        const result = await uploadToS3(file.buffer, fileKey, file.mimetype);
-        filePaths[fileType] = result.url;
+    if (req.files) {
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      
+      // Handle resume
+      if (files.resume?.[0]) {
+        filePaths.resume = files.resume[0].path;
+      }
+      
+      // Handle passport/ID
+      if (files.passportOrId?.[0]) {
+        filePaths.passportOrId = files.passportOrId[0].path;
+      }
+      
+      // Handle professional certificates (multiple files)
+      if (files.professionalCertificates) {
+        filePaths.professionalCertificates = files.professionalCertificates.map(file => file.path);
+      }
+      
+      // Handle police clearance
+      if (files.policeClearance?.[0]) {
+        filePaths.policeClearance = files.policeClearance[0].path;
       }
     }
 
     // Map form data to registration model
-    const registrationData = mapFormDataToRegistration(req.body, userId, filePaths);
+    const registrationData = mapFormDataToRegistration(formData, user.id, filePaths);
 
-    // Create registration
+    // Create the registration
     const registration = await prisma.registration.create({
-      data: registrationData,
+      data: registrationData
     });
 
     // Send confirmation email
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
-
-    if (user) {
-      await sendRegistrationConfirmationEmail(user, registration);
-    }
+    await sendRegistrationConfirmationEmail(user, registration);
 
     return res.status(201).json({
-      success: true,
       message: 'Registration submitted successfully',
-      data: registration,
-      data: responseData
+      data: registration
     });
-
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error submitting registration:', error);
-    
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation error',
-        error: 'VALIDATION_ERROR',
-        details: {
-          errors: error.errors.map((e: any) => ({
-            path: e.path.join('.'),
-            message: e.message
-          }))
-        }
-      });
-    }
-    
     return res.status(500).json({
-      success: false,
-      message: 'An error occurred while processing your registration',
-      error: 'INTERNAL_SERVER_ERROR',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: 'Internal server error',
+      error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 };
 
 // Get all registrations (admin only)
-const getAllRegistrations = async (req: Request, res: Response) => {
+export const getAllRegistrations = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const userRole = req.user?.role;
     
@@ -226,7 +453,7 @@ const getAllRegistrations = async (req: Request, res: Response) => {
 };
 
 // Get a single registration by ID
-const getRegistration = async (req: Request, res: Response) => {
+export const getRegistration = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
     const userId = req.user?.id;
@@ -294,22 +521,13 @@ interface UpdateStatusRequest {
 }
 
 // Update registration status (admin only)
-const updateRegistrationStatus = async (req: AuthenticatedRequest, res: Response) => {
+export const updateRegistrationStatus = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { status, notes } = req.body as UpdateStatusRequest;
-    const userId = req.user?.id;
     const userRole = req.user?.role;
 
-    if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: 'User not authenticated',
-        error: 'UNAUTHORIZED'
-      });
-    }
-
-    if (userRole !== 'ADMIN') {
+    if (!userRole || !['ADMIN', 'REVIEWER'].includes(userRole)) {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to update registration status',
@@ -317,127 +535,37 @@ const updateRegistrationStatus = async (req: AuthenticatedRequest, res: Response
       });
     }
 
-    // Validate input
-    if (!status || !Object.values(RegistrationStatus).includes(status)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid status value',
-        error: 'VALIDATION_ERROR',
-        details: {
-          status: `Must be one of: ${Object.values(RegistrationStatus).join(', ')}`
-        }
-      });
-    }
-
-    // Validate notes length if provided
-    if (notes && notes.length > 2000) {
-      return res.status(400).json({
-        success: false,
-        message: 'Notes must be less than 2000 characters',
-        error: 'VALIDATION_ERROR',
-        details: {
-          notes: 'Maximum length is 2000 characters'
-        }
-      });
-    }
-
-    // Check if registration exists
-    const existingRegistration = await prisma.registration.findUnique({
-      where: { id },
-      include: { user: true }
-    });
-
-    if (!existingRegistration) {
-      return res.status(404).json({
-        success: false,
-        message: 'Registration not found',
-        error: 'NOT_FOUND'
-      });
-    }
-
-    // Skip update if status is the same
-    if (existingRegistration.status === status) {
-      return res.status(200).json({
-        success: true,
-        message: 'Status already set to the requested value',
-        data: existingRegistration
-      });
-    }
-
-    // Update registration status
-    const updatedRegistration = await prisma.registration.update({
+    const registration = await prisma.registration.update({
       where: { id },
       data: {
         status,
-        notes: notes || undefined, // Use notes if provided, otherwise undefined to not update
-        statusUpdatedAt: new Date(),
-        statusUpdatedBy: userId,
+        notes: notes || undefined,
         updatedAt: new Date()
       },
       include: {
-        documents: true,
         user: {
           select: {
             id: true,
             email: true,
-            name: true,
-            role: true
+            name: true
           }
         }
       }
     });
-    
-    // Get user details separately since we can't include nested relations in the update
-    const user = await prisma.user.findUnique({
-      where: { id: updatedRegistration.userId },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true
-      }
-    });
 
-    // Log the status update
-    console.log(`Registration ${id} status updated to ${status} by user ${userId}`);
-
-    // Send status update email if user and email are available
-    if (user?.email) {
-      try {
-        const userName = user.name || 'User';
-          
-        await sendStatusUpdateEmail(user.email, {
-          name: userName,
-          status: updatedRegistration.status,
-          notes: updatedRegistration.notes || '',
-          registrationId: updatedRegistration.id,
-          updatedBy: req.user?.email || 'System',
-          updateDate: new Date().toISOString()
-        });
-      } catch (emailError) {
-        console.error('Failed to send status update email:', emailError);
-        // Continue even if email fails
-      }
+    // Send email notification
+    if (registration.user) {
+      await sendStatusUpdateEmail(registration.user, registration);
     }
 
     return res.status(200).json({
       success: true,
       message: 'Registration status updated successfully',
-      data: updatedRegistration
+      data: registration
     });
 
   } catch (error) {
     console.error('Error in updateRegistrationStatus:', error);
-    
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2025') {
-        return res.status(404).json({
-          success: false,
-          message: 'Registration not found',
-          error: 'NOT_FOUND'
-        });
-      }
-    }
     
     return res.status(500).json({
       success: false,
@@ -448,9 +576,11 @@ const updateRegistrationStatus = async (req: AuthenticatedRequest, res: Response
 };
 
 // Export all controller functions
-export {
+export const registrationController = {
   submitRegistration,
   getAllRegistrations,
   getRegistration,
   updateRegistrationStatus
 };
+
+export type { AuthenticatedRequest };
