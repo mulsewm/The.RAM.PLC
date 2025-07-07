@@ -52,20 +52,56 @@ export default function ChatWidget() {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-scroll to bottom of messages
+  // Auto-scroll to bottom of messages and handle keyboard on mobile
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isTyping]);
+    
+    // Handle mobile keyboard events
+    const handleResize = () => {
+      if (window.visualViewport) {
+        // On mobile, when keyboard appears, scroll to bottom
+        if (isOpen && window.innerWidth < 640) {
+          scrollToBottom();
+        }
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleResize);
+    }
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleResize);
+      }
+    };
+  }, [messages, isTyping, isOpen]);
 
-  const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
+    messagesEndRef.current?.scrollIntoView({ 
+      behavior,
+      block: 'nearest',
+      inline: 'nearest'
+    });
   }, []);
 
   const toggleChat = () => {
-    setIsOpen(!isOpen);
-    if (!isOpen) {
+    const newIsOpen = !isOpen;
+    setIsOpen(newIsOpen);
+    
+    // Prevent body scroll when chat is open on mobile
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = newIsOpen && window.innerWidth < 640 ? 'hidden' : '';
+    }
+    
+    if (newIsOpen) {
       // Focus input when opening chat
-      setTimeout(() => inputRef.current?.focus(), 100);
+      setTimeout(() => {
+        inputRef.current?.focus({ preventScroll: true });
+        scrollToBottom();
+      }, 100);
     }
   };
 
@@ -86,6 +122,11 @@ export default function ChatWidget() {
     e?.preventDefault();
     const trimmedMessage = inputValue.trim();
     if (!trimmedMessage || isTyping) return;
+    
+    // Blur input on mobile to hide keyboard after sending
+    if (window.innerWidth < 640) {
+      inputRef.current?.blur();
+    }
 
     // Add user message
     const userMessage: Message = {
@@ -216,8 +257,24 @@ export default function ChatWidget() {
     );
   }
 
+  // Close on overlay click (for mobile)
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      toggleChat();
+    }
+  };
+
   return (
     <div className={styles.chatWidget}>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/30 z-0 md:hidden"
+          onClick={handleOverlayClick}
+          aria-hidden="true"
+        />
+      )}
+      
       <div className={`${styles.chatWindow} ${isOpen ? styles.open : ''}`}>
         <div className={styles.chatHeader}>
           <div className={styles.chatTitle}>
@@ -235,30 +292,41 @@ export default function ChatWidget() {
           </button>
         </div>
 
-        <div className={styles.messagesContainer} ref={messagesContainerRef}>
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`${styles.message} ${
-                message.sender === 'user' ? styles.user : styles.bot
-              }`}
-            >
-              {renderMessageContent(message)}
-              <div className={styles.messageMetadata}>
-                {formatTime(message.timestamp)}
+        <div 
+          className={styles.messagesContainer} 
+          ref={messagesContainerRef}
+          onClick={() => {
+            // On mobile, focus input when clicking on messages
+            if (typeof window !== 'undefined' && window.innerWidth < 640) {
+              inputRef.current?.focus();
+            }
+          }}
+        >
+          <div className="w-full">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`${styles.message} ${
+                  message.sender === 'user' ? styles.user : styles.bot
+                }`}
+              >
+                {renderMessageContent(message)}
+                <div className={styles.messageMetadata}>
+                  {formatTime(message.timestamp)}
+                </div>
               </div>
-            </div>
-          ))}
-          
-          {isTyping && (
-            <div className={styles.typingIndicator}>
-              <div className={styles.typingDot}></div>
-              <div className={styles.typingDot}></div>
-              <div className={styles.typingDot}></div>
-            </div>
-          )}
-          
-          <div ref={messagesEndRef} />
+            ))}
+            
+            {isTyping && (
+              <div className={styles.typingIndicator}>
+                <div className={styles.typingDot}></div>
+                <div className={styles.typingDot}></div>
+                <div className={styles.typingDot}></div>
+              </div>
+            )}
+            
+            <div ref={messagesEndRef} className="h-4" />
+          </div>
         </div>
 
         {hasQuickReplies && (
@@ -281,11 +349,21 @@ export default function ChatWidget() {
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage(e);
+              }
+            }}
             placeholder="Type your message..."
             className={styles.inputField}
             disabled={isTyping}
             aria-label="Type your message"
+            enterKeyHint="send"
+            inputMode="text"
+            autoComplete="off"
+            autoCorrect="on"
+            autoCapitalize="sentences"
           />
           <button
             type="submit"
@@ -293,7 +371,11 @@ export default function ChatWidget() {
             className={styles.sendButton}
             aria-label="Send message"
           >
-            {isTyping ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
+            {isTyping ? (
+              <Loader2 className="animate-spin" size={18} />
+            ) : (
+              <Send size={18} />
+            )}
           </button>
         </form>
       </div>

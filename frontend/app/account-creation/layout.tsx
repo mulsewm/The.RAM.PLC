@@ -11,33 +11,33 @@ export default function ApplicationLayout({
 }) {
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Main Content */}
+      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 lg:py-8">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 lg:gap-8">
+          {/* Main Content - Takes full width on mobile, 3/4 on larger screens */}
           <div className="lg:col-span-3">
-            <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
+            <div className="overflow-hidden bg-white shadow-xl sm:rounded-2xl">
               {children}
             </div>
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
+          {/* Sidebar - Stacks below on mobile, right on larger screens */}
+          <div className="space-y-4 lg:space-y-6">
             {/* Application Info Card */}
             <Card className="border-0 shadow-md">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold text-gray-900">
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-lg font-bold text-gray-900 sm:text-xl">
                   Healthcare Visa Application
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 mb-4">
+              <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
+                <p className="mb-4 text-sm text-gray-600 sm:text-base">
                   Complete your visa application for healthcare positions in the GCC region. 
                   Our streamlined process helps medical professionals secure their visas efficiently.
                 </p>
                 <Button variant="outline" className="w-full" asChild>
-                  <Link href="visa-services/requirements">
-                    <FileText className="mr-2 h-4 w-4" />
-                    View Requirements
+                  <Link href="visa-services/requirements" className="flex items-center justify-center">
+                    <FileText className="mr-2 h-4 w-4 flex-shrink-0" />
+                    <span>View Requirements</span>
                   </Link>
                 </Button>
               </CardContent>
@@ -45,57 +45,50 @@ export default function ApplicationLayout({
 
             {/* Success Stories Card */}
             <Card className="border-0 shadow-md">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold text-gray-900">
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-lg font-bold text-gray-900 sm:text-xl">
                   Success Stories
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0">
-                      <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                        <CheckCircle className="h-5 w-5 text-green-600" />
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">Dr. Sarah Johnson</p>
-                      <p className="text-sm text-gray-600">Secured a position in Dubai within 3 weeks</p>
-                    </div>
+              <CardContent className="space-y-3 p-4 pt-0 sm:space-y-4 sm:p-6 sm:pt-0">
+                {[
+                  { text: "Dr. Sarah secured a position in Dubai within 2 weeks!", icon: "🇦🇪" },
+                  { text: "Nurse James found his dream job in Riyadh through our platform.", icon: "🇸🇦" },
+                  { text: "Over 500+ healthcare professionals placed in GCC countries.", icon: "🏥" },
+                ].map((story, i) => (
+                  <div key={i} className="flex items-start">
+                    <span className="mr-2 mt-0.5 text-lg">{story.icon}</span>
+                    <p className="text-sm text-gray-600">{story.text}</p>
                   </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0">
-                      <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                        <CheckCircle className="h-5 w-5 text-green-600" />
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">Nurse Michael Tan</p>
-                      <p className="text-sm text-gray-600">Successfully relocated to Riyadh with family</p>
-                    </div>
-                  </div>
-                </div>
+                ))}
               </CardContent>
             </Card>
 
-            {/* Help Card */}
-            <Card className="border-0 shadow-md bg-blue-50 border-l-4 border-blue-500">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold text-gray-900 flex items-center">
-                  <HelpCircle className="h-5 w-5 text-blue-600 mr-2" />
+            {/* Support Card */}
+            <Card className="border-0 shadow-md">
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-lg font-bold text-gray-900 sm:text-xl">
                   Need Help?
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 mb-4">
+              <CardContent className="space-y-4 p-4 pt-0 sm:p-6 sm:pt-0">
+                <p className="text-sm text-gray-600 sm:text-base">
                   Our support team is available 24/7 to assist you with your application.
                 </p>
-                <Button variant="outline" className="w-full" asChild>
-                  <Link href="/contact">
-                    <MessageSquare className="mr-2 h-4 w-4" />
-                    Contact Support
-                  </Link>
-                </Button>
+                <div className="space-y-3">
+                  <Button variant="outline" className="w-full justify-center" asChild>
+                    <Link href="/contact" className="flex items-center">
+                      <MessageSquare className="mr-2 h-4 w-4 flex-shrink-0" />
+                      <span>Contact Support</span>
+                    </Link>
+                  </Button>
+                  <Button variant="ghost" className="w-full justify-center" asChild>
+                    <Link href="/faq" className="flex items-center">
+                      <HelpCircle className="mr-2 h-4 w-4 flex-shrink-0" />
+                      <span>View FAQ</span>
+                    </Link>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>

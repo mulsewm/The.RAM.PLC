@@ -1,8 +1,6 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
 
 export default function ConditionalLayout({
   children,
@@ -13,11 +11,10 @@ export default function ConditionalLayout({
   const isAdminPage = pathname?.startsWith('/admin')
   const isAuthPage = pathname?.startsWith('/login') || pathname?.startsWith('/register') || pathname?.startsWith('/test-login')
   
-  return (
-    <>
-      {!isAdminPage && !isAuthPage && <Navbar />}
-      <main>{children}</main>
-      {!isAdminPage && !isAuthPage && <Footer />}
-    </>
-  )
+  // Don't wrap with layout for auth pages or admin pages
+  if (isAuthPage || isAdminPage) {
+    return <>{children}</>
+  }
+  
+  return <>{children}</>
 }
