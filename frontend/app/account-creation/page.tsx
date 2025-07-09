@@ -168,18 +168,29 @@ export default function AccountCreationPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-14 sm:px-6 lg:px-14 py-8">
+      {/* Reduced default horizontal padding for small screens */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-14 py-8">
         <FormProvider {...methods}>
           <form onSubmit={methods.handleSubmit(onSubmit)}>
             <div className="bg-white rounded-2xl overflow-hidden shadow-xl">
               <div className="md:grid md:grid-cols-12">
-                {/* Progress Stepper */}
-                <div className="md:col-span-3 bg-gray-50 p-6 border-r border-gray-200">
+                {/* Progress Stepper – hidden on small screens */}
+                <div className="hidden md:block md:col-span-3 bg-gray-50 p-6 border-r border-gray-200">
                   <ProgressStepper steps={steps} currentStep={step} />
                 </div>
 
                 {/* Form Content */}
                 <div className="md:col-span-9 p-8">
+                  {/* Mobile progress indicator */}
+                  <div className="md:hidden mb-6">
+                    <p className="text-sm font-medium text-gray-600 mb-2">Step {step} of {steps.length}</p>
+                    <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-primary transition-all duration-300"
+                        style={{ width: `${(step / steps.length) * 100}%` }}
+                      />
+                    </div>
+                  </div>
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={step}

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { createPortal } from "react-dom"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
@@ -97,6 +98,7 @@ const navItems: NavItem[] = [
 
 export function MainNav() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
@@ -147,13 +149,19 @@ export function MainNav() {
     }
   }, [scrolled])
 
-  // Toggle mobile menu
+  // Debug: Log when the hamburger / close icon is clicked and the resulting state
   const toggleMobileMenu = () => {
-    setIsMobileOpen(!isMobileOpen);
+    console.log("[MainNav] Hamburger icon clicked. Previous isMobileOpen:", isMobileOpen)
+    setIsMobileOpen((prev) => {
+      const next = !prev
+      console.log("[MainNav] Setting isMobileOpen to:", next)
+      return next
+    })
   };
 
   // Close mobile menu when clicking outside or navigating
   useEffect(() => {
+    console.log("[MainNav] isMobileOpen changed:", isMobileOpen)
     const handleClickOutside = (event: MouseEvent) => {
       if (mobileMenuRef.current && 
           !mobileMenuRef.current.contains(event.target as Node) && 
@@ -262,7 +270,7 @@ export function MainNav() {
         </nav>
 
         {/* Auth Buttons - Desktop */}
-        <div className="flex items-center space-x-4">
+        <div className="hidden md:flex items-center space-x-4">
           <Link href="/account-creation" className="hidden md:block">
             <Button variant="outline" size="sm">
               Sign In
@@ -309,126 +317,143 @@ export function MainNav() {
       </div>
 
   
-      {/* Mobile Navigation */}
-      <AnimatePresence>
-        {isMobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            ref={mobileMenuRef}
-            className="md:hidden fixed inset-x-0 top-16 bottom-0 bg-background/95 backdrop-blur-sm overflow-y-auto z-50"
-            onClick={(e) => e.stopPropagation()}
-            id="mobile-navigation"
-          >
-            <nav className="flex flex-col h-full" aria-label="Main navigation">
-              <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2">
-                {/* Navigation Items */}
-                {navItems.map((item) => (
-                  <div key={item.name} className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <Link
-                        href={item.href}
-                        className={cn(
-                          'flex items-center justify-between w-full px-4 py-3 text-base font-medium rounded-lg transition-colors',
-                          'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-                          isItemActive(item) || hasActiveSubmenu(item)
-                            ? 'bg-accent text-accent-foreground font-semibold'
-                            : 'text-foreground hover:bg-accent/50 hover:text-accent-foreground'
-                        )}
-                        onClick={(e) => {
-                          if (item.submenu) {
-                            e.preventDefault();
-                            setOpenSubmenu(openSubmenu === item.name ? null : item.name);
-                          } else {
-                            setIsMobileOpen(false);
-                          }
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            if (item.submenu) {
-                              setOpenSubmenu(openSubmenu === item.name ? null : item.name);
-                            } else {
-                              setIsMobileOpen(false);
-                              router.push(item.href);
-                            }
-                          }
-                        }}
-                        aria-expanded={item.submenu ? openSubmenu === item.name : undefined}
-                        aria-haspopup={item.submenu ? 'menu' : undefined}
-                        aria-current={isItemActive(item) ? 'page' : undefined}
-                      >
-                        {item.name}
-                        {item.submenu && (
-                          <ChevronDown
+      {/* Mobile Navigation rendered via portal to escape any clipping context */}
+      {typeof document !== 'undefined' &&
+        createPortal(
+          <AnimatePresence>
+            {isMobileOpen && (
+              <motion.div
+                key="mobile-nav"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                ref={mobileMenuRef}
+                className="md:hidden fixed inset-0 pt-16 bg-background/95 backdrop-blur-sm overflow-y-auto z-[60]"
+                onClick={(e) => e.stopPropagation()}
+                id="mobile-navigation"
+              >
+                <nav className="flex flex-col h-full" aria-label="Main navigation">
+                  <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2">
+                    {/* Navigation Items */}
+                    {navItems.map((item) => (
+                      <div key={item.name} className="space-y-1">
+                        {/* Navigation item markup retained as-is */}
+                        <div className="flex items-center justify-between">
+                          <Link
+                            href={item.href}
                             className={cn(
-                              'ml-2 h-4 w-4 transition-transform',
-                              openSubmenu === item.name ? 'rotate-180' : ''
+                              'flex items-center justify-between w-full px-4 py-3 text-base font-medium rounded-lg transition-colors',
+                              'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+                              isItemActive(item) || hasActiveSubmenu(item)
+                                ? 'bg-accent text-accent-foreground font-semibold'
+                                : 'text-foreground hover:bg-accent/50 hover:text-accent-foreground'
                             )}
-                            aria-hidden="true"
-                          />
-                        )}
-                      </Link>
-                    </div>
-                    
-                    {/* Submenu Items */}
-                    {item.submenu && (
-                      <AnimatePresence>
-                        {openSubmenu === item.name && (
-                          <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.2, ease: 'easeInOut' }}
-                            className="pl-4 space-y-1 overflow-hidden"
-                          >
-                            {item.submenu.map((subItem) => (
-                              <Link
-                                key={subItem.href}
-                                href={subItem.href}
-                                className={cn(
-                                  'block px-4 py-2 text-sm rounded-lg transition-colors',
-                                  'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-                                  isItemActive(subItem)
-                                    ? 'bg-accent text-accent-foreground font-medium'
-                                    : 'text-foreground hover:bg-accent/50 hover:text-accent-foreground'
-                                )}
-                                onClick={(e) => {
-                                  e.stopPropagation();
+                            onClick={(e) => {
+                              if (item.submenu) {
+                                e.preventDefault();
+                                setOpenSubmenu(openSubmenu === item.name ? null : item.name);
+                              } else {
+                                setIsMobileOpen(false);
+                              }
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                if (item.submenu) {
+                                  setOpenSubmenu(openSubmenu === item.name ? null : item.name);
+                                } else {
                                   setIsMobileOpen(false);
-                                }}
-                              >
-                                {subItem.name}
-                              </Link>
-                            ))}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    )}
-                  </div>
-                ))}
-              </div>
+                                  router.push(item.href);
+                                }
+                              }
+                            }}
+                            aria-expanded={item.submenu ? openSubmenu === item.name : undefined}
+                            aria-haspopup={item.submenu ? 'menu' : undefined}
+                            aria-current={isItemActive(item) ? 'page' : undefined}
+                          >
+                            {item.name}
+                            {item.submenu && (
+                              <ChevronDown
+                                className={cn(
+                                  'ml-2 h-4 w-4 transition-transform',
+                                  openSubmenu === item.name ? 'rotate-180' : ''
+                                )}
+                                aria-hidden="true"
+                              />
+                            )}
+                          </Link>
+                        </div>
 
-              {/* Sign In Button */}
-              <div className="p-4 border-t border-border">
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => {
-                    setIsMobileOpen(false);
-                    router.push('/account-creation');
-                  }}
-                >
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Sign In
-                </Button>
-              </div>
-            </nav>
-          </motion.div>
+                        {/* Submenu Items */}
+                        {item.submenu && (
+                          <AnimatePresence>
+                            {openSubmenu === item.name && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.2, ease: 'easeInOut' }}
+                                className="pl-4 space-y-1 overflow-hidden"
+                              >
+                                {item.submenu.map((subItem) => (
+                                  <Link
+                                    key={subItem.href}
+                                    href={subItem.href}
+                                    className={cn(
+                                      'block px-4 py-2 text-sm rounded-lg transition-colors',
+                                      'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+                                      isItemActive(subItem)
+                                        ? 'bg-accent text-accent-foreground font-medium'
+                                        : 'text-foreground hover:bg-accent/50 hover:text-accent-foreground'
+                                    )}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setIsMobileOpen(false);
+                                    }}
+                                  >
+                                    {subItem.name}
+                                  </Link>
+                                ))}
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Sign In & Become a Partner Buttons */}
+                  <div className="p-4 border-t border-border space-y-2">
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        setIsMobileOpen(false);
+                        router.push('/account-creation');
+                      }}
+                    >
+                      <LogIn className="mr-2 h-4 w-4" />
+                      Sign In
+                    </Button>
+                    <Button
+                      className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+                      onClick={() => {
+                        setIsMobileOpen(false);
+                        const modal = document.getElementById('partnership-modal') as HTMLButtonElement;
+                        modal?.click();
+                      }}
+                    >
+                      <Handshake className="mr-2 h-4 w-4" />
+                      Become a Partner
+                    </Button>
+                  </div>
+                </nav>
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body
         )}
-      </AnimatePresence>
     </div>
   )
 }

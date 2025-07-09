@@ -162,7 +162,8 @@ export default function NumbersSection() {
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4 lg:gap-4 justify-center">
+        {/* Updated grid: default now two columns so stats appear 2-by-2 on small screens */}
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4 lg:gap-4 justify-center">
           {/* Conditional classes will be applied by the Metric component itself or by wrapping div if needed for 3-2 layout */}
 
           {metrics.map((metric, index) => (
