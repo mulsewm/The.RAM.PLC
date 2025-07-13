@@ -8,7 +8,7 @@ export default function VisaServicesPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative py-16 md:py-24 bg-gradient-to-b from-background to-background/95">
+      <section className="relative py-10 sm:py-14 md:py-24 bg-gradient-to-b from-background to-background/95">
         <div className="absolute inset-0 z-0">
           <Image
             src="/world-map-detailed.svg"
@@ -18,22 +18,22 @@ export default function VisaServicesPage() {
             priority
           />
         </div>
-        <div className="container mx-auto px-4 z-10 relative">
+        <div className="container mx-auto px-2 sm:px-4 z-10 relative">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-3xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-4 sm:mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80">
               Healthcare Visa Services for GCC
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-3xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-10 max-w-3xl mx-auto">
               Streamlined visa processing for healthcare professionals looking to advance their careers in the Gulf region.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center">
               <Link href="/visa-services/requirements" className="w-full sm:w-auto">
-                <Button className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 w-full sm:w-auto">
+                <Button className="bg-primary hover:bg-primary/90 text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 w-full sm:w-auto rounded-lg shadow-md active:scale-95 transition-transform">
                   View Requirements
                 </Button>
               </Link>
               <Link href="/account-creation" className="w-full sm:w-auto">
-                <Button variant="outline" className="text-lg px-8 py-6 border-primary text-primary hover:bg-primary/10 w-full sm:w-auto">
+                <Button variant="outline" className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 border-primary text-primary hover:bg-primary/10 w-full sm:w-auto rounded-lg shadow-md active:scale-95 transition-transform">
                   Apply for GCC
                 </Button>
               </Link>
@@ -43,9 +43,9 @@ export default function VisaServicesPage() {
       </section>
 
       {/* Statistics Section */}
-      <section className="py-12 bg-gradient-to-b from-gray-50 to-white -mt-20">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <section className="py-8 sm:py-12 bg-gradient-to-b from-gray-50 to-white -mt-10 sm:-mt-20">
+        <div className="container mx-auto px-2 sm:px-4">
+          <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3">
             <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 duration-300">
               <div className="flex items-start space-x-4">
                 <div className="p-3 bg-primary/10 rounded-lg">
@@ -87,15 +87,15 @@ export default function VisaServicesPage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-12 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-2 text-primary">Why Choose Us</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+      <section className="py-8 sm:py-12 bg-white">
+        <div className="container mx-auto px-2 sm:px-4">
+          <div className="text-center mb-6 sm:mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-primary">Why Choose Us</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto text-base sm:text-lg">
               We provide comprehensive support throughout your visa application journey
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
             {[
               {
                 icon: <Award className="h-8 w-8" />,
@@ -132,20 +132,20 @@ export default function VisaServicesPage() {
       <VisaTypesSection />
 
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-primary to-primary/90 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to Start Your Journey?</h2>
-          <p className="text-lg md:text-xl mb-8 text-primary-foreground/90 max-w-3xl mx-auto">
+      <section className="py-10 sm:py-16 bg-gradient-to-r from-primary to-primary/90 text-white">
+        <div className="container mx-auto px-2 sm:px-4 text-center">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4">Ready to Start Your Journey?</h2>
+          <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 text-primary-foreground/90 max-w-3xl mx-auto">
             Join thousands of healthcare professionals who have successfully relocated to the GCC region.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center">
             <Link href="/account-creation" className="w-full sm:w-auto">
-              <Button size="lg" variant="secondary" className="w-full sm:w-auto bg-white text-primary hover:bg-gray-100">
+              <Button size="lg" variant="secondary" className="w-full sm:w-auto bg-white text-primary hover:bg-gray-100 rounded-lg shadow-md active:scale-95 transition-transform">
                 Apply for GCC
               </Button>
             </Link>
             <Link href="/visa-services/requirements" className="w-full sm:w-auto">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto text-white border-white hover:bg-white/10">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto text-white border-white hover:bg-white/10 rounded-lg shadow-md active:scale-95 transition-transform">
                 Learn More
               </Button>
             </Link>

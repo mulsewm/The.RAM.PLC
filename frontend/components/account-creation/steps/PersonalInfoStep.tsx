@@ -20,7 +20,7 @@ const PersonalInfoStep = () => {
             <FormItem>
               <FormLabel>First Name</FormLabel>
               <FormControl>
-                <Input placeholder="John" {...field} />
+                <Input placeholder="Abebe" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -34,7 +34,7 @@ const PersonalInfoStep = () => {
             <FormItem>
               <FormLabel>Last Name</FormLabel>
               <FormControl>
-                <Input placeholder="Doe" {...field} />
+                <Input placeholder="Kebede" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -48,7 +48,7 @@ const PersonalInfoStep = () => {
             <FormItem className="sm:col-span-2">
               <FormLabel>Email Address</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="john.doe@example.com" {...field} />
+                <Input type="email" placeholder="abebekebede@gmail.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

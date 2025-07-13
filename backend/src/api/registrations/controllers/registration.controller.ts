@@ -4,6 +4,11 @@ import { Prisma, Registration, Gender, MaritalStatus, RegistrationStatus } from 
 import { registrationSchema, type RegistrationInput, VisaType, ProcessingUrgency } from '../validations/registration.schema.js';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
+import { MulterFiles, RegistrationFilePaths } from '../types/registration.types.js';
+import { uploadFilesToS3, deleteFileFromS3 } from '../../lib/s3.js';
+import { generateSecurePassword, sendAccountCreationEmail } from '../../services/email.service.js';
+import crypto from 'crypto';
+import { ZodError } from 'zod';
 
 // Extend Express types
 declare module 'express-serve-static-core' {
@@ -45,85 +50,54 @@ type AuthenticatedUser = {
 // Type for creating a new registration
 type RegistrationCreateData = {
   id: string;
-  firstName: string;
-  middleName?: string | null;
-  lastName: string;
-  dateOfBirth: Date;
-  gender: Gender;
-  maritalStatus: MaritalStatus;
+  firstName?: string | null;
+  lastName?: string | null;
+  gender?: Gender | null;
+  maritalStatus?: MaritalStatus | null;
   email: string;
-  phoneNumber: string;
-  currentLocation: string;
-  country: string;
-  city: string;
-  address: string;
-  postalCode: string;
-  emergencyContactName: string;
-  emergencyContactPhone: string;
-  profession: string;
+  phoneNumber?: string | null;
+  currentLocation?: string | null;
+  profession?: string | null;
   specialization?: string | null;
-  yearsOfExperience: string;
-  currentEmployer?: string | null;
-  jobTitle: string;
-  hasProfessionalLicense: boolean;
-  licenseType?: string | null;
-  licenseNumber?: string | null;
-  issuingOrganization?: string | null;
-  licenseExpiryDate?: Date | null;
+  yearsOfExperience?: string | null;
+  jobTitle?: string | null;
+  hasProfessionalLicense?: boolean | null;
   licensingStatus?: string | null;
-  preferredLocations: string[];
-  willingToRelocate: boolean;
-  preferredJobTypes: string[];
+  preferredLocations?: string[];
+  willingToRelocate?: boolean | null;
+  preferredJobTypes?: string[];
   expectedSalary?: number | null;
   noticePeriodValue?: number | null;
   noticePeriodUnit?: string | null;
-  visaType?: string | null;
-  processingUrgency?: string | null;
-  references?: any;
+  visaType?: VisaType | null;
+  processingUrgency?: ProcessingUrgency | null;
+  references?: Prisma.JsonValue | null;
   resume?: string | null;
   passportOrId?: string | null;
-  professionalCertificates: string[];
+  professionalCertificates?: string[];
   policeClearance?: string | null;
-  confirmAccuracy: boolean;
-  termsAccepted: boolean;
-  backgroundCheckConsent: boolean;
-  status: RegistrationStatus;
+  confirmAccuracy?: boolean | null;
+  termsAccepted?: boolean | null;
+  backgroundCheckConsent?: boolean | null;
+  status?: RegistrationStatus | null; 
   notes?: string | null;
   submittedAt?: Date | null;
-  userId: string;
+  userId?: string | null;
 };
 
 // Helper function to send registration confirmation email
 const sendRegistrationConfirmationEmail = async (
   user: { email: string; name?: string | null },
-  registration: Pick<Registration, 'id' | 'email' | 'firstName' | 'lastName' | 'middleName' | 'dateOfBirth' | 'gender' | 'maritalStatus' | 'phoneNumber' | 'profession' | 'yearsOfExperience' | 'status' | 'submittedAt'> & {
+  registration: Pick<Registration, 'id' | 'email' | 'firstName' | 'lastName' | 'gender' | 'maritalStatus' | 'phoneNumber' | 'profession' | 'yearsOfExperience' | 'status' | 'submittedAt'> & {
     specialization?: string | null;
     notes?: string | null;
   }
 ): Promise<void> => {
   try {
-    // In a real implementation, you would send an email here
     console.log(`Sending registration confirmation to ${user.email}`);
     console.log('Registration details:', registration);
-    
-    // Example email sending code (commented out as it requires proper email setup)
-    /*
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
-      to: user.email,
-      subject: 'Registration Submitted Successfully',
-      html: `
-        <h1>Thank you for your registration, ${registration.firstName}!</h1>
-        <p>Your registration has been received and is being processed.</p>
-        <p>Reference Number: ${registration.id}</p>
-        <p>Status: ${registration.status}</p>
-      `
-    });
-    */
   } catch (error) {
     console.error('Failed to send registration confirmation email:', error);
-    // Don't throw the error as we don't want to fail the registration process
-    // just because the email couldn't be sent
   }
 };
 
@@ -135,7 +109,6 @@ const sendStatusUpdateEmail = async (
   }
 ): Promise<void> => {
   try {
-    // In a real implementation, you would send an email here
     console.log(`Sending status update email to ${user.email}`);
     console.log('Registration details:', registration);
   } catch (error) {
@@ -143,245 +116,172 @@ const sendStatusUpdateEmail = async (
   }
 };
 
-// Helper to map frontend form data to our database model
-interface RegistrationFilePaths {
-  resume?: string;
-  passportOrId?: string;
-  professionalCertificates?: string[];
-  policeClearance?: string;
-}
-
 interface RegistrationFormData {
-  firstName: string;
-  middleName?: string | null;
-  lastName: string;
-  dateOfBirth: string | Date;
-  gender: string;
-  maritalStatus: string;
+  firstName?: string;
+  lastName?: string;
+  gender?: string;
+  maritalStatus?: string;
   email: string;
-  phoneNumber: string;
-  profession: string;
-  yearsOfExperience: string;
-  currentEmployer?: string | null;
-  jobTitle: string;
-  
-  // Licensing & Certification
-  hasProfessionalLicense: boolean;
-  licenseType?: string | null;
-  licenseNumber?: string | null;
-  issuingOrganization?: string | null;
-  licenseExpiryDate?: string | Date | null;
+  phoneNumber?: string;
+  currentLocation?: string | null;
+  profession?: string;
+  specialization?: string | null;
+  yearsOfExperience?: string;
+  jobTitle?: string;
+  hasProfessionalLicense?: boolean;
   licensingStatus?: string | null;
-  
-  // Work Preferences
-  preferredLocations: string[];
-  willingToRelocate: boolean;
-  preferredJobTypes: string[];
-  expectedSalary: number;
-  noticePeriodValue: number;
-  noticePeriodUnit: string;
-  
-  // Visa Information
+  preferredLocations?: string[] | string;
+  willingToRelocate?: boolean;
+  preferredJobTypes?: string[] | string;
+  expectedSalary?: number;
+  noticePeriodValue?: number;
+  noticePeriodUnit?: string;
   visaType?: string | null;
   processingUrgency?: string | null;
-  
-  // Professional References
-  references: Array<{
-    name: string;
-    position: string;
-    company: string;
-    email: string;
-    phone: string;
-  }>;
-  
-  // Terms & Declaration
-  confirmAccuracy: boolean;
-  termsAccepted: boolean;
-  backgroundCheckConsent: boolean;
-  
-  // Required fields for database
-  country: string;
-  city: string;
-  address: string;
-  postalCode: string;
-  emergencyContactName: string;
-  emergencyContactPhone: string;
-  currentLocation?: string | null;
-  
+  references?: string; // JSON string
+  confirmAccuracy?: boolean;
+  termsAccepted?: boolean;
+  backgroundCheckConsent?: boolean;
   status?: string;
-  specialization?: string | null;
-  
+  notes?: string | null;
+  // For dynamic access, though Zod schema is preferred
   [key: string]: unknown;
 }
 
-const mapFormDataToRegistration = (
-  formData: RegistrationFormData,
-  userId: string,
-  filePaths: RegistrationFilePaths
-): Prisma.RegistrationCreateInput => {
-  // Ensure formData is defined and has required properties
-  if (!formData) {
-    throw new Error('Form data is required');
-  }
+export const submitRegistration = async (req: ExpressRequest, res: Response) => {
+  console.log("submitRegistration controller triggered for path:", req.path);
 
-  // Convert date string to Date object if needed
-  const dateOfBirth = typeof formData.dateOfBirth === 'string' 
-    ? new Date(formData.dateOfBirth) 
-    : formData.dateOfBirth;
-
-  const licenseExpiryDate = formData.licenseExpiryDate
-    ? new Date(formData.licenseExpiryDate)
-    : null;
-
-  // Build the base registration data object with all required fields
-  const baseData: Prisma.RegistrationCreateInput = {
-    id: uuidv4(),
-    firstName: formData.firstName,
-    middleName: formData.middleName || null,
-    lastName: formData.lastName,
-    dateOfBirth,
-    gender: formData.gender as Gender,
-    maritalStatus: formData.maritalStatus as MaritalStatus,
-    email: formData.email,
-    phoneNumber: formData.phoneNumber,
-    currentLocation: formData.currentLocation || '',
-    profession: formData.profession,
-    yearsOfExperience: formData.yearsOfExperience || '0',
-    currentEmployer: formData.currentEmployer || null,
-    jobTitle: formData.jobTitle,
-    
-    // Required database fields
-    country: formData.country || '',
-    city: formData.city || '',
-    address: formData.address || '',
-    postalCode: formData.postalCode || '',
-    emergencyContactName: formData.emergencyContactName || '',
-    emergencyContactPhone: formData.emergencyContactPhone || '',
-    
-    // Licensing & Certification
-    hasProfessionalLicense: formData.hasProfessionalLicense,
-    licenseType: formData.licenseType || null,
-    licenseNumber: formData.licenseNumber || null,
-    issuingOrganization: formData.issuingOrganization || null,
-    licenseExpiryDate,
-    licensingStatus: formData.licensingStatus || null,
-    
-    // Work Preferences
-    preferredLocations: formData.preferredLocations,
-    willingToRelocate: formData.willingToRelocate,
-    preferredJobTypes: formData.preferredJobTypes,
-    expectedSalary: formData.expectedSalary,
-    noticePeriodValue: formData.noticePeriodValue,
-    noticePeriodUnit: formData.noticePeriodUnit,
-    
-    // Visa Information
-    visaType: formData.visaType ? (formData.visaType as VisaType) : null,
-    processingUrgency: formData.processingUrgency ? (formData.processingUrgency as ProcessingUrgency) : null,
-    
-    // Professional References
-    references: formData.references,
-    
-    // Terms & Declaration
-    confirmAccuracy: formData.confirmAccuracy,
-    termsAccepted: formData.termsAccepted,
-    backgroundCheckConsent: formData.backgroundCheckConsent,
-    
-    status: Object.values(RegistrationStatus).includes(formData.status as RegistrationStatus)
-      ? (formData.status as RegistrationStatus)
-      : RegistrationStatus.SUBMITTED,
-    
-    // File paths from uploads
-    ...(filePaths.resume && { resume: filePaths.resume }),
-    ...(filePaths.passportOrId && { passportOrId: filePaths.passportOrId }),
-    ...(filePaths.professionalCertificates && { professionalCertificates: filePaths.professionalCertificates }),
-    ...(filePaths.policeClearance && { policeClearance: filePaths.policeClearance }),
-    
-    // User relation
-    user: {
-      connect: {
-        id: userId
-      }
-    },
-    
-    // Required fields with default values - using string literals to match Prisma enum values
-    educationLevel: 'OTHER',
-    institution: '',
-    fieldOfStudy: '',
-    graduationYear: 0,
-    educationStatus: 'COMPLETED',
-    educationCountry: '',
-    educationCity: ''
-  };
-
-  return baseData;
-};
-
-export const submitRegistration = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const user = req.user;
-    if (!user) {
-      return res.status(401).json({ message: 'Unauthorized' });
+    const files = req.files as MulterFiles;
+    const formData = req.body as RegistrationFormData;
+
+    console.log("formData before validation:", formData);
+    console.log("files before validation:", files);
+
+    const parsedFormData = {
+      ...formData,
+      preferredLocations: typeof formData.preferredLocations === 'string' 
+        ? JSON.parse(formData.preferredLocations) 
+        : (formData.preferredLocations || []),
+      preferredJobTypes: typeof formData.preferredJobTypes === 'string' 
+        ? JSON.parse(formData.preferredJobTypes) 
+        : (formData.preferredJobTypes || []),
+      references: typeof formData.references === 'string' && formData.references !== '' 
+        ? JSON.parse(formData.references) 
+        : (formData.references || null),
+    };
+
+    const validatedData = registrationSchema.parse(parsedFormData);
+
+    console.log("validationResult", {
+      success: true,
+      data: validatedData,
+    });
+
+    let uploadedFilePaths: RegistrationFilePaths = {};
+    try {
+      uploadedFilePaths = await uploadFilesToS3(files);
+    } catch (uploadError: any) {
+      console.error("Error uploading files to S3:", uploadError);
+      return res.status(500).json({ message: "Failed to upload documents.", error: uploadError.message });
     }
 
-    // Parse and validate the form data
-    const formData = req.body;
-    const validationResult = registrationSchema.safeParse(formData);
+    const userEmail = validatedData.email; 
+    const userName = validatedData.firstName || '';
 
-    if (!validationResult.success) {
-      return res.status(400).json({
-        message: 'Validation error',
-        errors: validationResult.error.errors
+    let userId: string | null = null; 
+    let generatedPassword = '';
+
+    try {
+      const existingUser = await prisma.user.findUnique({
+        where: { email: userEmail },
       });
-    }
 
-    // Handle file uploads
-    const filePaths: RegistrationFilePaths = {};
+      if (!existingUser) {
+        generatedPassword = crypto.randomBytes(16).toString('hex');
+        const hashedPassword = await generateSecurePassword(generatedPassword);
+
+        const newUser = await prisma.user.create({
+          data: {
+            email: userEmail,
+            name: userName,
+            password: hashedPassword,
+            role: "USER",
+          },
+        });
+        userId = newUser.id;
+        await sendAccountCreationEmail(userEmail, generatedPassword);
+      } else {
+        userId = existingUser.id;
+      }
+    } catch (userError: any) {
+      console.error("Error during user creation/connection:", userError);
+      return res.status(500).json({ message: "Failed to process user account.", error: userError.message });
+    }
     
-    if (req.files) {
-      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-      
-      // Handle resume
-      if (files.resume?.[0]) {
-        filePaths.resume = files.resume[0].path;
-      }
-      
-      // Handle passport/ID
-      if (files.passportOrId?.[0]) {
-        filePaths.passportOrId = files.passportOrId[0].path;
-      }
-      
-      // Handle professional certificates (multiple files)
-      if (files.professionalCertificates) {
-        filePaths.professionalCertificates = files.professionalCertificates.map(file => file.path);
-      }
-      
-      // Handle police clearance
-      if (files.policeClearance?.[0]) {
-        filePaths.policeClearance = files.policeClearance[0].path;
-      }
-    }
+    const registrationData: Prisma.RegistrationCreateInput = {
+      id: uuidv4(),
+      firstName: validatedData.firstName ?? null,
+      lastName: validatedData.lastName ?? null,
+      gender: validatedData.gender ?? null,
+      maritalStatus: validatedData.maritalStatus ?? null,
+      email: validatedData.email,
+      phoneNumber: validatedData.phoneNumber ?? null,
+      currentLocation: validatedData.currentLocation ?? null,
+      profession: validatedData.profession ?? null,
+      specialization: validatedData.specialization ?? null,
+      yearsOfExperience: validatedData.yearsOfExperience ?? null,
+      jobTitle: validatedData.jobTitle ?? null,
+      hasProfessionalLicense: validatedData.hasProfessionalLicense ?? null,
+      licensingStatus: validatedData.licensingStatus ?? null,
+      preferredLocations: validatedData.preferredLocations || [],
+      willingToRelocate: validatedData.willingToRelocate ?? null,
+      preferredJobTypes: validatedData.preferredJobTypes || [],
+      expectedSalary: validatedData.expectedSalary ?? null,
+      noticePeriodValue: validatedData.noticePeriodValue ?? null,
+      noticePeriodUnit: validatedData.noticePeriodUnit ?? null,
+      visaType: validatedData.visaType ?? null,
+      processingUrgency: validatedData.processingUrgency ?? null,
+      references: validatedData.references ?? null,
+      confirmAccuracy: validatedData.confirmAccuracy ?? null,
+      termsAccepted: validatedData.termsAccepted ?? null,
+      backgroundCheckConsent: validatedData.backgroundCheckConsent ?? null,
+      status: validatedData.status ?? "SUBMITTED",
+      notes: validatedData.notes ?? null,
+      submittedAt: new Date(),
+      userId: userId ?? null,
 
-    // Map form data to registration model
-    const registrationData = mapFormDataToRegistration(formData, user.id, filePaths);
+      // File paths from uploaded files
+      resume: uploadedFilePaths.resume ?? null,
+      passportOrId: uploadedFilePaths.passport ?? null,
+      policeClearance: uploadedFilePaths.policeClearance ?? null,
+      professionalCertificates: uploadedFilePaths.professionalCertificates || [],
+      license: uploadedFilePaths.license ?? null,
+      degree: uploadedFilePaths.degree ?? null,
+      experience: uploadedFilePaths.experience ?? null,
+      medicalReport: uploadedFilePaths.medicalReport ?? null,
+      photo: uploadedFilePaths.photo ?? null,
+    };
 
-    // Create the registration
     const registration = await prisma.registration.create({
-      data: registrationData
+      data: registrationData,
     });
 
-    // Send confirmation email
-    await sendRegistrationConfirmationEmail(user, registration);
-
-    return res.status(201).json({
-      message: 'Registration submitted successfully',
-      data: registration
-    });
-  } catch (error) {
-    console.error('Error submitting registration:', error);
-    return res.status(500).json({
-      message: 'Internal server error',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    res.status(201).json({ message: 'Registration successful!', registrationId: registration.id });
+  } catch (error: any) {
+    console.error("Error submitting registration:", error);
+    if (error instanceof ZodError) {
+      return res.status(400).json({ message: 'Validation error', errors: error.errors });
+    } else if (error.message.includes("P2002")) { 
+      return res.status(409).json({ message: "A user with this email already exists." });
+    } else {
+      if (error.code === 'LIMIT_FILE_SIZE') {
+        return res.status(413).json({ message: "File too large. Maximum size is 1MB." });
+      } else if (error.code === 'LIMIT_UNEXPECTED_FILE') {
+        return res.status(400).json({ message: `Unexpected file field: ${error.field}` });
+      }
+      return res.status(500).json({ message: "Internal server error", error: error.message });
+    }
   }
 };
 

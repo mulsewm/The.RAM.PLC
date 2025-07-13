@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// Enums
+// Enums (unchanged - they define the *valid* string values)
 export const Gender = z.enum(['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY']);
 export type Gender = z.infer<typeof Gender>;
 
@@ -34,84 +34,134 @@ export const RegistrationStatus = z.enum([
 ]);
 export type RegistrationStatus = z.infer<typeof RegistrationStatus>;
 
-// Reference schema
+// Helper for optional string fields that might come as empty strings
+const optionalString = z.string().transform(e => (e === '' ? null : e)).nullable().optional();
+
+// Helper for optional boolean fields that might come as "true" / "false" strings
+const optionalBoolean = z.union([
+  z.boolean(),
+  z.literal("true").transform(() => true),
+  z.literal("false").transform(() => false),
+  z.string().transform(val => (val === '' ? null : val)), // Handles empty string to null before processing
+]).transform(val => (val === null || val === undefined || val === '') ? null : val).nullable().optional(); // Final check for null/undefined after transformations
+
+// Helper for optional number fields that might come as strings
+const optionalNumber = z.union([
+  z.number(),
+  z.string().transform(val => {
+    const num = Number(val);
+    return isNaN(num) ? null : num; // Convert empty string/non-numeric to null
+  })
+]).nullable().optional();
+
+// Reference schema - make fields optional and handle empty strings
 const referenceSchema = z.object({
-  name: z.string().min(2, 'Reference name is required'),
-  position: z.string().min(2, 'Position is required'),
-  company: z.string().min(2, 'Company is required'),
-  email: z.string().email('Invalid email address'),
-  phone: z.string().regex(/^[\d\s+()-]+$/, 'Invalid phone number format')
+  name: optionalString,
+  position: optionalString,
+  company: optionalString,
+  email: z.string().email('Invalid email address').or(z.literal('')).transform(e => (e === '' ? null : e)).nullable().optional(), // Specific for email to allow empty string as optional
+  phone: z.string().regex(/^[\d\s+()-]+$/, 'Invalid phone number format').or(z.literal('')).transform(e => (e === '' ? null : e)).nullable().optional() // Specific for phone
 });
 
 // Base schema for registration
 export const registrationSchema = z.object({
   // Personal Information
-  firstName: z.string().min(2, 'First name must be at least 2 characters'),
-  middleName: z.string().optional(),
-  lastName: z.string().min(2, 'Last name must be at least 2 characters'),
-  dateOfBirth: z.string().or(z.date()).transform(val => new Date(val)),
-  gender: Gender,
-  maritalStatus: MaritalStatus,
-  
-  // Contact Information
+  firstName: optionalString,
+  lastName: optionalString,
   email: z.string().email('Invalid email address'),
-  phoneNumber: z.string().min(6, 'Phone number must be at least 6 characters'),
-  currentLocation: z.string().min(2, 'Current location is required'),
-  
+  phoneNumber: optionalString,
+  currentLocation: optionalString,
+  gender: z.preprocess(val => (val === '' || val === undefined) ? undefined : val, Gender.optional().nullable()),
+  maritalStatus: z.preprocess(val => (val === '' || val === undefined) ? undefined : val, MaritalStatus.optional().nullable()),
+  country: optionalString,
+  city: optionalString,
+  address: optionalString,
+  postalCode: optionalString,
+  emergencyContactName: optionalString,
+  emergencyContactPhone: optionalString,
+
   // Professional Information
-  profession: z.string().min(1, 'Profession is required'),
-  specialization: z.string().optional(),
-  yearsOfExperience: z.string().min(1, 'Years of experience is required'),
-  currentEmployer: z.string().optional(),
-  jobTitle: z.string().min(1, 'Job title is required'),
-  
-  // Licensing & Certification
-  hasProfessionalLicense: z.boolean(),
-  licenseType: z.string().optional().nullable(),
-  licenseNumber: z.string().optional().nullable(),
-  issuingOrganization: z.string().optional().nullable(),
-  licenseExpiryDate: z.string().or(z.date()).optional().nullable().transform(val => val ? new Date(val) : null),
-  licensingStatus: z.string().optional().nullable(),
-  
+  profession: optionalString,
+  specialization: optionalString,
+  yearsOfExperience: optionalString,
+  jobTitle: optionalString,
+  currentEmployer: optionalString,
+  hasProfessionalLicense: optionalBoolean,
+  licenseType: optionalString,
+  licenseNumber: optionalString,
+  issuingOrganization: optionalString,
+  licenseExpiryDate: optionalString,
+  licensingStatus: optionalString,
+  educationLevel: z.preprocess(val => (val === '' || val === undefined) ? undefined : val, EducationLevel.optional().nullable()),
+  institution: optionalString,
+  fieldOfStudy: optionalString,
+  graduationYear: optionalNumber,
+  educationStatus: z.preprocess(val => (val === '' || val === undefined) ? undefined : val, EducationStatus.optional().nullable()),
+  educationCountry: optionalString,
+  educationCity: optionalString,
+
   // Work Preferences
-  preferredLocations: z.array(z.string()).min(1, 'At least one preferred location is required'),
-  willingToRelocate: z.boolean(),
-  preferredJobTypes: z.array(JobType).min(1, 'At least one job type must be selected'),
-  expectedSalary: z.number().min(0).max(200000),
-  noticePeriodValue: z.number().min(0),
-  noticePeriodUnit: NoticePeriodUnit,
-  
+  preferredLocations: z.preprocess(
+    (val) => {
+      try {
+        return typeof val === 'string' && val !== '' ? JSON.parse(val) : (val === '' ? [] : val);
+      } catch {
+        return [];
+      }
+    },
+    z.array(optionalString).optional().nullable()
+  ),
+  willingToRelocate: optionalBoolean,
+  preferredJobTypes: z.preprocess(
+    (val) => {
+      try {
+        return typeof val === 'string' && val !== '' ? JSON.parse(val) : (val === '' ? [] : val);
+      } catch {
+        return [];
+      }
+    },
+    z.array(JobType.or(optionalString)).optional().nullable()
+  ),
+  expectedSalary: optionalNumber,
+  noticePeriodValue: optionalNumber,
+  noticePeriodUnit: z.preprocess(val => (val === '' || val === undefined) ? undefined : val, NoticePeriodUnit.optional().nullable()),
+
   // Visa Information
-  visaType: VisaType.optional().nullable(),
-  processingUrgency: ProcessingUrgency.optional().nullable(),
-  
+  visaType: z.preprocess(val => (val === '' || val === undefined) ? undefined : val, VisaType.optional().nullable()),
+  processingUrgency: z.preprocess(val => (val === '' || val === undefined) ? undefined : val, ProcessingUrgency.optional().nullable()),
+
   // Professional References
-  references: z.array(referenceSchema).min(1, 'At least one reference is required'),
-  
-  // Document Uploads (handled separately in the controller)
+  references: z.preprocess(
+    (val) => {
+      try {
+        return typeof val === 'string' && val !== '' ? JSON.parse(val) : (val === '' ? [] : val);
+      } catch {
+        return [];
+      }
+    },
+    z.array(referenceSchema).optional().nullable()
+  ),
+
+  // Document Uploads (handled separately in the controller) - These are already optional
   resume: z.any().optional(),
   passportOrId: z.any().optional(),
-  professionalCertificates: z.array(z.any()).optional(),
+  professionalCertificates: z.array(z.any()).optional().nullable(),
   policeClearance: z.any().optional(),
-  
-  // Education Information
-  educationLevel: EducationLevel.default('OTHER'),
-  institution: z.string().min(2, 'Institution name is required').default(''),
-  fieldOfStudy: z.string().min(2, 'Field of study is required').default(''),
-  graduationYear: z.number().min(1900).max(new Date().getFullYear() + 5).optional(),
-  educationStatus: EducationStatus.default('COMPLETED'),
-  educationCountry: z.string().min(2, 'Country is required').default(''),
-  educationCity: z.string().min(2, 'City is required').default(''),
-  
+  license: z.any().optional(),
+  degree: z.any().optional(),
+  experience: z.any().optional(),
+  medicalReport: z.any().optional(),
+  photo: z.any().optional(),
+
   // Terms & Declaration
-  confirmAccuracy: z.boolean().refine(val => val === true, 'You must confirm the accuracy of the information'),
-  termsAccepted: z.boolean().refine(val => val === true, 'You must accept the terms and conditions'),
-  backgroundCheckConsent: z.boolean().refine(val => val === true, 'You must consent to background checks'),
-  
+  confirmAccuracy: optionalBoolean,
+  termsAccepted: optionalBoolean,
+  backgroundCheckConsent: optionalBoolean,
+
   // System fields
   status: RegistrationStatus.default('SUBMITTED'),
-  notes: z.string().optional(),
-  userId: z.string().min(1, 'User ID is required')
+  notes: optionalString,
+  userId: optionalString
 });
 
 export type RegistrationInput = z.infer<typeof registrationSchema>;

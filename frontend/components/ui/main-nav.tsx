@@ -30,18 +30,18 @@ const navItems: NavItem[] = [
     submenu: [
       { 
         name: "Our Story", 
-        href: "/about#story",
-        isActive: (pathname) => pathname === "/about" || pathname === "/about#story"
+        href: "/about/story",
+        isActive: (pathname) => pathname === "/about/story"
       },
       { 
         name: "Team", 
-        href: "/about#team",
-        isActive: (pathname) => pathname === "/about#team"
+        href: "/about/team",
+        isActive: (pathname) => pathname === "/about/team"
       },
       { 
         name: "Values", 
-        href: "/about#values",
-        isActive: (pathname) => pathname === "/about#values"
+        href: "/about/values",
+        isActive: (pathname) => pathname === "/about/values"
       },
     ]
   },
@@ -89,11 +89,17 @@ const navItems: NavItem[] = [
       },
     ]
   },
+ 
+  {
+    name: "Pricing",
+    href: "/pricing",
+    isActive: (pathname) => pathname.startsWith("/pricing")
+  },
   { 
     name: "Contact", 
     href: "/contact",
     isActive: (pathname) => pathname.startsWith("/contact")
-  },
+  }
 ]
 
 export function MainNav() {
@@ -213,7 +219,7 @@ export function MainNav() {
         <div className="flex items-center">
           <Link href="/" className="flex items-center space-x-2" aria-label="Home">
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-              The.RAM
+              The.RAM.PLC
             </span>
           </Link>
         </div>
@@ -329,16 +335,24 @@ export function MainNav() {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                 ref={mobileMenuRef}
-                className="md:hidden fixed inset-0 pt-16 bg-background/95 backdrop-blur-sm overflow-y-auto z-[60]"
+                className="md:hidden fixed inset-0 pt-16 bg-neutral-50/95 backdrop-blur-sm overflow-y-auto z-[60] shadow-2xl border-r border-border"
                 onClick={(e) => e.stopPropagation()}
                 id="mobile-navigation"
               >
+                {/* Close icon at the top right of the mobile menu */}
+                <button
+                  className="absolute top-4 right-4 p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 z-10"
+                  onClick={() => setIsMobileOpen(false)}
+                  aria-label="Close menu"
+                  tabIndex={0}
+                >
+                  <X className="h-6 w-6" aria-hidden="true" />
+                </button>
                 <nav className="flex flex-col h-full" aria-label="Main navigation">
                   <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2">
                     {/* Navigation Items */}
                     {navItems.map((item) => (
                       <div key={item.name} className="space-y-1">
-                        {/* Navigation item markup retained as-is */}
                         <div className="flex items-center justify-between">
                           <Link
                             href={item.href}
@@ -346,9 +360,11 @@ export function MainNav() {
                               'flex items-center justify-between w-full px-4 py-3 text-base font-medium rounded-lg transition-colors',
                               'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
                               isItemActive(item) || hasActiveSubmenu(item)
-                                ? 'bg-accent text-accent-foreground font-semibold'
-                                : 'text-foreground hover:bg-accent/50 hover:text-accent-foreground'
+                                ? 'bg-accent/80 text-accent-foreground font-semibold shadow'
+                                : 'text-foreground hover:bg-accent/50 hover:text-accent-foreground',
+                              openSubmenu === item.name ? 'bg-accent/60' : ''
                             )}
+                            style={{ minHeight: 48 }}
                             onClick={(e) => {
                               if (item.submenu) {
                                 e.preventDefault();
@@ -374,17 +390,33 @@ export function MainNav() {
                           >
                             {item.name}
                             {item.submenu && (
-                              <ChevronDown
-                                className={cn(
-                                  'ml-2 h-4 w-4 transition-transform',
-                                  openSubmenu === item.name ? 'rotate-180' : ''
+                              <span className="flex items-center ml-2">
+                                <ChevronDown
+                                  className={cn(
+                                    'h-5 w-5 transition-transform duration-200',
+                                    openSubmenu === item.name ? 'rotate-180 text-primary' : ''
+                                  )}
+                                  aria-hidden="true"
+                                />
+                                {/* Show close icon if submenu is open */}
+                                {openSubmenu === item.name && (
+                                  <button
+                                    className="ml-2 p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setOpenSubmenu(null);
+                                    }}
+                                    aria-label={`Close ${item.name} submenu`}
+                                    tabIndex={0}
+                                    type="button"
+                                  >
+                                    <X className="h-4 w-4" aria-hidden="true" />
+                                  </button>
                                 )}
-                                aria-hidden="true"
-                              />
+                              </span>
                             )}
                           </Link>
                         </div>
-
                         {/* Submenu Items */}
                         {item.submenu && (
                           <AnimatePresence>
@@ -404,9 +436,10 @@ export function MainNav() {
                                       'block px-4 py-2 text-sm rounded-lg transition-colors',
                                       'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
                                       isItemActive(subItem)
-                                        ? 'bg-accent text-accent-foreground font-medium'
+                                        ? 'bg-accent text-accent-foreground font-medium shadow'
                                         : 'text-foreground hover:bg-accent/50 hover:text-accent-foreground'
                                     )}
+                                    style={{ minHeight: 40 }}
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       setIsMobileOpen(false);
@@ -421,32 +454,33 @@ export function MainNav() {
                         )}
                       </div>
                     ))}
-                  </div>
-
-                  {/* Sign In & Become a Partner Buttons */}
-                  <div className="p-4 border-t border-border space-y-2">
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => {
-                        setIsMobileOpen(false);
-                        router.push('/account-creation');
-                      }}
-                    >
-                      <LogIn className="mr-2 h-4 w-4" />
-                      Sign In
-                    </Button>
-                    <Button
-                      className="w-full bg-teal-600 hover:bg-teal-700 text-white"
-                      onClick={() => {
-                        setIsMobileOpen(false);
-                        const modal = document.getElementById('partnership-modal') as HTMLButtonElement;
-                        modal?.click();
-                      }}
-                    >
-                      <Handshake className="mr-2 h-4 w-4" />
-                      Become a Partner
-                    </Button>
+                    {/* Sign In & Become a Partner Buttons - now directly after menu items */}
+                    <div className="space-y-4 pt-4">
+                      <Button
+                        variant="outline"
+                        className="w-full mb-2"
+                        style={{ minHeight: 48 }}
+                        onClick={() => {
+                          setIsMobileOpen(false);
+                          router.push('/account-creation');
+                        }}
+                      >
+                        <LogIn className="mr-2 h-4 w-4" />
+                        Sign In
+                      </Button>
+                      <Button
+                        className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+                        style={{ minHeight: 48 }}
+                        onClick={() => {
+                          setIsMobileOpen(false);
+                          const modal = document.getElementById('partnership-modal') as HTMLButtonElement;
+                          modal?.click();
+                        }}
+                      >
+                        <Handshake className="mr-2 h-4 w-4" />
+                        Become a Partner
+                      </Button>
+                    </div>
                   </div>
                 </nav>
               </motion.div>

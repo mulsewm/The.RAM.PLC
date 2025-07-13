@@ -42,12 +42,12 @@ export function SuccessStoriesSection() {
             Hear from healthcare professionals who successfully obtained their visas through our services.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 md:gap-6">
           {testimonials.map((testimonial, index) => (
-            <Card key={index} className="h-full hover:shadow-md transition-all duration-300 border-border/50 hover:border-primary/30">
-              <CardContent className="p-6 flex flex-col h-full">
-                <div className="flex flex-col items-center text-center flex-grow">
-                  <Avatar className="h-20 w-20 mb-4 border-2 border-primary/20">
+            <Card key={index} className="h-full w-full hover:shadow-md transition-all duration-300 border-border/50 hover:border-primary/30">
+              <CardContent className="p-6 flex flex-col h-full items-center text-center">
+                <div className="flex flex-col items-center text-center flex-grow w-full">
+                  <Avatar className="h-20 w-20 mb-4 border-2 border-primary/20 mx-auto">
                     <AvatarImage src={testimonial.image} alt={testimonial.name} className="object-cover" />
                     <AvatarFallback className="bg-primary/10 text-primary">
                       {testimonial.name.split(" ").map(n => n[0]).join("")}

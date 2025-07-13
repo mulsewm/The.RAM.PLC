@@ -37,44 +37,107 @@ const DocumentUploadStep = dynamic(
   { ssr: false, loading: () => <div>Loading...</div> }
 )
 
+const PricingStep = dynamic(
+  () => import('../../components/account-creation/steps/PricingStep').then(mod => mod.default),
+  { ssr: false, loading: () => <div>Loading...</div> }
+);
+
 // Form schemas
 const personalInfoSchema = z.object({
-  firstName: z.string().min(2, "First name must be at least 2 characters"),
-  lastName: z.string().min(2, "Last name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email address"),
-  phone: z.string().min(6, "Please enter a valid phone number"),
-})
+  firstName: z.string().min(2, "First name must be at least 2 characters").optional(),
+  lastName: z.string().min(2, "Last name must be at least 2 characters").optional(),
+  email: z.string().email("Please enter a valid email address").optional(),
+  phone: z.string().min(6, "Please enter a valid phone number").optional(),
+  dateOfBirth: z.string().min(1, "Date of birth is required").optional(),
+  gender: z.enum(["MALE", "FEMALE", "OTHER", "PREFER_NOT_TO_SAY"], { message: "Gender is required" }).optional(),
+  maritalStatus: z.enum(["SINGLE", "MARRIED", "DIVORCED", "WIDOWED", "OTHER"], { message: "Marital status is required" }).optional(),
+  currentLocation: z.string().min(1, "Please enter your current location").optional(),
+  // Merged from contactInfoSchema
+  country: z.string().optional(),
+  city: z.string().optional(),
+  address: z.string().optional(),
+  postalCode: z.string().optional(),
+  emergencyContactName: z.string().optional(),
+  emergencyContactPhone: z.string().optional(),
+});
+
+// contactInfoSchema is merged into personalInfoSchema, so it's removed as a separate schema
 
 const professionalInfoSchema = z.object({
-  profession: z.string().min(1, "Please select your profession"),
+  profession: z.string().optional(),
   specialization: z.string().optional(),
-  yearsOfExperience: z.string().min(1, "Please select your experience level"),
-  licensingStatus: z.string().min(1, "Please select your licensing status"),
-})
+  yearsOfExperience: z.string().optional(),
+  jobTitle: z.string().optional(),
+  currentEmployer: z.string().optional(),
+  hasProfessionalLicense: z.boolean().optional(),
+  licenseType: z.string().optional(),
+  licenseNumber: z.string().optional(),
+  issuingOrganization: z.string().optional(),
+  licenseExpiryDate: z.string().optional(),
+  licensingStatus: z.string().optional(),
+  // Merged from educationInfoSchema
+  educationLevel: z.string().optional(),
+  institution: z.string().optional(),
+  fieldOfStudy: z.string().optional(),
+  graduationYear: z.string().optional().transform(Number), 
+  educationStatus: z.string().optional(),
+  educationCountry: z.string().optional(),
+  educationCity: z.string().optional(),
+});
 
-const locationInfoSchema = z.object({
-  currentLocation: z.string().min(1, "Please enter your current location"),
-  preferredLocation: z.string().min(1, "Please select your preferred location"),
-  visaType: z.string().min(1, "Please select visa type"),
-  processingUrgency: z.string().min(1, "Please select processing urgency"),
-})
+// educationInfoSchema is merged into professionalInfoSchema, so it's removed as a separate schema
+
+const workPreferencesSchema = z.object({
+  preferredLocations: z.array(z.string()).optional(),
+  willingToRelocate: z.boolean().optional(),
+  preferredJobTypes: z.array(z.string()).optional(),
+  expectedSalary: z.string().optional().transform(Number),
+  noticePeriodValue: z.string().optional().transform(Number),
+  noticePeriodUnit: z.enum(["days", "weeks", "months"]).optional(),
+  // Merged from visaInfoSchema
+  visaType: z.preprocess((val) => String(val).toUpperCase(), z.enum(["EMPLOYMENT", "PSV", "FAMILY", "VISIT"]).optional()),
+  processingUrgency: z.preprocess((val) => String(val).toUpperCase(), z.enum(["STANDARD", "URGENT", "EMERGENCY"]).optional()),
+});
+
+// visaInfoSchema is merged into workPreferencesSchema, so it's removed as a separate schema
+
+const referencesSchema = z.object({
+  references: z.array(z.object({
+    name: z.string().optional(),
+    position: z.string().optional(),
+    company: z.string().optional(),
+    email: z.string().email().optional(),
+    phone: z.string().optional(),
+  })).optional(),
+});
+
+const declarationSchema = z.object({
+  confirmAccuracy: z.boolean().optional(),
+  termsAccepted: z.boolean().optional(),
+  backgroundCheckConsent: z.boolean().optional(),
+});
 
 const documentUploadSchema = z.object({
-  passport: z.any(),
-  license: z.any(),
-  degree: z.any(),
-  experience: z.any(),
-  medicalReport: z.any(),
-  photo: z.any(),
-})
+  passport: z.instanceof(File).optional().or(z.null()), 
+  license: z.instanceof(File).optional().or(z.null()),
+  degree: z.instanceof(File).optional().or(z.null()),
+  experience: z.instanceof(File).optional().or(z.null()),
+  medicalReport: z.instanceof(File).optional().or(z.null()),
+  photo: z.instanceof(File).optional().or(z.null()),
+  policeClearance: z.instanceof(File).optional().or(z.null()), 
+  resume: z.instanceof(File).optional().or(z.null()), 
+  // Merged from referencesSchema and declarationSchema
+  ...referencesSchema.shape,
+  ...declarationSchema.shape,
+});
 
 // Combined schema for the entire form
 const formSchema = z.object({
   ...personalInfoSchema.shape,
   ...professionalInfoSchema.shape,
-  ...locationInfoSchema.shape,
+  ...workPreferencesSchema.shape,
   ...documentUploadSchema.shape,
-})
+});
 
 type FormValues = z.infer<typeof formSchema>
 
@@ -87,46 +150,122 @@ export default function AccountCreationPage() {
     resolver: zodResolver(formSchema),
     mode: "onChange",
     defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      dateOfBirth: undefined, 
+      gender: undefined, 
+      maritalStatus: undefined, 
+      currentLocation: undefined, 
+      // Merged from contactInfoSchema
+      country: "",
+      city: "",
+      address: "",
+      postalCode: "",
+      emergencyContactName: "",
+      emergencyContactPhone: "",
       profession: "",
+      specialization: "",
       yearsOfExperience: "",
+      jobTitle: "",
+      currentEmployer: "",
+      hasProfessionalLicense: undefined, 
+      licenseType: "",
+      licenseNumber: "",
+      issuingOrganization: "",
+      licenseExpiryDate: "",
       licensingStatus: "",
-      preferredLocation: "",
-      visaType: "",
-      processingUrgency: "",
+      // Merged from educationInfoSchema
+      educationLevel: undefined, 
+      institution: "",
+      fieldOfStudy: "",
+      graduationYear: undefined, 
+      educationStatus: undefined, 
+      educationCountry: "",
+      educationCity: "",
+      preferredLocations: [],
+      willingToRelocate: undefined, 
+      preferredJobTypes: [],
+      expectedSalary: undefined, 
+      noticePeriodValue: undefined, 
+      noticePeriodUnit: undefined, 
+      // Merged from visaInfoSchema
+      visaType: undefined, 
+      processingUrgency: undefined, 
+      // Merged from referencesSchema
+      references: [],
+      // Merged from declarationSchema
+      confirmAccuracy: undefined, 
+      termsAccepted: undefined, 
+      backgroundCheckConsent: undefined, 
+      passport: null,
+      license: null,
+      degree: null,
+      experience: null,
+      medicalReport: null,
+      photo: null,
+      policeClearance: null,
+      resume: null,
     },
   })
 
   // Define steps with proper type and field names that match the form schema
-  const steps: Array<{ id: number; name: string; fields: Array<keyof z.infer<typeof formSchema>> }> = [
+  const steps: Array<{ id: number; name: string; fields: Array<keyof FormValues> }> = [
     { 
       id: 1, 
       name: 'Personal Info', 
-      fields: ['firstName', 'lastName', 'email', 'phone'] 
+      fields: [
+        'firstName', 'lastName', 'email', 'phone', 'dateOfBirth', 'gender', 'maritalStatus', 'currentLocation',
+        'country', 'city', 'address', 'postalCode', 'emergencyContactName', 'emergencyContactPhone'
+      ] 
     },
     { 
       id: 2, 
       name: 'Professional', 
-      fields: ['profession', 'specialization', 'yearsOfExperience', 'licensingStatus'] 
+      fields: [
+        'profession', 'specialization', 'yearsOfExperience', 'jobTitle', 'currentEmployer', 
+        'hasProfessionalLicense', 'licenseType', 'licenseNumber', 'issuingOrganization', 'licenseExpiryDate', 'licensingStatus',
+        'educationLevel', 'institution', 'fieldOfStudy', 'graduationYear', 'educationStatus', 'educationCountry', 'educationCity'
+      ] 
     },
     { 
       id: 3, 
       name: 'Preferences', 
-      fields: ['currentLocation', 'preferredLocation', 'visaType', 'processingUrgency'] 
+      fields: [
+        'preferredLocations', 'willingToRelocate', 'preferredJobTypes', 'expectedSalary', 'noticePeriodValue', 'noticePeriodUnit',
+        'visaType', 'processingUrgency'
+      ] 
     },
     { 
       id: 4, 
-      name: 'Documents', 
-      fields: ['passport', 'license', 'degree', 'experience', 'medicalReport', 'photo'] 
+      name: 'Documents & Declaration', 
+      fields: [
+        'passport', 'license', 'degree', 'experience', 'medicalReport', 'photo', 'policeClearance', 'resume',
+        'references', 'confirmAccuracy', 'termsAccepted', 'backgroundCheckConsent'
+      ] 
     },
   ]
 
+  const currentStep = steps[step - 1]
+
   const nextStep = async () => {
-    const currentStepFields = steps[step - 1].fields
+    const currentStepFields = currentStep.fields
+
+    console.log("Attempting to trigger validation for fields:", currentStepFields);
     const isValid = await methods.trigger(currentStepFields)
     
     if (isValid) {
-      setStep((prev) => Math.min(prev + 1, steps.length))
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      if (step === steps.length) { // If it's the last step (Step 4 now)
+        await onSubmit(methods.getValues()); // Trigger the form submission directly
+      } else {
+        console.log("Validation successful. Moving to next step.");
+        setStep((prev) => Math.min(prev + 1, steps.length));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } else {
+      console.log("Validation failed. Errors:", methods.formState.errors);
+      toast.error("Please fill out all required fields for this step.");
     }
   }
 
@@ -136,24 +275,79 @@ export default function AccountCreationPage() {
   }
 
   const onSubmit = async (data: FormValues) => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
+    // No need to re-validate all steps here, as nextStep will ensure current step is valid
+
     try {
-      // Here you would typically send the data to your API
-      console.log("Form submitted:", data)
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      // Show success message
-      toast.success("Account created successfully!")
-      
-      // Redirect to dashboard or login page
-      router.push("/dashboard")
-    } catch (error) {
-      console.error("Submission error:", error)
-      toast.error("Failed to create account. Please try again.")
+      const formData = new FormData();
+
+      // 1. Explicitly handle file fields by their known names
+      const fileFields = [
+        'passport', 'license', 'degree', 'experience', 'medicalReport', 'photo', 'policeClearance', 'resume'
+      ] as const;
+
+      fileFields.forEach(fieldName => {
+        const fileValue: unknown = data[fieldName]; // Cast to unknown first
+        // Ensure fileValue is an object and not null before instanceof check
+        if (typeof fileValue === 'object' && fileValue !== null) {
+          if (fileValue instanceof File) {
+            formData.append(fieldName, fileValue);
+          }
+        }
+      });
+
+      // 2. Handle all other non-file fields
+      Object.entries(data).forEach(([key, value]) => {
+        // Skip file fields already handled above
+        if (fileFields.includes(key as typeof fileFields[number])) {
+          return;
+        }
+
+        if (value !== undefined && value !== null) {
+          if (typeof value === 'boolean') {
+            formData.append(key, value.toString());
+          } else if (typeof value === 'number') {
+            formData.append(key, value.toString());
+          } else if (Array.isArray(value)) {
+            // Arrays of strings or simple types
+            formData.append(key, JSON.stringify(value));
+          } else if (value instanceof Date) {
+            formData.append(key, value.toISOString());
+          } else if (['visaType', 'processingUrgency', 'gender', 'maritalStatus', 'noticePeriodUnit'].includes(key)) {
+            // Ensure enum values are uppercase if backend expects it
+            formData.append(key, String(value).toUpperCase());
+          } else {
+            formData.append(key, value as string);
+          }
+        }
+      });
+
+      const response = await fetch("http://localhost:5002/api/registrations", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.status === 413) {
+        throw new Error("Upload failed: The total file size exceeds the server limit (1MB). Please upload smaller files or fewer documents.");
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        if (errorData.errors && Array.isArray(errorData.errors)) {
+          const errorMessages = errorData.errors.map((err: any) => `\n- ${err.path.join('.')}: ${err.message}`).join('');
+          toast.error(`Validation Failed:${errorMessages}`);
+        } else {
+          throw new Error(errorData.message || "Failed to submit registration");
+        }
+      }
+
+      toast.success("Registration completed! You will now be redirected to choose your plan.");
+      router.push('/pricing');
+    } catch (error: any) {
+      console.error("Submission error:", error);
+      toast.error(error.message || "Failed to create account. Please try again.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
   }
 
@@ -204,13 +398,13 @@ export default function AccountCreationPage() {
                       {step === 2 && <ProfessionalStep />}
                       {step === 3 && <PreferencesStep />}
                       {step === 4 && <DocumentUploadStep />}
+                      {step === 5 && <PricingStep />}
                     </motion.div>
                   </AnimatePresence>
 
                   <div className="mt-10 flex justify-between">
                     <Button
                       type="button"
-                      variant="outline"
                       onClick={prevStep}
                       disabled={step === 1}
                     >

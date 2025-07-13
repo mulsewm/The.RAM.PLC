@@ -12,6 +12,7 @@ declare global {
 }
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
+  console.log('Authenticate middleware triggered for path:', req.path);
   try {
     const token = req.headers.authorization?.split(' ')[1];
     

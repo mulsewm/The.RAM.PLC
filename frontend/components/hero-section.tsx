@@ -19,7 +19,7 @@ export default function HeroSection() {
   return (
     <section
       id="home"
-      className="relative min-h-screen flex items-center pt-16 bg-gradient-to-br from-gray-50 to-teal-50 dark:from-gray-900 dark:to-gray-800"
+      className="relative min-h-screen flex items-center pt-8 bg-gradient-to-br from-gray-50 to-teal-50 dark:from-gray-900 dark:to-gray-800"
     >
       {/* Background Pattern */}
       <div className="absolute inset-0 z-0 opacity-20 dark:opacity-10">

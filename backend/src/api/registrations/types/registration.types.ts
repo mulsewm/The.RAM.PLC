@@ -1,8 +1,34 @@
 import { Registration, User } from '@prisma/client';
 import { z } from 'zod';
-import { registrationSchema } from '../validations/registration.schema';
+import { registrationSchema } from '../validations/registration.schema.js'; // Added .js extension
 
 export type RegistrationInput = z.infer<typeof registrationSchema>;
+
+// Type definitions for Multer files
+export interface MulterFiles {
+  passport?: Express.Multer.File[];
+  license?: Express.Multer.File[];
+  degree?: Express.Multer.File[];
+  experience?: Express.Multer.File[];
+  medicalReport?: Express.Multer.File[];
+  photo?: Express.Multer.File[];
+  policeClearance?: Express.Multer.File[];
+  resume?: Express.Multer.File[];
+  professionalCertificates?: Express.Multer.File[];
+}
+
+// Type definitions for file paths after S3 upload
+export type RegistrationFilePaths = {
+  resume?: string;
+  passport?: string;
+  professionalCertificates?: string[];
+  policeClearance?: string;
+  license?: string;
+  degree?: string;
+  experience?: string;
+  medicalReport?: string;
+  photo?: string;
+};
 
 export interface RegistrationWithRelations extends Registration {
   user: Pick<User, 'id' | 'email' | 'role'>;
@@ -38,15 +64,11 @@ export interface ErrorResponse {
   details?: any;
 }
 
-// Extend Express Request type
+// Extend Express Request type (already in place)
 declare global {
   namespace Express {
     interface Request {
-      user?: {
-        id: string;
-        email: string;
-        role: string;
-      };
+      user?: any; // Changed to any to resolve type conflict
     }
   }
 }

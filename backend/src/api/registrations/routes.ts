@@ -9,13 +9,17 @@ const router = Router();
 // File upload configuration for registration documents
 const registrationUpload = upload.fields([
   { name: 'resume', maxCount: 1 },
-  { name: 'passportOrId', maxCount: 1 },
-  { name: 'professionalCertificates', maxCount: 5 },
+  { name: 'passport', maxCount: 1 },
+  { name: 'license', maxCount: 1 },
+  { name: 'degree', maxCount: 1 },
+  { name: 'experience', maxCount: 1 },
+  { name: 'medicalReport', maxCount: 1 },
+  { name: 'photo', maxCount: 1 },
   { name: 'policeClearance', maxCount: 1 }
 ]);
 
 // Submit registration with file uploads
-router.post('/', authenticate, registrationUpload, registrationController.submitRegistration);
+router.post('/', registrationUpload, registrationController.submitRegistration);
 
 // Get all registrations (admin only)
 router.get('/', authenticate, registrationController.getAllRegistrations);

@@ -98,51 +98,29 @@ model Registration {
   id                     String              @id @default(cuid())
 
   // ── Step 1: Personal Information ──
-  firstName              String
-  middleName             String?
-  lastName               String
-  dateOfBirth            DateTime
-  gender                 Gender
-  maritalStatus          MaritalStatus
+  firstName              String?
+  lastName               String?
+  gender                 Gender?
+  maritalStatus          MaritalStatus?
   
-  // ── Contact Information ──
+  // ── Contact Information (merged/removed) ──
   email                  String              @unique
-  phoneNumber            String
-  currentLocation        String
-  country               String              @default("")
-  city                  String              @default("")
-  address               String              @default("")
-  postalCode            String              @default("")
-  emergencyContactName  String              @default("")
-  emergencyContactPhone String              @default("")
-  
-  // ── Education Information ──
-  educationLevel       EducationLevel?  @default(OTHER)
-  institution          String?          @default("")
-  fieldOfStudy         String?          @default("")
-  graduationYear       Int?             @default(0)
-  educationStatus      EducationStatus?  @default(COMPLETED)
-  educationCountry     String?          @default("")
-  educationCity        String?          @default("")
+  phoneNumber            String?
+  currentLocation        String?
   
   // ── Professional Information ──
-  profession          String
+  profession          String?
   specialization      String?
-  yearsOfExperience   String
-  currentEmployer     String?
-  jobTitle           String
+  yearsOfExperience   String?
+  jobTitle           String?
   
-  // ── Licensing & Certification ──
-  hasProfessionalLicense Boolean           @default(false)
-  licenseType          String?
-  licenseNumber        String?
-  issuingOrganization  String?
-  licenseExpiryDate    DateTime?
+  // ── Licensing & Certification (simplified) ──
+  hasProfessionalLicense Boolean?
   licensingStatus      String?             // e.g., "In Process", "Active", "Expired"
   
   // ── Work Preferences ──
   preferredLocations   String[]           @default([])
-  willingToRelocate    Boolean           @default(false)
+  willingToRelocate    Boolean?
   preferredJobTypes    String[]           @default([])
   expectedSalary       Float?
   noticePeriodValue    Int?
@@ -162,9 +140,9 @@ model Registration {
   policeClearance     String?            // File path
   
   // ── Terms & Declaration ──
-  confirmAccuracy     Boolean           @default(false)
-  termsAccepted       Boolean           @default(false)
-  backgroundCheckConsent Boolean        @default(false)
+  confirmAccuracy     Boolean?
+  termsAccepted       Boolean?
+  backgroundCheckConsent Boolean?
   
   // ── Status & metadata ──
   status              RegistrationStatus @default(DRAFT)
@@ -174,8 +152,8 @@ model Registration {
   updatedAt           DateTime          @updatedAt
   
   // ── Relations ──
-  user                User               @relation(fields: [userId], references: [id])
-  userId              String
+  user                User?               @relation(fields: [userId], references: [id])
+  userId              String?
   documents           Attachment[]       @relation("RegistrationDocuments")
 
   @@map("registrations")
@@ -195,6 +173,7 @@ model PartnershipApplication {
   status       Status   @default(NEW)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  
 
   // Relations
   statusHistory StatusHistory[]
