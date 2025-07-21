@@ -306,3 +306,12 @@ export const processSteps = [
     description: 'Receive your professional license upon successful completion'
   }
 ];
+
+// Service charge for all applications
+export const serviceCharge = withAllCurrencies({
+  name: 'Service Charge',
+  amountAED: 500.00,
+  description: 'Administrative fee for processing your application',
+  note: 'Non-refundable'
+});
+
