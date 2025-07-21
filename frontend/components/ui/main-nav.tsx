@@ -279,7 +279,7 @@ export function MainNav() {
         <div className="hidden md:flex items-center space-x-4">
           <Link href="/account-creation" className="hidden md:block">
             <Button variant="outline" size="sm">
-              Sign In
+              Sign Up 
             </Button>
           </Link>
           <Button 
@@ -454,7 +454,7 @@ export function MainNav() {
                         )}
                       </div>
                     ))}
-                    {/* Sign In & Become a Partner Buttons - now directly after menu items */}
+                    {/* Sign Up & Become a Partner Buttons - now directly after menu items */}
                     <div className="space-y-4 pt-4">
                       <Button
                         variant="outline"
@@ -466,7 +466,7 @@ export function MainNav() {
                         }}
                       >
                         <LogIn className="mr-2 h-4 w-4" />
-                        Sign In
+                        Sign Up
                       </Button>
                       <Button
                         className="w-full bg-teal-600 hover:bg-teal-700 text-white"
