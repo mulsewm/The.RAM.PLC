@@ -115,7 +115,7 @@ export function FeeTable({
               </tr>
             ))}
             
-            {showTotal && totalAmount !== null && (
+            {/* {showTotal && totalAmount !== null && (
               <tr className="bg-gray-50 dark:bg-gray-800">
                 <td className="px-6 py-4 text-right font-medium text-gray-900 dark:text-white" colSpan={2}>
                   <div className="flex justify-between items-center">
@@ -129,13 +129,13 @@ export function FeeTable({
                   </div>
                 </td>
               </tr>
-            )}
+            )} */}
           </tbody>
         </table>
       </div>
       
       <div className="px-6 py-3 bg-gray-50 dark:bg-gray-800 text-xs text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700">
-        All amounts exclude 5% VAT. Exchange rates: 1 AED = 1 QAR = 45 ETB (approximate).
+        All amounts exclude 5% VAT. Exchange rates
       </div>
     </div>
   );
