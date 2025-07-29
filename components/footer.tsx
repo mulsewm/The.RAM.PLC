@@ -128,7 +128,7 @@ export default function Footer() {
             <h3 className="text-xl font-bold mb-4">Contact</h3>
             <address className="not-italic text-gray-400">
               <p className="mb-2">Bole Road, Addis Ababa, Ethiopia</p>
-              <p className="mb-2">Phone: +251 93 700 3478</p>
+              <p className="mb-2">Phone: +251 93 154 4002</p>
               <p className="mb-2">Email: info@theramplc.com</p>
             </address>
           </div>

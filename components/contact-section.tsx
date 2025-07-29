@@ -86,19 +86,40 @@ export default function ContactSection() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     
-    if (!validateForm()) return
+    if (!validateForm()) return;
     
-    setFormStatus({ status: "loading", message: "" })
+    setFormStatus({ status: "loading", message: "" });
 
-    // Simulate form submission
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      const response = await fetch('/api/contact/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formState.name,
+          email: formState.email,
+          phone: formState.phone,
+          company: formState.company,
+          serviceInterest: formState.serviceInterest,
+          subject: formState.subject,
+          message: formState.message,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to send message');
+      }
+
       setFormStatus({
         status: "success",
         message: "Your message has been sent successfully! We'll get back to you soon.",
-      })
+      });
+      
       // Reset form
       setFormState({ 
         name: "", 
@@ -108,12 +129,13 @@ export default function ContactSection() {
         subject: "", 
         message: "",
         serviceInterest: ""
-      })
+      });
     } catch (error) {
+      console.error('Error submitting form:', error);
       setFormStatus({
         status: "error",
-        message: "There was an error sending your message. Please try again.",
-      })
+        message: error instanceof Error ? error.message : "There was an error sending your message. Please try again.",
+      });
     }
   }
 
@@ -126,7 +148,7 @@ export default function ContactSection() {
     {
       icon: <Phone className="h-5 w-5 text-teal-600" />,
       title: "Phone",
-      details: "+251 93 700 3478",
+      details: "+251 93 154 4002",
     },
     {
       icon: <Mail className="h-5 w-5 text-teal-600" />,

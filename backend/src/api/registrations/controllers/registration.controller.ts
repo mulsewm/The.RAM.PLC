@@ -5,8 +5,8 @@ import { registrationSchema, type RegistrationInput, VisaType, ProcessingUrgency
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import { MulterFiles, RegistrationFilePaths } from '../types/registration.types.js';
-import { uploadFilesToS3, deleteFileFromS3 } from '../../lib/s3.js';
-import { generateSecurePassword, sendAccountCreationEmail } from '../../services/email.service.js';
+// import { uploadFilesToS3, deleteFileFromS3 } from '../../lib/s3.js';
+import { EmailService } from '../../../services/email.service.js';
 import crypto from 'crypto';
 import { ZodError } from 'zod';
 
@@ -210,7 +210,7 @@ export const submitRegistration = async (req: ExpressRequest, res: Response) => 
           },
         });
         userId = newUser.id;
-        await sendAccountCreationEmail(userEmail, generatedPassword);
+        await EmailService.sendAccountCreationEmail(userEmail, generatedPassword);
       } else {
         userId = existingUser.id;
       }

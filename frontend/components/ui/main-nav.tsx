@@ -45,6 +45,11 @@ const navItems: NavItem[] = [
       },
     ]
   },
+  {
+    name: "Pricing",
+    href: "/pricing",
+    isActive: (pathname) => pathname.startsWith("/pricing")
+  },
   { 
     name: "Visa Services", 
     href: "/visa-services",
@@ -90,11 +95,7 @@ const navItems: NavItem[] = [
     ]
   },
  
-  {
-    name: "Pricing",
-    href: "/pricing",
-    isActive: (pathname) => pathname.startsWith("/pricing")
-  },
+ 
   { 
     name: "Contact", 
     href: "/contact",
@@ -157,17 +158,15 @@ export function MainNav() {
 
   // Debug: Log when the hamburger / close icon is clicked and the resulting state
   const toggleMobileMenu = () => {
-    console.log("[MainNav] Hamburger icon clicked. Previous isMobileOpen:", isMobileOpen)
     setIsMobileOpen((prev) => {
       const next = !prev
-      console.log("[MainNav] Setting isMobileOpen to:", next)
       return next
     })
   };
 
   // Close mobile menu when clicking outside or navigating
   useEffect(() => {
-    console.log("[MainNav] isMobileOpen changed:", isMobileOpen)
+    // console.log("[MainNav] isMobileOpen changed:", isMobileOpen)
     const handleClickOutside = (event: MouseEvent) => {
       if (mobileMenuRef.current && 
           !mobileMenuRef.current.contains(event.target as Node) && 
@@ -214,12 +213,12 @@ export function MainNav() {
         'border-b border-border/50'
       )}
     >
-      <div className="container flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="container flex h-14 items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <div className="flex items-center">
           <Link href="/" className="flex items-center space-x-2" aria-label="Home">
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-              The.RAM.PLC
+              the.RAM.plc
             </span>
           </Link>
         </div>

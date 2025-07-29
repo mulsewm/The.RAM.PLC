@@ -95,7 +95,7 @@ export function SiteFooter() {
             </div>
             <div className="mt-4 space-y-2">
               <p className="text-sm text-gray-400">Email: info@theramplc.com</p>
-              <p className="text-sm text-gray-400">Phone: +1 (555) 123-4567</p>
+              <p className="text-sm text-gray-400">Phone: +251 931 544 002</p>
             </div>
           </div>
         </div>
@@ -103,7 +103,7 @@ export function SiteFooter() {
       <div className="border-t border-gray-800 mt-12">
         <div className="mx-auto max-w-7xl px-6 py-6 md:flex md:items-center md:justify-between lg:px-8">
           <p className="text-sm text-gray-400">
-            &copy; {currentYear} The.RAM.PLC. All rights reserved.
+            &copy; {currentYear} the.RAM.plc. All Rights Reserved.
           </p>
           <div className="mt-4 flex space-x-6 md:mt-0">
             <Link href="/privacy" className="text-sm text-gray-400 hover:text-white transition-colors">

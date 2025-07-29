@@ -126,7 +126,7 @@ export default function ContactSection() {
     {
       icon: <Phone className="h-5 w-5 text-teal-600" />,
       title: "Phone",
-      details: "+251 93 700 3478",
+      details: "+251 93 154 4002",
     },
     {
       icon: <Mail className="h-5 w-5 text-teal-600" />,

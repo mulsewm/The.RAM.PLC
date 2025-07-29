@@ -170,12 +170,14 @@ import userRoutes from './api/users/routes.js';
 import partnershipRoutes from './api/partnerships/routes.js';
 import settingsRoutes from './api/settings/routes.js';
 import registrationRoutes from './api/registrations/routes.js';
+import contactRoutes from './api/contact/contact.routes.js';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/partnerships', partnershipRoutes);
 app.use('/api/settings', settingsRoutes);
-app.use('/api/registrations', registrationRoutes); 
+app.use('/api/registrations', registrationRoutes);
+app.use('/api/contact', contactRoutes);
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
@@ -206,12 +208,8 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   console.error('Global error handler:', err);
   
   // Handle JWT authentication errors
-  if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid or expired token',
-      error: err.name
-    });
+  if (err.name === 'TokenExpiredError') {
+    return res.status(401).json({ message: 'Access token expired' });
   }
 
   // Handle Prisma errors
