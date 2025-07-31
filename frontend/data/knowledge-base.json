@@ -1,76 +1,338 @@
 {
   "company": {
-    "name": "The RAM PLC",
-    "description": "A leading healthcare solutions provider specializing in medical equipment, pharmaceuticals, and healthcare services.",
-    "founded": 2010,
+    "name": "The.RAM.PLC",
+    "description": "The.RAM.PLC is an AI‑first consultancy providing primary source verification, background screening, risk assessment, data analytics, visa processing and related services to businesses and individuals. It uses advanced AI and human expertise to deliver fast, accurate and actionable insights, helping clients make smarter, safer decisions across Africa and globally:contentReference[oaicite:0]{index=0}.",
+    "mission": "To empower businesses with the insights and tools needed for sustainable growth and success:contentReference[oaicite:1]{index=1}.",
+    "vision": "To be the leader in verifiable insights and strategic intelligence by integrating AI across all services, expanding into new markets and maintaining a commitment to excellence and integrity:contentReference[oaicite:2]{index=2}.",
+    "coreValues": [
+      {
+        "title": "Integrity",
+        "description": "We uphold honesty, fairness and transparency in every interaction and decision:contentReference[oaicite:3]{index=3}."
+      },
+      {
+        "title": "Excellence",
+        "description": "We strive for exceptional quality in our services and outcomes:contentReference[oaicite:4]{index=4}."
+      },
+      {
+        "title": "Innovation",
+        "description": "We embrace creativity and leverage cutting‑edge technology to deliver better solutions:contentReference[oaicite:5]{index=5}."
+      },
+      {
+        "title": "Collaboration",
+        "description": "We work together with clients, partners and stakeholders to achieve shared goals:contentReference[oaicite:6]{index=6}."
+      },
+      {
+        "title": "Client‑Centricity",
+        "description": "We put our clients at the centre of everything we do, tailoring services to meet their needs:contentReference[oaicite:7]{index=7}."
+      },
+      {
+        "title": "Accountability",
+        "description": "We take responsibility for our actions and deliver on our promises:contentReference[oaicite:8]{index=8}."
+      }
+    ],
+    "foundedYear": 2015,
     "headquarters": "Addis Ababa, Ethiopia",
-    "website": "https://theramplc.com",
+    "founder": "Mulsew M. Tesfaye",
     "contact": {
       "email": "info@theramplc.com",
-      "phone": "+251 911 123 456",
-      "address": "Bole Road, Addis Ababa, Ethiopia"
+      "phone": "+251 93 154 4002",
+      "alternatePhone": "+251 931 544 002",
+      "address": "Bole Road, Addis Ababa, Ethiopia",
+      "workingHours": "Monday – Friday: 9AM – 5PM"
     }
   },
+  "story": {
+    "overview": "The.RAM.PLC started in 2015 focusing on primary source verification and background screening. In 2018 it expanded services to include mystery shopping and data analytics, reflecting a growing emphasis on customer experience and data‑driven insights. By 2020 the company had invested heavily in technology and broadened its regional presence. In 2022 it introduced risk assessment services and AI‑driven solutions to support clients’ strategic decision‑making:contentReference[oaicite:9]{index=9}.",
+    "milestones": [
+      { "year": 2015, "event": "Company founded with a focus on primary source verification and background screening" },
+      { "year": 2018, "event": "Expanded service portfolio to include mystery shopping and data analytics" },
+      { "year": 2020, "event": "Invested in advanced technology and expanded operations across Africa and emerging markets" },
+      { "year": 2022, "event": "Launched risk assessment services and AI‑driven solutions for strategic decision‑making" }
+    ]
+  },
+  "globalPresence": {
+    "regions": [
+      "Ethiopia","Kenya","Nigeria","South Africa","Egypt","Ghana","Tanzania",
+      "Ukraine","Poland","Romania","Bulgaria","Serbia","United Arab Emirates",
+      "Saudi Arabia","Qatar","United Kingdom","Germany","France","United States",
+      "India","China"
+    ],
+    "source": ":contentReference[oaicite:10]{index=10}"
+  },
+  "uniqueDifferentiators": [
+    {
+      "title": "AI‑first leadership",
+      "description": "The.RAM.PLC integrates artificial intelligence and automation throughout its verification, risk assessment, analytics and visa processing services to deliver faster, more accurate results:contentReference[oaicite:11]{index=11}."
+    },
+    {
+      "title": "Proven track record",
+      "description": "The company has successfully assisted thousands of clients with verification, visas and data analytics, maintaining high satisfaction and success rates:contentReference[oaicite:12]{index=12}."
+    },
+    {
+      "title": "Expert team",
+      "description": "A multidisciplinary team of analysts, data scientists, verification specialists and client relations experts ensures comprehensive solutions:contentReference[oaicite:13]{index=13}."
+    },
+    {
+      "title": "Ethical and compliant approach",
+      "description": "The.RAM.PLC adheres to international quality and regulatory standards, ensuring confidentiality, data security and ethical conduct:contentReference[oaicite:14]{index=14}."
+    },
+    {
+      "title": "Timely delivery and real‑time insights",
+      "description": "Automated communication systems and real‑time dashboards provide clients with timely updates and actionable insights:contentReference[oaicite:15]{index=15}."
+    }
+  ],
   "coreServices": [
     {
-      "id": "medical-equipment",
-      "name": "Medical Equipment Supply",
-      "description": "Provision of high-quality medical equipment and devices to healthcare facilities.",
-      "categories": ["Diagnostic Equipment", "Therapeutic Equipment", "Life Support Equipment", "Medical Disposables"]
+      "id": "verification",
+      "name": "Primary Source Verification & Background Screening",
+      "overview": "Provides rigorous verification services to authenticate credentials, documents and identities. Employs AI‑powered processes and human specialists to verify employment history, educational qualifications, criminal records, business credentials and references. Includes mystery shopping to assess service quality:contentReference[oaicite:16]{index=16}:contentReference[oaicite:17]{index=17}.",
+      "categories": [
+        { "name": "Background checks", "description": "Verification of employment history, education, criminal records and references:contentReference[oaicite:18]{index=18}" },
+        { "name": "Document authentication", "description": "Authentication of passports, licenses, certificates and other credentials:contentReference[oaicite:19]{index=19}" },
+        { "name": "Identity verification", "description": "Validation of individual identities through multiple data sources:contentReference[oaicite:20]{index=20}" },
+        { "name": "Reference checks", "description": "Contacting and evaluating references provided by candidates:contentReference[oaicite:21]{index=21}" },
+        { "name": "Business verification", "description": "Confirming legitimacy and reputation of businesses before partnerships:contentReference[oaicite:22]{index=22}" },
+        { "name": "Mystery shopping", "description": "Deploying covert shoppers to evaluate service quality and customer experience:contentReference[oaicite:23]{index=23}" },
+        { "name": "Specialized database checks", "description": "Searching OFAC, FACIS and sex‑offender registries to ensure regulatory compliance:contentReference[oaicite:24]{index=24}" },
+        { "name": "Drug testing", "description": "Conducting pre‑employment and random drug tests to maintain workplace safety:contentReference[oaicite:25]{index=25}" }
+      ],
+      "benefits": [
+        "Provides confidence in hiring and partnerships by revealing accurate candidate histories",
+        "Reduces legal and financial risks associated with fraudulent credentials",
+        "Improves service quality and customer satisfaction through mystery shopping"
+      ],
+      "statistics": {
+        "averageTurnaroundTime": "4–6 weeks depending on institution response times:contentReference[oaicite:26]{index=26}",
+        "drugTestingAvailability": "Available for pre‑employment and random screening programmes"
+      }
     },
     {
-      "id": "pharmaceuticals",
-      "name": "Pharmaceutical Distribution",
-      "description": "Distribution of genuine pharmaceuticals and medical supplies to hospitals and pharmacies.",
-      "categories": ["Branded Medicines", "Generic Medicines", "Vaccines", "Medical Consumables"]
+      "id": "risk-assessment",
+      "name": "Risk Assessment & Compliance",
+      "overview": "Helps organizations identify and manage operational, financial, cyber, compliance and strategic risks. Combines analytical tools and expert insight to evaluate potential threats, prioritize risks and develop tailored mitigation plans:contentReference[oaicite:27]{index=27}.",
+      "categories": [
+        { "name": "Operational risk", "description": "Analysing process failures, human errors and system issues:contentReference[oaicite:28]{index=28}" },
+        { "name": "Financial risk", "description": "Assessing market, credit and liquidity exposures:contentReference[oaicite:29]{index=29}" },
+        { "name": "Cybersecurity risk", "description": "Identifying IT vulnerabilities and data breaches:contentReference[oaicite:30]{index=30}" },
+        { "name": "Compliance & regulatory risk", "description": "Evaluating adherence to laws and regulatory requirements:contentReference[oaicite:31]{index=31}" },
+        { "name": "Strategic risk", "description": "Examining business objectives and competitive landscape:contentReference[oaicite:32]{index=32}" },
+        { "name": "Custom mitigation plans", "description": "Developing tailored strategies and resilience measures for identified risks:contentReference[oaicite:33]{index=33}" }
+      ],
+      "benefits": [
+        "Enhances resilience by proactively identifying threats",
+        "Ensures compliance with local and international regulations",
+        "Supports strategic decision‑making through data‑driven insights"
+      ]
     },
     {
-      "id": "healthcare-services",
-      "name": "Healthcare Consulting",
-      "description": "Expert consulting services for healthcare facility setup and management.",
-      "categories": ["Hospital Planning", "Equipment Planning", "Staff Training", "Quality Assurance"]
+      "id": "data-analytics",
+      "name": "Data Analytics & Data Science",
+      "overview": "Transforms raw data into actionable intelligence using descriptive, predictive and prescriptive analytics. Provides interactive dashboards, predictive modelling, customer analytics, operational analytics and data visualizations:contentReference[oaicite:34]{index=34}.",
+      "categories": [
+        { "name": "Business intelligence", "description": "Creates interactive dashboards and reports to support decision‑making:contentReference[oaicite:35]{index=35}" },
+        { "name": "Predictive modeling", "description": "Uses statistical and machine‑learning models to forecast future outcomes:contentReference[oaicite:36]{index=36}" },
+        { "name": "Customer analytics", "description": "Analyses customer behaviour and segments for targeted strategies:contentReference[oaicite:37]{index=37}" },
+        { "name": "Operational analytics", "description": "Optimizes processes, supply chains and resource utilization:contentReference[oaicite:38]{index=38}" },
+        { "name": "Data visualization", "description": "Develops clear and engaging visual representations of complex data:contentReference[oaicite:39]{index=39}" },
+        { "name": "Machine learning & AI", "description": "Implements advanced algorithms to identify patterns and automate insights:contentReference[oaicite:40]{index=40}" }
+      ],
+      "benefits": [
+        "Uncovers hidden patterns and trends for better strategic planning",
+        "Enhances customer experience through tailored insights",
+        "Improves operational efficiency and cost savings"
+      ]
     },
     {
-      "id": "maintenance",
-      "name": "Equipment Maintenance",
-      "description": "Comprehensive maintenance and calibration services for medical equipment.",
-      "categories": ["Preventive Maintenance", "Corrective Maintenance", "Calibration", "Equipment Training"]
+      "id": "visa-services",
+      "name": "Healthcare Visa & Licensing Services",
+      "overview": "Supports healthcare professionals pursuing employment opportunities in Gulf Cooperation Council countries. Offers comprehensive visa and licensing assistance including document preparation, application processing, exam scheduling and 24/7 support. Provides expert guidance and achieves high success rates with fast processing:contentReference[oaicite:41]{index=41}.",
+      "categories": [
+        { "name": "Employment visa", "description": "Full service for obtaining work permits, residency and activation in the UAE, KSA, Qatar and Oman:contentReference[oaicite:42]{index=42}" },
+        { "name": "Private sector visa", "description": "Direct sponsorship by hospitals or clinics with priority processing:contentReference[oaicite:43]{index=43}" },
+        { "name": "Family sponsorship visa", "description": "Assists professionals in sponsoring their spouse and children for relocation:contentReference[oaicite:44]{index=44}" },
+        { "name": "Visit visa conversion", "description": "Converts existing visit visas into employment visas:contentReference[oaicite:45]{index=45}" },
+        { "name": "Licensing applications", "description": "Handles licensing exam scheduling and fee payment for regulatory bodies such as DHA, HAAD, MOH and QCHP:contentReference[oaicite:46]{index=46}" }
+      ],
+      "requirements": {
+        "documents": [
+          "Passport valid for at least six months",
+          "Degree certificates and transcripts",
+          "Experience certificates",
+          "Current professional license",
+          "Recent medical reports",
+          "Passport‑sized photographs",
+          "Detailed CV",
+          "Police clearance certificate"
+        ],
+        "source": ":contentReference[oaicite:47]{index=47}"
+      },
+      "applicationProcess": [
+        "Submit online application and personal information",
+        "Upload or submit required documents",
+        "Our team reviews and evaluates qualifications",
+        "Assessment and scheduling of licensing exams",
+        "Processing by the relevant authorities (DHA, MOH, QCHP, etc.)",
+        "Issuance of visa and activation or licensing upon approval"
+      ],
+      "processingTime": "Typically 15–30 days depending on visa type and circumstances:contentReference[oaicite:48]{index=48}",
+      "successMetrics": {
+        "successRate": "98% visa approval rate",
+        "professionalsPlaced": "5000+ healthcare professionals placed",
+        "partnerHospitals": "500+ partner hospitals"
+      },
+      "payment": {
+        "methods": ["Credit cards","Bank transfers","Online payment gateways"],
+        "refundPolicy": "Application and processing fees are non‑refundable; exam fees may be refundable if cancelled within the stipulated period:contentReference[oaicite:49]{index=49}",
+        "paymentPlans": "Available for certain services"
+      },
+      "benefits": [
+        "Fast and smooth visa processing with expert guidance",
+        "High success rate and dedicated 24/7 support",
+        "Comprehensive assistance including licensing exams and relocation"
+      ]
+    },
+    {
+      "id": "media-consultancy",
+      "name": "Media Consultancy & Marketing Services",
+      "overview": "Provides strategic public relations, crisis management and social media strategy combined with marketing services. Uses AI‑powered sentiment analysis and targeting to build and protect brands:contentReference[oaicite:50]{index=50}.",
+      "categories": [
+        { "name": "Public relations & crisis management", "description": "Develops communication strategies and manages reputational challenges:contentReference[oaicite:51]{index=51}" },
+        { "name": "Social media strategy", "description": "Formulates campaigns, monitors sentiment and engages audiences on digital platforms:contentReference[oaicite:52]{index=52}" },
+        { "name": "Digital marketing", "description": "Implements AI‑driven targeting and automation for effective marketing", "source": ":contentReference[oaicite:53]{index=53}" },
+        { "name": "Analytics", "description": "Measures campaign performance and refines strategies for brand building" }
+      ],
+      "benefits": [
+        "Strengthens brand reputation and builds public trust",
+        "Enhances digital engagement through targeted campaigns",
+        "Protects against reputational risks with proactive crisis management"
+      ]
+    },
+    {
+      "id": "payment-processing",
+      "name": "Payment Processing & Digital Solutions",
+      "overview": "Offers secure and efficient payment processing solutions for digital applications. Features AI‑powered fraud detection, compliance automation and merchant services that integrate analytics and automation for supply chain optimization:contentReference[oaicite:54]{index=54}.",
+      "categories": [
+        { "name": "Digital payment processing", "description": "Provides secure online transactions with AI‑driven fraud detection and compliance:contentReference[oaicite:55]{index=55}" },
+        { "name": "Merchant services", "description": "Supports diverse sectors with payment solutions and supply chain analytics:contentReference[oaicite:56]{index=56}" },
+        { "name": "Supply chain optimization", "description": "Utilises AI and analytics to improve supply chain efficiency:contentReference[oaicite:57]{index=57}" }
+      ],
+      "benefits": [
+        "Ensures secure, compliant transactions",
+        "Increases efficiency through automation and analytics",
+        "Provides scalable payment solutions for various industries"
+      ]
+    },
+    {
+      "id": "digital-health-design",
+      "name": "Web & App Design for Digital Health",
+      "overview": "Offers specialized design services for websites and applications in regulated sectors such as digital health. Ensures user‑centric interfaces, regulatory compliance and automated quality assurance:contentReference[oaicite:58]{index=58}.",
+      "categories": [
+        { "name": "Regulatory‑compliant design", "description": "Ensures platforms meet regulatory requirements and industry standards:contentReference[oaicite:59]{index=59}" },
+        { "name": "User experience design", "description": "Creates intuitive and accessible interfaces for diverse user groups" },
+        { "name": "Platform development", "description": "Develops digital health platforms and applications from concept to deployment" },
+        { "name": "Automated compliance", "description": "Uses AI to streamline compliance monitoring and quality assurance" }
+      ],
+      "benefits": [
+        "Delivers user‑friendly and compliant digital health solutions",
+        "Accelerates time‑to‑market with automated processes",
+        "Improves patient engagement and satisfaction through thoughtful design"
+      ]
+    },
+    {
+      "id": "other-services",
+      "name": "Additional Services",
+      "overview": "Complementary services that enhance core offerings, including mystery shopping programmes, drug testing and specialized database checks. These services provide deeper insights into service quality, workplace safety and compliance:contentReference[oaicite:60]{index=60}:contentReference[oaicite:61]{index=61}.",
+      "categories": [
+        { "name": "Mystery shopping programmes", "description": "Covert evaluations of customer service to provide actionable feedback:contentReference[oaicite:62]{index=62}" },
+        { "name": "Drug testing", "description": "Pre‑employment and random drug testing for safety and compliance:contentReference[oaicite:63]{index=63}" },
+        { "name": "Specialized database checks", "description": "Searches of OFAC, FACIS and sex‑offender registries for compliance:contentReference[oaicite:64]{index=64}" }
+      ],
+      "benefits": [
+        "Enhances service quality through objective assessments",
+        "Promotes safer workplaces with regular testing",
+        "Ensures compliance with regulatory standards"
+      ]
     }
+  ],
+  "pricing": {
+    "visaAndLicensingFees": [
+      { "licenseType": "DHA nurse license", "amount": 2925, "currency": "AED", "includesServiceFee": false },
+      { "licenseType": "DOH/HAAD nurse license", "amount": 2550, "currency": "AED", "includesServiceFee": false },
+      { "licenseType": "QCHP nurse license", "amount": 2700, "currency": "QAR", "includesServiceFee": false },
+      { "licenseType": "MOH nurse license", "amount": 1300, "currency": "AED", "includesServiceFee": false }
+    ],
+    "serviceCharges": [
+      { "service": "Licence application processing", "priceRange": "2500–3500 AED", "description": "Covers document preparation, exam scheduling and coordination" },
+      { "service": "Exam rescheduling or reapplication", "priceRange": "500–800 AED", "description": "Additional charges apply for rescheduling or reapplying for exams" }
+    ],
+    "paymentNotes": "Application and processing fees are non‑refundable, while exam fees may be refundable if cancelled within the specified period:contentReference[oaicite:65]{index=65}."
+  },
+  "team": [
+    { "name": "Mulsew M. Tesfaye", "role": "Chief Technology Officer & Founder", "bio": "Mulsew founded The.RAM.PLC and leads its technological vision. With extensive experience in AI and data systems, he ensures the company’s platforms remain cutting‑edge:contentReference[oaicite:66]{index=66}." },
+    { "name": "Abebe Tegegn", "role": "Chief Operating Officer", "bio": "Abebe oversees day‑to‑day operations and ensures service delivery meets high standards. He has a background in operations management and healthcare logistics:contentReference[oaicite:67]{index=67}." },
+    { "name": "Alex Johnson", "role": "Lead Data Scientist", "bio": "Alex leads the data analytics team, developing predictive models and dashboards that turn raw data into actionable insights:contentReference[oaicite:68]{index=68}." },
+    { "name": "Sarah Brown", "role": "Head of Client Relations", "bio": "Sarah manages client engagement and ensures their needs are met throughout the verification and visa processes:contentReference[oaicite:69]{index=69}." },
+    { "name": "Michael Lee", "role": "Verification Specialist", "bio": "Michael conducts primary source verification and background screening, drawing on years of experience in compliance and legal research:contentReference[oaicite:70]{index=70}." },
+    { "name": "Emily Chen", "role": "Mystery Shopping Coordinator", "bio": "Emily coordinates and analyzes mystery shopping programmes, providing insights into customer experiences for clients:contentReference[oaicite:71]{index=71}." }
+  ],
+  "successStories": [
+    { "id": "DSJ", "name": "Dr. Sarah Johnson", "profession": "Doctor", "story": "Dr. Sarah Johnson described the visa process as seamless and praised the team’s expertise in healthcare visas:contentReference[oaicite:72]{index=72}." },
+    { "id": "NMC", "name": "Nurse Michael Chen", "profession": "Nurse", "story": "Nurse Michael Chen highlighted the smooth and professional application process and expressed gratitude for the team’s support:contentReference[oaicite:73]{index=73}." },
+    { "id": "DAP", "name": "Dr. Aisha Patel", "profession": "Doctor", "story": "Dr. Aisha Patel appreciated the team’s knowledge of GCC healthcare requirements and their efficient visa processing:contentReference[oaicite:74]{index=74}." },
+    { "id": "DJW", "name": "Dr. James Wilson", "profession": "Doctor", "story": "Dr. James Wilson praised the team’s attention to detail and constant communication throughout the process:contentReference[oaicite:75]{index=75}." }
   ],
   "partnerships": {
     "types": [
-      "Equipment Supply Contracts",
-      "Distribution Agreements",
-      "Service Level Agreements",
-      "Maintenance Contracts"
+      "Verification & compliance partnerships for organizations seeking PSV and regulatory compliance support",
+      "Risk and data analytics partnerships for businesses needing data‑driven risk management",
+      "Healthcare visa partnerships for hospitals and clinics recruiting international healthcare professionals",
+      "Media & marketing partnerships for brand building and digital engagement",
+      "Technology & payment partnerships for digital health platforms and payment solutions"
     ],
     "benefits": [
-      "Competitive Pricing",
-      "Technical Support",
-      "Training Programs",
-      "After-sales Service"
+      "Access to AI‑driven tools and expert analysts for accurate results:contentReference[oaicite:76]{index=76}",
+      "Customized solutions tailored to specific industry needs:contentReference[oaicite:77]{index=77}",
+      "Global reach with deep regional expertise across Africa, Europe and the Middle East:contentReference[oaicite:78]{index=78}",
+      "Training and support from experienced professionals:contentReference[oaicite:79]{index=79}",
+      "Transparent pricing and flexible payment options:contentReference[oaicite:80]{index=80}"
     ]
   },
   "faqs": [
     {
       "question": "What regions do you operate in?",
-      "answer": "We primarily operate in Ethiopia with plans to expand to other East African countries."
+      "answer": "We operate across Africa, Eastern Europe, the Middle East and other regions including Ethiopia, Kenya, Nigeria, South Africa, Egypt, Ghana, Tanzania, Ukraine, Poland, Romania, Bulgaria, Serbia, United Arab Emirates, Saudi Arabia, Qatar, United Kingdom, Germany, France, the USA, India and China:contentReference[oaicite:81]{index=81}."
     },
     {
-      "question": "Do you provide installation and training?",
-      "answer": "Yes, we provide comprehensive installation, commissioning, and training for all equipment we supply."
+      "question": "How long does visa processing take?",
+      "answer": "Healthcare visa processing typically takes 15–30 days depending on the visa type and applicant circumstances:contentReference[oaicite:82]{index=82}."
     },
     {
-      "question": "What is your lead time for equipment delivery?",
-      "answer": "Delivery times vary based on the equipment and location, typically ranging from 2-8 weeks after order confirmation."
+      "question": "Do I need a job offer to apply for a healthcare visa?",
+      "answer": "While a job offer can expedite the process, The.RAM.PLC also assists healthcare professionals in securing positions after arrival:contentReference[oaicite:83]{index=83}."
     },
     {
-      "question": "Do you offer equipment financing options?",
-      "answer": "Yes, we work with financial institutions to provide flexible financing solutions for our clients."
+      "question": "What documents are required for a healthcare visa?",
+      "answer": "You need a valid passport, degree certificates, transcripts, experience certificates, current professional license, recent medical reports, passport‑sized photos, detailed CV and police clearance:contentReference[oaicite:84]{index=84}."
     },
     {
-      "question": "How do you ensure product quality?",
-      "answer": "We source our products from reputable manufacturers and ensure all products meet international quality standards and certifications."
+      "question": "How long does verification take?",
+      "answer": "Verification typically takes 4–6 weeks but can vary depending on response times from educational institutions and licensing bodies:contentReference[oaicite:85]{index=85}."
+    },
+    {
+      "question": "What payment methods do you accept?",
+      "answer": "Major credit cards, bank transfers and online payment gateways are accepted. Payment plans may be available for certain services:contentReference[oaicite:86]{index=86}."
+    },
+    {
+      "question": "Are the fees refundable?",
+      "answer": "Application and processing fees are non‑refundable, while exam fees may be refundable if cancelled within the specified period:contentReference[oaicite:87]{index=87}."
+    },
+    {
+      "question": "Do you offer expedited processing?",
+      "answer": "Yes, expedited processing is available for an additional fee; contact us for details:contentReference[oaicite:88]{index=88}."
+    },
+    {
+      "question": "What are your working hours and contact details?",
+      "answer": "We operate Monday–Friday from 9 AM to 5 PM. You can reach us at info@theramplc.com or +251 93 154 4002 / +251 931 544 002:contentReference[oaicite:89]{index=89}."
     }
   ]
 }

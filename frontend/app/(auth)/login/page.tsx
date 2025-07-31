@@ -1,31 +1,32 @@
 "use client"
 
-import { Suspense } from "react"
-import { useSearchParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { useRouter } from "next/navigation"
-import { useState, useContext, useEffect } from "react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import Link from "next/link"
-import { useAuth } from "@/contexts/AuthContext"
+import Link from "next/link";
+import { Suspense, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { signIn } from "@/lib/auth-client";
+import { GoogleLogin } from "@react-oauth/google"; // Import from @react-oauth/google
+
+
+// Import UI components individually
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";  
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
-})
+});
 
 export default function LoginPage() {
-  const router = useRouter()
-  const { login, user, isAuthenticated } = useAuth()
-  const [error, setError] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter();
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -33,42 +34,60 @@ export default function LoginPage() {
       email: "",
       password: "",
     },
-  })
+  });
 
+  // Handle form submission
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      setIsLoading(true)
-      setError("")
+      setIsLoading(true);
+      setError("");
+      const { data, error } = await signIn.email({
+        email: values.email,
+        password: values.password,
+      });
 
-      const { success, error } = await login(values.email, values.password)
-      
-      if (!success) {
-        throw new Error(error || "Login failed")
+      if (error) {
+        setError(error.message || "Login failed");
+      } else {
+        router.push("/dashboard");
       }
-      
-      // The AuthContext will handle the redirection based on user role
     } catch (err: any) {
-      setError(err.message || "An error occurred during login")
-      setIsLoading(false)
+      setError(err.message || "Error during login");
+    } finally {
+      setIsLoading(false);
     }
   }
 
+  // Handle Google sign-in callback
+  const handleGoogleSuccess = (response: any) => {
+    if (!response.credential) return;
+  
+    signIn.social({
+      provider: "google",
+      idToken: response.credential,
+      callbackURL: "/dashboard",
+    })
+      .then(() => router.push("/dashboard"))
+      .catch((err) => setError("Google login failed: " + err.message));
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <Suspense fallback={<div>Loading...</div>}>
-        <Card className="w-full max-w-lg">
-          <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-3xl font-bold">Welcome back</CardTitle>
-            <CardDescription>Enter your credentials to access your account</CardDescription>
+        <Card className="w-full max-w-lg shadow-xl border">
+          <CardHeader className="text-center space-y-1">
+            <CardTitle className="text-3xl font-bold">Welcome...</CardTitle>
+            <CardDescription>Login to your account</CardDescription>
           </CardHeader>
           <CardContent>
             {error && (
-              <Alert variant="destructive" className="mb-6">
+              <Alert variant="destructive" className="mb-4">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                {/* Email Field */}
                 <FormField
                   control={form.control}
                   name="email"
@@ -76,12 +95,14 @@ export default function LoginPage() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter your email" type="email" {...field} />
+                        <Input type="email" placeholder="your.email@gmail.com" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
+                {/* Password Field */}
                 <FormField
                   control={form.control}
                   name="password"
@@ -89,19 +110,35 @@ export default function LoginPage() {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter your password" type="password" {...field} />
+                        <Input type="password" placeholder="••••••••" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
+                {/* Submit Button */}
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Signing in..." : "Sign in"}
+                  {isLoading ? "Signing in..." : "Sign In"}
                 </Button>
               </form>
             </Form>
+
+            {/* Google Login Button - Using react-oauth/google component */}
+            <div className="my-6">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError("Google login failed")}
+              useOneTap
+              shape="pill"
+              width="100%"
+              theme="outline"
+            />
+            </div>
+
+            {/* Link to account creation */}
             <div className="mt-4 text-center text-sm">
-              Don&apos;t have an account?{" "}
+              Don’t have an account?{" "}
               <Link href="/account-creation" className="text-primary hover:underline">
                 Apply for GCC
               </Link>
@@ -110,5 +147,5 @@ export default function LoginPage() {
         </Card>
       </Suspense>
     </div>
-  )
+  );
 }
