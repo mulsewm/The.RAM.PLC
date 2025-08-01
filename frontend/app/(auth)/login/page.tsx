@@ -6,9 +6,6 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { signIn } from "@/lib/auth-client";
-import { GoogleLogin } from "@react-oauth/google"; // Import from @react-oauth/google
-
 
 // Import UI components individually
 import { Button } from "@/components/ui/button";
@@ -16,7 +13,6 @@ import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Label } from "@/components/ui/label";  
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -41,43 +37,37 @@ export default function LoginPage() {
     try {
       setIsLoading(true);
       setError("");
-      const { data, error } = await signIn.email({
-        email: values.email,
-        password: values.password,
+      
+      // TODO: Replace with your actual authentication API call
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
       });
 
-      if (error) {
-        setError(error.message || "Login failed");
-      } else {
-        router.push("/dashboard");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Login failed');
       }
+
+      // Redirect to dashboard on successful login
+      router.push("/dashboard");
     } catch (err: any) {
-      setError(err.message || "Error during login");
+      setError(err.message || "An error occurred during login");
     } finally {
       setIsLoading(false);
     }
   }
-
-  // Handle Google sign-in callback
-  const handleGoogleSuccess = (response: any) => {
-    if (!response.credential) return;
-  
-    signIn.social({
-      provider: "google",
-      idToken: response.credential,
-      callbackURL: "/dashboard",
-    })
-      .then(() => router.push("/dashboard"))
-      .catch((err) => setError("Google login failed: " + err.message));
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <Suspense fallback={<div>Loading...</div>}>
         <Card className="w-full max-w-lg shadow-xl border">
           <CardHeader className="text-center space-y-1">
-            <CardTitle className="text-3xl font-bold">Welcome...</CardTitle>
-            <CardDescription>Login to your account</CardDescription>
+            <CardTitle className="text-3xl font-bold">Welcome Back</CardTitle>
+            <CardDescription>Sign in to your account</CardDescription>
           </CardHeader>
           <CardContent>
             {error && (
@@ -95,7 +85,12 @@ export default function LoginPage() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="your.email@gmail.com" {...field} />
+                        <Input 
+                          type="email" 
+                          placeholder="your.email@example.com" 
+                          {...field} 
+                          disabled={isLoading}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -108,9 +103,22 @@ export default function LoginPage() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <div className="flex items-center justify-between">
+                        <FormLabel>Password</FormLabel>
+                        <Link 
+                          href="/forgot-password" 
+                          className="text-sm text-primary hover:underline"
+                        >
+                          Forgot password?
+                        </Link>
+                      </div>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
+                        <Input 
+                          type="password" 
+                          placeholder="••••••••" 
+                          {...field} 
+                          disabled={isLoading}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -118,29 +126,20 @@ export default function LoginPage() {
                 />
 
                 {/* Submit Button */}
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button 
+                  type="submit" 
+                  className="w-full"
+                  disabled={isLoading}
+                >
                   {isLoading ? "Signing in..." : "Sign In"}
                 </Button>
               </form>
             </Form>
 
-            {/* Google Login Button - Using react-oauth/google component */}
-            <div className="my-6">
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() => setError("Google login failed")}
-              useOneTap
-              shape="pill"
-              width="100%"
-              theme="outline"
-            />
-            </div>
-
-            {/* Link to account creation */}
             <div className="mt-4 text-center text-sm">
-              Don’t have an account?{" "}
-              <Link href="/account-creation" className="text-primary hover:underline">
-                Apply for GCC
+              Don't have an account?{' '}
+              <Link href="/register" className="text-primary hover:underline">
+                Sign up
               </Link>
             </div>
           </CardContent>

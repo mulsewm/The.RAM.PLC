@@ -461,11 +461,11 @@ export function MainNav() {
                         style={{ minHeight: 48 }}
                         onClick={() => {
                           setIsMobileOpen(false);
-                          router.push('/account-creation');
+                          router.push('/login');
                         }}
                       >
                         <LogIn className="mr-2 h-4 w-4" />
-                        Sign Up
+                        Sign In
                       </Button>
                       <Button
                         className="w-full bg-teal-600 hover:bg-teal-700 text-white"
