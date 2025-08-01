@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
-// Import UI components individually
+// Import UI components
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -32,7 +32,6 @@ export default function LoginPage() {
     },
   });
 
-  // Handle form submission
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setIsLoading(true);
@@ -77,7 +76,6 @@ export default function LoginPage() {
             )}
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-                {/* Email Field */}
                 <FormField
                   control={form.control}
                   name="email"
@@ -97,7 +95,6 @@ export default function LoginPage() {
                   )}
                 />
 
-                {/* Password Field */}
                 <FormField
                   control={form.control}
                   name="password"
@@ -125,7 +122,6 @@ export default function LoginPage() {
                   )}
                 />
 
-                {/* Submit Button */}
                 <Button 
                   type="submit" 
                   className="w-full"
