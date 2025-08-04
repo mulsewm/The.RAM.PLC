@@ -2,27 +2,31 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSession, signOut } from 'next-auth/react';
 
 export default function DashboardPage() {
-  const { user, isAuthenticated, loading, logout } = useAuth();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
     
-    if (!loading && !isAuthenticated) {
+    if (status === 'unauthenticated') {
       router.push('/login');
     }
-  }, [loading, isAuthenticated, router]);
+  }, [status, router]);
 
-  if (loading || !isClient) {
+  if (status === 'loading' || !isClient) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
+  }
+
+  if (!session) {
+    return null;
   }
 
   return (
@@ -48,12 +52,12 @@ export default function DashboardPage() {
       </div>
       
       <div className="bg-white p-6 rounded-lg shadow">
-        <h2 className="text-xl font-semibold mb-4">Welcome back, {user?.name || 'User'}</h2>
+        <h2 className="text-xl font-semibold mb-4">Welcome back, {session.user?.name || 'User'}</h2>
         <p className="text-gray-600 mb-4">
           This is your dashboard. You can view and manage your account from here.
         </p>
         <button
-          onClick={logout}
+          onClick={() => signOut({ callbackUrl: '/' })}
           className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
         >
           Logout
